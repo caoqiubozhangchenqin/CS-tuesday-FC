@@ -1,5 +1,5 @@
 <view class="container">
-  <view class="title">意向球队报名</view>
+  <view class="title">Here we go！请报名球队</view>
   <view class="team-list">
     <block wx:for="{{teams}}" wx:key="_id">
       <view class="team-item">
@@ -18,7 +18,7 @@
             bindtap="handleCancelJoinTeam" 
             data-team-id="{{item._id}}"
           >
-            取消意向
+            取消加入
           </button>
         </block>
         <block wx:else>
@@ -28,7 +28,7 @@
             data-team-id="{{item._id}}"
             disabled="{{myInterestedTeams.length >= 1}}"
           >
-            意向加入
+            Here We Go
           </button>
         </block>
       </view>
