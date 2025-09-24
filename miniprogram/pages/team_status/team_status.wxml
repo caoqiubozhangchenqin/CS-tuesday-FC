@@ -1,0 +1,30 @@
+<!-- pages/team_status/team_status.wxml -->
+<view class="container">
+  <!-- 列表头部标题 -->
+  <view class="page-title">各队报名及总身价</view>
+
+  <!-- 加载中的提示 -->
+  <view wx:if="{{isLoading}}" class="loading-tip">数据加载中...</view>
+
+  <!-- 循环展示所有队伍 -->
+  <view class="team-card-list" wx:else>
+    <view class="team-card" wx:for="{{teamsWithInterest}}" wx:key="_id">
+      
+      <!-- 卡片头部：队名和总身价 -->
+      <view class="card-header">
+        <view class="team-name">{{item.teamName}}</view>
+        <!-- 【修改】修正了字段名 totalTeamValue，并加上单位 -->
+        <view class="team-value">{{item.totalTeamValue}} 万欧元</view>
+      </view>
+
+      <!-- 【新增】报名成员列表 -->
+      <view class="user-list">
+        <!-- 内嵌循环，展示 interestedUsers 数组里的每一个成员 -->
+        <text class="user-item" wx:for="{{item.interestedUsers}}" wx:for-item="user" wx:key="*this">
+          {{user}}
+        </text>
+      </view>
+
+    </view>
+  </view>
+</view>

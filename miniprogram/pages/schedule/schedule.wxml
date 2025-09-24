@@ -1,0 +1,46 @@
+<!--pages/schedule/schedule.wxml-->
+<view class="container">
+
+<view wx:if="{{isLoading}}" class="loading-tip">正在加载...</view>
+
+<!-- 【核心修改】使用两层循环来渲染 -->
+<!-- 外层循环：遍历每一个轮次 -->
+<view wx:for="{{groupedScheduleList}}" wx:for-item="roundGroup" wx:key="round">
+  
+  <!-- 轮次标题 -->
+  <view class="round-header">{{roundGroup.round}}</view>
+  
+  <!-- 内层循环：遍历该轮次下的所有比赛 -->
+  <view wx:for="{{roundGroup.matches}}" wx:for-item="item" wx:key="_id" class="match-card">
+    
+    <!-- 卡片头部 -->
+    <view class="card-header">
+      <text>{{item.tournamentName}}</text> <!-- 标题里已有轮次，这里可以只显示赛事名 -->
+      <text>{{item.matchDate}} {{item.matchTime}}</text>
+    </view>
+    
+    <!-- 卡片主体 (使用我们最终优化的Grid布局) -->
+    <view class="card-body">
+      <view class="team-info home-team">{{item.homeTeam}}</view>
+      <view wx:if="{{item.status === '已结束' && item.homeScore !== null}}" class="score-display">
+        {{item.homeScore}} - {{item.awayScore}}
+      </view>
+      <view wx:else class="vs">
+        VS
+      </view>
+      <view class="team-info away-team">{{item.awayTeam}}</view>
+    </view>
+    
+    <!-- 卡片底部 -->
+    <view wx:if="{{item.notes}}" class="card-footer">
+      <text>备注：{{item.notes}}</text>
+    </view>
+    
+  </view>
+</view>
+
+<view wx:if="{{!isLoading && groupedScheduleList.length === 0}}" class="empty-tip">
+  暂无赛程信息
+</view>
+
+</view>

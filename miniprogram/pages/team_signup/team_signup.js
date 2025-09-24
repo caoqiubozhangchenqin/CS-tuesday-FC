@@ -1,0 +1,162 @@
+const db = wx.cloud.database();
+
+Page({
+  data: {
+    teams: [],
+    myTotalValue: 0,
+    myInterestedTeams: []
+  },
+
+  onLoad: function (options) {
+    if (options.totalValue) {
+      this.setData({
+        myTotalValue: Number(options.totalValue)
+      });
+    }
+    this.getAllTeamsAndMyInfo();
+  },
+
+  getAllTeamsAndMyInfo: async function () {
+    wx.showLoading({
+      title: '加载中...',
+    });
+    
+    try {
+      const teamsRes = await db.collection('teams').get();
+      const teams = teamsRes.data.map(team => ({
+        ...team,
+        total_value: team.total_value || 0,
+        isInterested: false
+      }));
+
+      const userRes = await wx.cloud.callFunction({
+          name: 'getUserInterestedTeams'
+      });
+      
+      const myInterestedTeams = userRes.result.interestedTeams || [];
+      
+      const updatedTeams = teams.map(team => ({
+        ...team,
+        isInterested: myInterestedTeams.includes(team._id)
+      }));
+      
+      this.setData({
+        teams: updatedTeams,
+        myInterestedTeams: myInterestedTeams
+      });
+
+    } catch (e) {
+      console.error('获取数据失败', e);
+      wx.showToast({
+        title: '数据加载失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  handleJoinTeam: async function (e) {
+    const teamId = e.currentTarget.dataset.teamId;
+    wx.showLoading({
+      title: '报名中...',
+    });
+    wx.cloud.callFunction({
+      name: 'joinTeam',
+      data: {
+        teamId: teamId
+      },
+      success: res => {
+        wx.hideLoading();
+        if (res.result.success) {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'success'
+          });
+          this.getAllTeamsAndMyInfo();
+        } else {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'none'
+          });
+        }
+      },
+      fail: err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '报名失败，请重试',
+          icon: 'none'
+        });
+        console.error(err);
+      }
+    });
+  },
+  
+  handleCancelJoinTeam: function (e) {
+    const teamId = e.currentTarget.dataset.teamId;
+    wx.showLoading({
+      title: '取消中...',
+    });
+    wx.cloud.callFunction({
+      name: 'cancelJoinTeam',
+      data: {
+        teamId: teamId
+      },
+      success: res => {
+        wx.hideLoading();
+        if (res.result.success) {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'success'
+          });
+          this.getAllTeamsAndMyInfo();
+        } else {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'none'
+          });
+        }
+      },
+      fail: err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '取消失败，请重试',
+          icon: 'none'
+        });
+        console.error(err);
+      }
+    });
+  },
+  
+  handleResetSelections: async function() {
+    wx.showLoading({
+      title: '重置中...',
+    });
+    wx.cloud.callFunction({
+      name: 'resetInterestedTeams',
+      success: res => {
+        wx.hideLoading();
+        if (res.result.success) {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'success'
+          });
+          this.getAllTeamsAndMyInfo();
+        } else {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'none'
+          });
+        }
+      },
+      fail: err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '重置失败，请重试',
+          icon: 'none'
+        });
+        console.error(err);
+      }
+    });
+  }
+});

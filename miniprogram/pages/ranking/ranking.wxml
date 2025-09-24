@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="title">身价排名</view>
+  <view class="ranking-list">
+    <block wx:for="{{rankingList}}" wx:key="openid">
+      <view class="ranking-item">
+        <view class="rank">{{index + 1}}</view>
+        <image class="avatar" src="{{item.avatarUrl}}"></image>
+        <view class="player-info">
+          <view class="nickname">{{item.nickname}}</view>
+          <view class="total-value">{{item.total_value}} 万欧元</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

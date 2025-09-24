@@ -1,0 +1,47 @@
+<view class="container">
+  <view class="title">意向球队报名</view>
+  <view class="team-list">
+    <block wx:for="{{teams}}" wx:key="_id">
+      <view class="team-item">
+        <view class="team-info">
+          <view class="team-name">{{item.name}}</view>
+          <view class="team-value">
+            <text>总身价: {{item.total_value}}万欧元</text>
+            <text> / </text>
+            <text>工资帽: {{item.salary_cap}}万欧元</text>
+          </view>
+        </view>
+        
+        <block wx:if="{{item.isInterested}}">
+          <button 
+            class="cancel-button" 
+            bindtap="handleCancelJoinTeam" 
+            data-team-id="{{item._id}}"
+          >
+            取消意向
+          </button>
+        </block>
+        <block wx:else>
+          <button 
+            class="join-button" 
+            bindtap="handleJoinTeam" 
+            data-team-id="{{item._id}}"
+            disabled="{{myInterestedTeams.length >= 1}}"
+          >
+            意向加入
+          </button>
+        </block>
+      </view>
+    </block>
+  </view>
+  
+  <view class="reset-button-container">
+    <button 
+      wx:if="{{myInterestedTeams.length >= 1}}"
+      class="reset-button" 
+      bindtap="handleResetSelections"
+    >
+      重新选择
+    </button>
+  </view>
+</view>

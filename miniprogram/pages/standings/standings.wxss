@@ -1,0 +1,89 @@
+/* pages/standings/standings.wxss */
+.container {
+  padding: 10rpx;
+  background-color: #f8f8f8;
+}
+
+.table {
+  width: 100%;
+  font-size: 24rpx;
+  color: #333;
+  border-collapse: collapse;
+}
+
+.table-header, .table-row {
+  display: flex;
+  width: 100%;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.table-header {
+  font-weight: bold;
+  background-color: #fff;
+  color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table-row {
+  background-color: #fff;
+}
+
+.cell {
+  padding: 22rpx 5rpx;
+  text-align: center;
+  box-sizing: border-box;
+  width: 9%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* “排名”列 */
+.rank { 
+  width: 10%; 
+  font-weight: bold;
+  font-style: italic;
+  color: #888;
+}
+
+/* “球队”列 */
+.team { 
+  width: 28%; 
+  justify-content: flex-start;
+  padding-left: 15rpx;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* “积分”列 */
+.points { 
+  width: 10%;
+  font-weight: bold;
+  color: #E6393F;
+}
+
+/* 其他数据列的微调 */
+.cell:not(.team) {
+  color: #555;
+}
+
+.loading-tip, .empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 60rpx 0;
+}
+
+/* --- 高亮显示前三名的样式 --- */
+.top-rank .rank {
+  background-color: #fffbe8;
+  color: #c89600;
+}
+.first-place-team {
+  background-color: #fffbe8; /* 一个非常淡的、优雅的金色背景 */
+  color: #c89600; /* 配套的深金色文字 */
+  border-radius: 8rpx; /* 给高亮区域一个小圆角，更精致 */
+}

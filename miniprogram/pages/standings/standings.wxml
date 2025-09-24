@@ -1,0 +1,36 @@
+<!--pages/standings/standings.wxml-->
+<view class="container">
+  <view class="table">
+    <!-- 表头 -->
+    <view class="table-header">
+      <view class="cell rank">排名</view>
+      <view class="cell team">球队</view>
+      <view class="cell">场</view>
+      <view class="cell">胜</view>
+      <view class="cell">平</view>
+      <view class="cell">负</view>
+      <view class="cell">进/失</view>
+      <view class="cell">净</view>
+      <view class="cell points">积分</view>
+    </view>
+
+    <!-- 数据行 -->
+    <block wx:if="{{!isLoading}}">
+      <!-- 增加了一个动态class，用于高亮前三名 -->
+      <view class="table-row {{index < 1 ? 'top-rank' : ''}}" wx:for="{{rankingList}}" wx:key="_id">
+        <view class="cell rank">{{index + 1}}</view>
+        <view class="cell team {{index === 0 ? 'first-place-team' : ''}}">{{item.teamName}}</view>
+        <view class="cell">{{item.played}}</view>
+        <view class="cell">{{item.won}}</view>
+        <view class="cell">{{item.drawn}}</view>
+        <view class="cell">{{item.lost}}</view>
+        <view class="cell">{{item.goalsFor}}/{{item.goalsAgainst}}</view>
+        <view class="cell">{{item.goalDifference}}</view>
+        <view class="cell points">{{item.points}}</view>
+      </view>
+    </block>
+  </view>
+  
+  <view wx:if="{{isLoading}}" class="loading-tip">正在加载积分榜...</view>
+  <view wx:if="{{!isLoading && rankingList.length === 0}}" class="empty-tip">暂无积分榜数据</view>
+</view>
