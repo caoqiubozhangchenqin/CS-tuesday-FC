@@ -1,4 +1,5 @@
 <!--pages/schedule/schedule.wxml-->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
 <view class="container">
 
 <view wx:if="{{isLoading}}" class="loading-tip">正在加载...</view>

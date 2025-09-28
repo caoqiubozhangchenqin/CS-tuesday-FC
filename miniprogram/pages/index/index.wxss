@@ -58,6 +58,11 @@
   align-items: center;
 }
 
+/* 允许全局背景组件透出 */
+.container {
+  background: transparent !important;
+}
+
 /* 【修改点】这是所有按钮的通用基础样式 */
 .menu-button {
   width: 100%;

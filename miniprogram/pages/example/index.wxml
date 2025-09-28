@@ -1,4 +1,5 @@
 <!--pages/exampleDetail/index.wxml-->
+<bg overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
 <block wx:if="{{ type === 'getOpenId' }}">
   <view class="page-container">
     <view class="title">功能介绍</view>

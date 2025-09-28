@@ -73,3 +73,8 @@
   color: #333;
   padding: 30rpx 15rpx 10rpx 15rpx;
 }
+
+/* 允许全局背景组件透出 */
+.container {
+  background: transparent !important;
+}

@@ -12,6 +12,7 @@ Page({
     showLoginPopup: false,
     // 防抖/节流, 防止重复点击选择头像按钮
     isChoosingAvatar: false
+    , bgImageUrl: ''
   },
 
   onLoad: function () {
@@ -33,6 +34,14 @@ Page({
         this.setData({ isMusicPlaying: isPlaying });
       }
     };
+
+    // 背景图：优先使用全局已有的链接，否则注册监听
+    const app = getApp();
+    if (app.globalData && app.globalData.bgImageUrl) {
+      this.setData({ bgImageUrl: app.globalData.bgImageUrl });
+    } else if (app && typeof app.addBgListener === 'function') {
+      this._removeBgListener = app.addBgListener(url => { this.setData({ bgImageUrl: url }); });
+    }
   },
 
   onShow: function () {
@@ -182,8 +191,14 @@ Page({
     this.setData({ isMusicPlaying: !isCurrentlyPlaying });
   },
 
-  onHide: function() { this.removeMusicListener(); },
-  onUnload: function() { this.removeMusicListener(); },
+  onHide: function() {
+    this.removeMusicListener();
+    if (this._removeBgListener) this._removeBgListener();
+  },
+  onUnload: function() {
+    this.removeMusicListener();
+    if (this._removeBgListener) this._removeBgListener();
+  },
   removeMusicListener: function() {
     app.globalData.musicStatusListeners = app.globalData.musicStatusListeners.filter(
       listener => listener !== this.musicStatusListener

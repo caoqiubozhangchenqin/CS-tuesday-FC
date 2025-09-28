@@ -1,3 +1,4 @@
+<bg overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
 <view class="container">
   <view class="title">Here we go！请报名球队</view>
   <view class="team-list">

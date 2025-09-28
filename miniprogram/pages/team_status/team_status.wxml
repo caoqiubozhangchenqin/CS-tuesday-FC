@@ -1,4 +1,5 @@
 <!-- pages/team_status/team_status.wxml -->
+<bg overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
 <view class="container">
   <!-- 列表头部标题 -->
   <view class="page-title">各队报名及总身价</view>

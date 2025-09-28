@@ -4,11 +4,21 @@ Page({
     // 【修改】数据结构改变，不再是简单的list
     groupedScheduleList: [], 
     isLoading: true
+    , bgImageUrl: ''
   },
 
   onLoad(options) {
+    // 背景图处理（优先使用全局已有链接，否则注册监听）
+    const app = getApp();
+    if (app && app.globalData && app.globalData.bgImageUrl) {
+      this.setData({ bgImageUrl: app.globalData.bgImageUrl });
+    } else if (app && typeof app.addBgListener === 'function') {
+      this._removeBgListener = app.addBgListener(url => { this.setData({ bgImageUrl: url }); });
+    }
     this.getScheduleData();
   },
+
+  onUnload() { if (this._removeBgListener) this._removeBgListener(); },
 
   getScheduleData() {
     wx.showLoading({ title: '正在加载赛程...' });

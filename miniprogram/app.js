@@ -16,6 +16,9 @@ App({
 
     // 3. 初始化并设置全局背景音乐
     this.setupBackgroundMusic();
+
+    // 4. 获取全局背景图的临时链接（来自云存储）
+    this.setupBackgroundImage();
   },
 
   /**
@@ -121,6 +124,52 @@ App({
     if (this.globalData.backgroundAudioManager) {
       this.globalData.backgroundAudioManager.play();
     }
+  },
+
+  /**
+   * 从云存储获取背景图的临时链接，保存到 globalData.bgImageUrl
+   */
+  setupBackgroundImage: function() {
+    const BG_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/足球.jpg';
+    if (!wx.cloud || !wx.cloud.getTempFileURL) return;
+    wx.cloud.getTempFileURL({
+      fileList: [BG_FILE_ID],
+      success: res => {
+        if (res && res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+          this.globalData.bgImageUrl = res.fileList[0].tempFileURL;
+          console.log('✅ 已获取并存储背景图临时链接', this.globalData.bgImageUrl);
+          // 通知所有 bg 监听器
+          if (typeof this.notifyBgUrl === 'function') {
+            this.notifyBgUrl(this.globalData.bgImageUrl);
+          }
+        } else {
+          console.error('❌ 获取背景图临时链接失败', res);
+        }
+      },
+      fail: err => {
+        console.error('❌ 调用 getTempFileURL 获取背景图失败', err);
+      }
+    });
+  },
+
+  /**
+   * 注册一个背景图变化监听器，返回一个取消监听的函数
+   */
+  addBgListener: function(listener) {
+    if (!this.globalData.bgListeners) this.globalData.bgListeners = [];
+    this.globalData.bgListeners.push(listener);
+    // 返回取消监听的函数
+    return () => {
+      const idx = this.globalData.bgListeners.indexOf(listener);
+      if (idx !== -1) this.globalData.bgListeners.splice(idx, 1);
+    };
+  },
+
+  notifyBgUrl: function(url) {
+    const list = this.globalData.bgListeners || [];
+    list.forEach(fn => {
+      try { fn(url); } catch (e) { console.error('bg listener error', e); }
+    });
   },
 
   /**

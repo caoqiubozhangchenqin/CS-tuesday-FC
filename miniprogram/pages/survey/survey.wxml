@@ -1,3 +1,4 @@
+<bg overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
 <view class="container">
   <view class="title">球员身价评估</view>
   <view class="question-list">
