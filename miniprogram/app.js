@@ -130,7 +130,7 @@ App({
    * 从云存储获取背景图的临时链接，保存到 globalData.bgImageUrl
    */
   setupBackgroundImage: function() {
-    const BG_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/足球.jpg';
+    const BG_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/football 2.png';
     if (!wx.cloud || !wx.cloud.getTempFileURL) return;
     wx.cloud.getTempFileURL({
       fileList: [BG_FILE_ID],

@@ -1,10 +1,11 @@
 /* pages/team_status/team_status.wxss */
 page {
-  background-color: #f4f5f7;
+  background: transparent !important;
 }
 
 .container {
   padding: 15px;
+  background: transparent !important;
 }
 
 .page-title {
@@ -12,21 +13,29 @@ page {
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
-  color: #333;
+  color: #1a1a1a;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20rpx;
+  border-radius: 12rpx;
 }
 
 .loading-tip {
   text-align: center;
-  color: #999;
+  color: #1a1a1a;
   margin-top: 50px;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 40rpx;
+  border-radius: 12rpx;
 }
 
 .team-card {
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   padding: 18px;
   margin-bottom: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {

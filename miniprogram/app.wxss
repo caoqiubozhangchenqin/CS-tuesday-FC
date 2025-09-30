@@ -13,6 +13,11 @@
   background: transparent !important;
 }
 
+/* 深色背景下的文字优化 */
+page {
+  color: #1a1a1a;
+}
+
 button {
   background: initial;
 }
