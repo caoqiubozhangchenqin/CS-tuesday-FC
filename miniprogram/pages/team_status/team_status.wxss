@@ -133,17 +133,22 @@ page {
 }
 
 .user-tag {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(39, 174, 96, 0.1));
-  color: #2ecc71;
-  font-size: 26rpx;
-  font-weight: 500;
-  padding: 12rpx 24rpx;
-  border-radius: 30rpx;
-  border: 2rpx solid rgba(46, 204, 113, 0.3);
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-right: 20rpx;
+  margin-bottom: 15rpx;
 }
 
-.user-tag:active {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.2));
-  transform: scale(0.95);
+.user-avatar {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  border: 2rpx solid #e0e0e0;
+}
+
+.user-name {
+  color: #333;
+  font-size: 26rpx;
+  font-weight: 500;
 }

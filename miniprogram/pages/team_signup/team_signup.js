@@ -15,19 +15,19 @@ Page({
     }
     this.getAllTeamsAndMyInfo();
   },
-
   getAllTeamsAndMyInfo: async function () {
     wx.showLoading({
       title: '加载中...',
     });
     
     try {
-      const teamsRes = await db.collection('teams').get();
-      const teams = teamsRes.data.map(team => ({
-        ...team,
-        total_value: team.total_value || 0,
-        isInterested: false
-      }));
+      // 调用云函数获取球队及其总身价
+      const adminRes = await wx.cloud.callFunction({
+        name: 'getAdminDetails'
+      });
+      
+      const teamsWithValue = adminRes.result.data || [];
+      console.log('球队数据（含总身价）:', teamsWithValue);
 
       const userRes = await wx.cloud.callFunction({
           name: 'getUserInterestedTeams'
@@ -35,10 +35,15 @@ Page({
       
       const myInterestedTeams = userRes.result.interestedTeams || [];
       
-      const updatedTeams = teams.map(team => ({
-        ...team,
+      const updatedTeams = teamsWithValue.map(team => ({
+        _id: team._id,
+        name: team.teamName,
+        salary_cap: team.salary_cap || 0,
+        totalTeamValue: team.totalTeamValue || 0,
         isInterested: myInterestedTeams.includes(team._id)
       }));
+      
+      console.log('处理后的球队数据:', updatedTeams);
       
       this.setData({
         teams: updatedTeams,

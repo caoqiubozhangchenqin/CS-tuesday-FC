@@ -31,6 +31,37 @@
   75% { transform: rotate(15deg); }
 }
 
+.tip-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 220, 0.9));
+  border-left: 6rpx solid #FFC107;
+  border-radius: 20rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  box-shadow: 0 6px 16px rgba(255, 193, 7, 0.3);
+}
+
+.tip-icon {
+  font-size: 40rpx;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  line-height: 1.6;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
 .team-list {
   display: flex;
   flex-direction: column;
@@ -38,7 +69,7 @@
 
 .team-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 20rpx;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.85));
   padding: 30rpx;
@@ -47,6 +78,18 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   border-left: 8rpx solid #e0e0e0;
   transition: all 0.3s ease;
+}
+
+.team-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.team-action {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10rpx;
 }
 
 .team-item.selected {
@@ -94,38 +137,43 @@
   color: #07c160;
 }
 
-.team-value {
+.team-stats {
   display: flex;
-  gap: 20rpx;
-  align-items: center;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 10rpx;
 }
 
-.value-item {
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  background: rgba(255, 107, 107, 0.08);
+  border-radius: 16rpx;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-value {
   display: flex;
   align-items: baseline;
-  gap: 8rpx;
+  gap: 6rpx;
 }
 
-.value-label {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.value-number {
-  font-size: 32rpx;
+.stat-number {
+  font-size: 34rpx;
   font-weight: bold;
   color: #FF6B6B;
 }
 
-.value-unit {
+.stat-unit {
   font-size: 22rpx;
   color: #999;
-}
-
-.value-divider {
-  width: 2rpx;
-  height: 30rpx;
-  background-color: #e0e0e0;
 }
 
 .join-button {
@@ -133,10 +181,8 @@
   color: white;
   font-size: 28rpx;
   font-weight: bold;
-  padding: 20rpx 35rpx;
+  padding: 18rpx 40rpx;
   border-radius: 40rpx;
-  min-width: 180rpx;
-  text-align: center;
   box-shadow: 0 6px 16px rgba(7, 193, 96, 0.3);
   transition: all 0.2s ease;
 }
@@ -151,10 +197,8 @@
   color: #666;
   font-size: 28rpx;
   font-weight: bold;
-  padding: 20rpx 35rpx;
+  padding: 18rpx 40rpx;
   border-radius: 40rpx;
-  min-width: 180rpx;
-  text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }

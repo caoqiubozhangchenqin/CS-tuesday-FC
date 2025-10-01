@@ -56,29 +56,32 @@ App({
 
     // 步骤 2: 从云存储获取音乐文件的临时链接
     // 注意：这里的 File ID 是您上传到云存储的音乐文件ID
-    const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/周二的国王.mp3';
+    const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/李迩泰 - 我和我的祖国 (小提琴曲).mp3';
 
     wx.cloud.getTempFileURL({
       fileList: [BGM_FILE_ID],
       success: res => {
-        if (res.fileList.length > 0) {
+        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
           const musicUrl = res.fileList[0].tempFileURL;
           
-          // 步骤 3: 设置音频管理器的属性
-          backgroundAudioManager.title = '背景音乐'; // 音乐标题（必填）
-          backgroundAudioManager.singer = ' '; // 歌手名
+          // 设置音频管理器的属性
+          backgroundAudioManager.title = '我和我的祖国'; // 音乐标题
+          backgroundAudioManager.singer = '李迩泰'; // 歌手名
           backgroundAudioManager.coverImgUrl = ' '; // 封面图
-          backgroundAudioManager.src = musicUrl; // 音频链接（必填）
+          backgroundAudioManager.src = musicUrl; // 音频链接
           
-          // 步骤 4: 设置事件监听器
+          // 设置音量
+          backgroundAudioManager.volume = 0.3;
+          
+          // 设置事件监听器
           this.setupMusicListeners(backgroundAudioManager);
-
-          // 当音乐准备好播放时，设置音量并开始播放
-          backgroundAudioManager.onCanplay(() => {
-            backgroundAudioManager.volume = 0.3; // 设置一个合适的初始音量
-            this.playMusic(); 
-          });
-
+          
+          // 延迟播放，确保音频已加载
+          setTimeout(() => {
+            this.playMusic();
+            console.log('🎵 音乐自动播放');
+          }, 2000);
+    
         } else {
           console.error("❌ 从云存储获取音乐文件链接失败", res);
         }

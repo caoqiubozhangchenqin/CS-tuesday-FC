@@ -35,21 +35,31 @@
     
     <!-- 卡片主体 (使用我们最终优化的Grid布局) -->
     <view class="card-body">
-      <view class="team-info home-team">
-        <text class="team-icon">👕</text>
-        <text>{{item.homeTeam}}</text>
+      <view class="team-info home-team {{item.status === '已结束' && item.homeScore > item.awayScore ? 'winner' : ''}} {{item.status === '已结束' && item.homeScore < item.awayScore ? 'loser' : ''}}">
+        <view class="team-content">
+          <text wx:if="{{item.status === '已结束' && item.homeScore > item.awayScore}}" class="win-badge">WIN</text>
+          <view class="team-name-row">
+            <text class="team-icon">👕</text>
+            <text class="team-name-text">{{item.homeTeam}}</text>
+          </view>
+        </view>
       </view>
       <view wx:if="{{item.status === '已结束' && item.homeScore !== null}}" class="score-display">
-        <text class="score">{{item.homeScore}}</text>
+        <text class="score {{item.homeScore > item.awayScore ? 'winning-score' : ''}}">{{item.homeScore}}</text>
         <text class="score-divider">-</text>
-        <text class="score">{{item.awayScore}}</text>
+        <text class="score {{item.awayScore > item.homeScore ? 'winning-score' : ''}}">{{item.awayScore}}</text>
       </view>
       <view wx:else class="vs">
         <text class="vs-text">VS</text>
       </view>
-      <view class="team-info away-team">
-        <text>{{item.awayTeam}}</text>
-        <text class="team-icon">👕</text>
+      <view class="team-info away-team {{item.status === '已结束' && item.awayScore > item.homeScore ? 'winner' : ''}} {{item.status === '已结束' && item.awayScore < item.homeScore ? 'loser' : ''}}">
+        <view class="team-content">
+          <text wx:if="{{item.status === '已结束' && item.awayScore > item.homeScore}}" class="win-badge">WIN</text>
+          <view class="team-name-row">
+            <text class="team-name-text">{{item.awayTeam}}</text>
+            <text class="team-icon">👕</text>
+          </view>
+        </view>
       </view>
     </view>
     

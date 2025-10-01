@@ -16,16 +16,14 @@
 
 <!-- Part 2: 功能按钮列表 -->
 <view class="button-group">
-  <!-- 【修改点】所有主要功能按钮现在都使用统一的 'menu-button primary-btn' class -->
-  <button class="menu-button primary-btn" bindtap="goToSurvey">开始评估</button>
-  <button class="menu-button primary-btn" bindtap="goToRanking">身价排行榜</button>
-  <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">各队报名情况</button>
-  <button class="menu-button primary-btn" bindtap="goToSchedulePage">查看联赛赛程</button>
-  <button class="menu-button primary-btn" bindtap="goToStandingsPage">查看联赛积分榜</button>
+  <button class="menu-button primary-btn" bindtap="goToSurvey">  开始评估</button>
+  <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
+  <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>
+  <button class="menu-button primary-btn" bindtap="goToSchedulePage">  查看联赛赛程</button>
+  <button class="menu-button primary-btn" bindtap="goToStandingsPage">  查看联赛积分榜</button>
   
-  <!-- 特殊颜色按钮保持不变 -->
-  <button class="menu-button admin-button" bindtap="goToAdminPage">进入管理员页面</button>
-  <button wx:if="{{hasUserInfo}}" class="menu-button logout-button" bindtap="logout">退出登录</button>
+  <button class="menu-button admin-button" bindtap="goToAdminPage">  进入管理员页面</button>
+  <button wx:if="{{hasUserInfo}}" class="menu-button logout-button" bindtap="logout">  退出登录</button>
 </view>
 
 <!-- 音乐播放器图标 -->

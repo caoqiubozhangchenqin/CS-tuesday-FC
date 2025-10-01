@@ -34,6 +34,7 @@ exports.main = async (event, context) => {
             _id: 0,
             // 为未设置昵称的用户提供默认显示
             nickname: { $ifNull: ['$nickname', '未设置昵称'] },
+            avatarUrl: { $ifNull: ['$avatarUrl', ''] },
             total_value: { $ifNull: ['$total_value', 0] }
           })
           .done(),
@@ -43,6 +44,7 @@ exports.main = async (event, context) => {
         _id: 1,
         teamName: '$name',
         interestedUsers: '$interestedUserObjects.nickname',
+        interestedUsersWithAvatar: '$interestedUserObjects',
         totalTeamValue: $.sum('$interestedUserObjects.total_value')
       })
       .end();
