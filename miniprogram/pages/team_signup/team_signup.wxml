@@ -1,15 +1,32 @@
 <bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
-  <view class="title">Here we go！请报名球队</view>
+  <view class="title">
+    <text class="title-icon">⚽</text>
+    <text>Here We Go! 加入球队</text>
+  </view>
   <view class="team-list">
     <block wx:for="{{teams}}" wx:key="_id">
-      <view class="team-item">
+      <view class="team-item {{item.isInterested ? 'selected' : ''}}">
+        <view class="team-badge">
+          <text class="badge-icon">👕</text>
+        </view>
         <view class="team-info">
-          <view class="team-name">{{item.name}}</view>
+          <view class="team-name">
+            <text>{{item.name}}</text>
+            <text wx:if="{{item.isInterested}}" class="selected-badge">✔️</text>
+          </view>
           <view class="team-value">
-            <text>总身价: {{item.total_value}}万欧元</text>
-            <text> / </text>
-            <text>工资帽: {{item.salary_cap}}万欧元</text>
+            <view class="value-item">
+              <text class="value-label">💰 总身价</text>
+              <text class="value-number">{{item.total_value}}</text>
+              <text class="value-unit">万欧</text>
+            </view>
+            <view class="value-divider"></view>
+            <view class="value-item">
+              <text class="value-label">🎯 工资帽</text>
+              <text class="value-number">{{item.salary_cap}}</text>
+              <text class="value-unit">万欧</text>
+            </view>
           </view>
         </view>
         
