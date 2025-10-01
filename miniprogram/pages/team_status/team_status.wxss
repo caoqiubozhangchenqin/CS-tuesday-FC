@@ -15,7 +15,7 @@ page {
   margin-bottom: 20px;
   color: #1a1a1a;
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.75);
   padding: 20rpx;
   border-radius: 12rpx;
 }
@@ -25,13 +25,13 @@ page {
   color: #1a1a1a;
   margin-top: 50px;
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.75);
   padding: 40rpx;
   border-radius: 12rpx;
 }
 
 .team-card {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   padding: 18px;
   margin-bottom: 15px;

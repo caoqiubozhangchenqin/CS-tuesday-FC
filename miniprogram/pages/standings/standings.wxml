@@ -1,5 +1,5 @@
 <!--pages/standings/standings.wxml-->
-<bg overlayOpacity="0.2" blur="2" sizeMode="auto" repeat="true" />
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
   <view class="table">
     <!-- 表头 -->

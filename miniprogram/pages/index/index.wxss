@@ -37,8 +37,11 @@
 .welcome-text {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1a1a1a;
-  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+  text-shadow: 
+    0 0 10px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(0, 0, 0, 0.6),
+    2px 2px 4px rgba(0, 0, 0, 0.9);
 }
 .login-prompt-btn {
   margin-top: 20rpx;
@@ -66,18 +69,16 @@
 
 /* 为欢迎区域添加半透明背景 */
 .welcome-header {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: transparent !important;
   padding: 40rpx;
   border-radius: 24rpx;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* 为按钮组添加半透明背景 */
 .button-group {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: transparent !important;
   padding: 30rpx;
   border-radius: 20rpx;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* 【修改点】这是所有按钮的通用基础样式 */
