@@ -1,15 +1,27 @@
 <bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
-  <view class="title">身价排名</view>
+  <view class="title">
+    <text class="title-icon">🏆</text>
+    <text>身价排名榜</text>
+  </view>
   <view class="ranking-list">
     <block wx:for="{{rankingList}}" wx:key="openid">
-      <view class="ranking-item">
-        <view class="rank">{{index + 1}}</view>
+      <view class="ranking-item {{index < 3 ? 'top-three' : ''}} {{index === 0 ? 'first-place' : ''}}">
+        <view class="rank rank-{{index + 1}}">
+          <text wx:if="{{index === 0}}">🥇</text>
+          <text wx:elif="{{index === 1}}">🥈</text>
+          <text wx:elif="{{index === 2}}">🥉</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
         <image class="avatar" src="{{item.avatarUrl}}"></image>
         <view class="player-info">
           <view class="nickname">{{item.nickname}}</view>
-          <view class="total-value">{{item.total_value}} 万欧元</view>
+          <view class="total-value">
+            <text class="value-number">{{item.total_value}}</text>
+            <text class="value-unit">万欧元</text>
+          </view>
         </view>
+        <view wx:if="{{index === 0}}" class="crown">👑</view>
       </view>
     </block>
   </view>

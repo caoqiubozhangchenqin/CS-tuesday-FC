@@ -1,6 +1,10 @@
 <!--pages/standings/standings.wxml-->
 <bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
+  <view class="page-title">
+    <text class="title-icon">🏆</text>
+    <text>联赛积分榜</text>
+  </view>
   <view class="table">
     <!-- 表头 -->
     <view class="table-header">
@@ -18,8 +22,13 @@
     <!-- 数据行 -->
     <block wx:if="{{!isLoading}}">
       <!-- 增加了一个动态class，用于高亮前三名 -->
-      <view class="table-row {{index < 1 ? 'top-rank' : ''}}" wx:for="{{rankingList}}" wx:key="_id">
-        <view class="cell rank">{{index + 1}}</view>
+      <view class="table-row {{index < 3 ? 'top-rank' : ''}} {{index === 0 ? 'champion' : ''}}" wx:for="{{rankingList}}" wx:key="_id">
+        <view class="cell rank rank-{{index + 1}}">
+          <text wx:if="{{index === 0}}">🥇</text>
+          <text wx:elif="{{index === 1}}">🥈</text>
+          <text wx:elif="{{index === 2}}">🥉</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
         <view class="cell team {{index === 0 ? 'first-place-team' : ''}}">{{item.teamName}}</view>
         <view class="cell">{{item.played}}</view>
         <view class="cell">{{item.won}}</view>

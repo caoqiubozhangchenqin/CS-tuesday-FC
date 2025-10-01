@@ -2,7 +2,10 @@
 <bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
   <!-- 列表头部标题 -->
-  <view class="page-title">各队报名及总身价</view>
+  <view class="page-title">
+    <text class="title-icon">⚽</text>
+    <text>各队报名及总身价</text>
+  </view>
 
   <!-- 加载中的提示 -->
   <view wx:if="{{isLoading}}" class="loading-tip">数据加载中...</view>
@@ -13,17 +16,28 @@
       
       <!-- 卡片头部：队名和总身价 -->
       <view class="card-header">
-        <view class="team-name">{{item.teamName}}</view>
-        <!-- 【修改】修正了字段名 totalTeamValue，并加上单位 -->
-        <view class="team-value">{{item.totalTeamValue}} 万欧元</view>
+        <view class="team-name">
+          <text class="team-icon">👕</text>
+          <text>{{item.teamName}}</text>
+        </view>
+        <view class="team-value">
+          <text class="value-icon">💰</text>
+          <text class="value-number">{{item.totalTeamValue}}</text>
+          <text class="value-unit">万欧</text>
+        </view>
       </view>
 
-      <!-- 【新增】报名成员列表 -->
+      <!-- 新增报名成员列表 -->
       <view class="user-list">
-        <!-- 内嵌循环，展示 interestedUsers 数组里的每一个成员 -->
-        <text class="user-item" wx:for="{{item.interestedUsers}}" wx:for-item="user" wx:key="*this">
-          {{user}}
-        </text>
+        <view class="user-list-header">
+          <text class="member-icon">👥</text>
+          <text>队员 ({{item.interestedUsers.length}})</text>
+        </view>
+        <view class="user-tags">
+          <text class="user-tag" wx:for="{{item.interestedUsers}}" wx:for-item="user" wx:key="*this">
+            {{user}}
+          </text>
+        </view>
       </view>
 
     </view>
