@@ -56,7 +56,7 @@ App({
 
     // 步骤 2: 从云存储获取音乐文件的临时链接
     // 注意：这里的 File ID 是您上传到云存储的音乐文件ID
-    const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/李迩泰 - 我和我的祖国 (小提琴曲).mp3';
+    const BGM_FILE_ID = '	cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/Snow Man - One.mp3';
 
     wx.cloud.getTempFileURL({
       fileList: [BGM_FILE_ID],
@@ -65,8 +65,8 @@ App({
           const musicUrl = res.fileList[0].tempFileURL;
           
           // 设置音频管理器的属性
-          backgroundAudioManager.title = '我和我的祖国'; // 音乐标题
-          backgroundAudioManager.singer = '李迩泰'; // 歌手名
+          backgroundAudioManager.title = 'One'; // 音乐标题
+          backgroundAudioManager.singer = 'Snow Man'; // 歌手名
           backgroundAudioManager.coverImgUrl = ' '; // 封面图
           backgroundAudioManager.src = musicUrl; // 音频链接
           

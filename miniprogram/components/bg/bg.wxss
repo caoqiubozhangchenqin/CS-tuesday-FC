@@ -16,9 +16,9 @@
   bottom: 0;
   width: 100%;
   height: 100%;
-  background-repeat: repeat; /* 平铺显示，不改变图片分辨率 */
-  background-position: left top;
-  background-size: auto; /* 保持图片原始尺寸，不缩放 */
+  background-repeat: no-repeat; /* 默认不平铺，根据sizeMode决定 */
+  background-position: center center; /* 居中显示 */
+  background-size: cover; /* 默认使用cover模式自适应 */
   image-rendering: -webkit-optimize-contrast; /* 优化图片渲染质量 */
   image-rendering: crisp-edges; /* 保持边缘清晰 */
 }
