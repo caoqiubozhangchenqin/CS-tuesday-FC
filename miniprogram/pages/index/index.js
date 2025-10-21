@@ -11,8 +11,13 @@ Page({
     // 控制登录弹窗的显示/隐藏
     showLoginPopup: false,
     // 防抖/节流, 防止重复点击选择头像按钮
-    isChoosingAvatar: false
-    , bgImageUrl: ''
+    isChoosingAvatar: false,
+    bgImageUrl: '',
+    // 用户状态管理
+    hasCompletedSurvey: false, // 是否已完成评估
+    userValue: 0, // 用户身价
+    selectedTeam: '', // 选择的球队
+    showSurveyButton: true // 是否显示开始评估按钮
   },
 
   onLoad: function () {
@@ -24,6 +29,9 @@ Page({
         app.globalData.userInfo = cached;
       }
     } catch (e) {}
+
+    // 检查用户状态
+    this.checkUserStatus();
 
     // 再发起云端校验
     this.fetchUserInfo();
@@ -46,9 +54,35 @@ Page({
 
   onShow: function () {
     this.fetchUserInfo();
+    this.checkUserStatus(); // 每次显示页面时检查用户状态
     this.setData({ isMusicPlaying: app.globalData.isMusicPlaying });
     this.removeMusicListener();
     app.globalData.musicStatusListeners.unshift(this.musicStatusListener);
+  },
+
+  // 检查用户状态
+  checkUserStatus: function() {
+    try {
+      const hasCompletedSurvey = wx.getStorageSync('hasCompletedSurvey');
+      const userValue = wx.getStorageSync('userValue') || 0;
+      const selectedTeam = wx.getStorageSync('selectedTeam') || '';
+      
+      this.setData({
+        hasCompletedSurvey: hasCompletedSurvey,
+        userValue: userValue,
+        selectedTeam: selectedTeam,
+        showSurveyButton: !hasCompletedSurvey
+      });
+
+      // 如果是新用户且未完成评估，自动跳转到评估页面
+      if (!hasCompletedSurvey && !wx.getStorageSync('isLoggedOut')) {
+        setTimeout(() => {
+          wx.navigateTo({ url: '../survey/survey' });
+        }, 1000);
+      }
+    } catch (e) {
+      console.error('检查用户状态失败', e);
+    }
   },
   
   // --- 登录与弹窗相关函数 ---
@@ -142,11 +176,21 @@ Page({
     wx.navigateTo({ url: '../admin/admin' });
   },
 
+  // 跳转到球队报名页面
+  goToTeamSignup: function() {
+    if (!this.data.hasCompletedSurvey) {
+      wx.showToast({ title: '请先完成身价评估', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '../team_signup/team_signup' });
+  },
+
   // 无需登录即可访问的函数
   goToRanking() { wx.navigateTo({ url: '../ranking/ranking' }); },
   goToTeamStatusPage() { wx.navigateTo({ url: '../team_status/team_status' }); },
   goToSchedulePage: function() { wx.navigateTo({ url: '/pages/schedule/schedule' }); },
   goToStandingsPage: function() { wx.navigateTo({ url: '/pages/standings/standings' }); },
+  goToCommunityPage: function() { wx.navigateTo({ url: '/pages/community/community' }); },
 
   // --- 其他辅助函数 ---
   

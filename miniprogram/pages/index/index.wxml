@@ -16,11 +16,24 @@
 
 <!-- Part 2: 功能按钮列表 -->
 <view class="button-group">
-  <button class="menu-button primary-btn" bindtap="goToSurvey">  开始评估</button>
+  <!-- 新用户显示开始评估按钮 -->
+  <button wx:if="{{showSurveyButton}}" class="menu-button primary-btn" bindtap="goToSurvey">  开始评估</button>
+  
+  <!-- 已完成评估的用户显示身价信息 -->
+  <view wx:if="{{hasCompletedSurvey}}" class="user-value-display">
+    <text class="value-label">我的身价</text>
+    <text class="value-amount">¥{{userValue}}万</text>
+    <text wx:if="{{selectedTeam}}" class="team-info">已选择：{{selectedTeam}}</text>
+  </view>
+  
+  <!-- 立即签约按钮 -->
+  <button wx:if="{{hasCompletedSurvey}}" class="menu-button primary-btn here-we-go-btn" bindtap="goToTeamSignup">  HERE WE GO! 立即签约</button>
+  
   <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
   <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>
   <button class="menu-button primary-btn" bindtap="goToSchedulePage">  查看联赛赛程</button>
   <button class="menu-button primary-btn" bindtap="goToStandingsPage">  查看联赛积分榜</button>
+  <button class="menu-button primary-btn" bindtap="goToCommunityPage">  球迷留言板</button>
   
   <button class="menu-button admin-button" bindtap="goToAdminPage">  进入管理员页面</button>
   <button wx:if="{{hasUserInfo}}" class="menu-button logout-button" bindtap="logout">  退出登录</button>

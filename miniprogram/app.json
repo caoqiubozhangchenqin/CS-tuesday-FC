@@ -10,7 +10,8 @@
     "pages/registration_status/registration_status",
     "pages/team_status/team_status",
     "pages/schedule/schedule",
-    "pages/standings/standings"
+    "pages/standings/standings",
+    "pages/community/community"
   ],
   "window": {
     "backgroundTextStyle": "light",

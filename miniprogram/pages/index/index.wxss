@@ -81,6 +81,59 @@
   border-radius: 20rpx;
 }
 
+/* 用户身价显示 */
+.user-value-display {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 193, 7, 0.8));
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  border: 4rpx solid #000;
+  box-shadow: 
+    0 12px 24px rgba(255, 215, 0, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.value-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.value-amount {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #000;
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5);
+  margin-bottom: 15rpx;
+}
+
+.team-info {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 600;
+}
+
+/* HERE WE GO 按钮特殊样式 */
+.here-we-go-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+  animation: hereWeGoPulse 2s ease-in-out infinite;
+  font-size: 38rpx !important;
+  font-weight: 900 !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+@keyframes hereWeGoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 /* 分组标题样式 */
 .section-title {
   font-size: 28rpx;

@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "bg": "/components/bg/bg"
+  },
+  "navigationBarTitleText": "球迷留言板",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
+}

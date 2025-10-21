@@ -6,20 +6,26 @@
 }
 
 .page-title {
-  font-size: 44rpx;
-  font-weight: bold;
+  font-size: 48rpx;
+  font-weight: 900;
   text-align: center;
   margin-bottom: 40rpx;
-  color: #1a1a1a;
-  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
-  background: linear-gradient(135deg, rgba(155, 89, 182, 0.9), rgba(142, 68, 173, 0.85));
-  padding: 35rpx;
-  border-radius: 24rpx;
-  box-shadow: 0 8px 16px rgba(155, 89, 182, 0.3);
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.9), rgba(238, 90, 36, 0.85));
+  padding: 40rpx;
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  box-shadow: 
+    0 12px 24px rgba(255, 107, 107, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10rpx;
+  gap: 15rpx;
+  border: 4rpx solid #000;
+  position: relative;
+  overflow: hidden;
 }
 
 .title-icon {
@@ -33,18 +39,34 @@
 }
 
 .match-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
-  border-radius: 24rpx;
-  margin-bottom: 25rpx;
-  padding: 30rpx;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  border-left: 6rpx solid #9b59b6;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.8));
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  margin-bottom: 30rpx;
+  padding: 35rpx;
+  box-shadow: 
+    0 10px 24px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 4rpx solid #000;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .match-card:active {
-  transform: scale(0.98);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: scale(0.95) rotate(1deg);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.match-card:hover {
+  transform: translateY(-4rpx) scale(1.02);
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .card-header {
