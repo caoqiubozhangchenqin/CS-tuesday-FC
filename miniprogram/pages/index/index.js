@@ -73,17 +73,12 @@ Page({
         selectedTeam: selectedTeam,
         showSurveyButton: !hasCompletedSurvey
       });
-
-      // 如果是新用户且未完成评估，自动跳转到评估页面
-      if (!hasCompletedSurvey && !wx.getStorageSync('isLoggedOut')) {
-        setTimeout(() => {
-          wx.navigateTo({ url: '../survey/survey' });
-        }, 1000);
-      }
     } catch (e) {
       console.error('检查用户状态失败', e);
     }
   },
+  
+
   
   // --- 登录与弹窗相关函数 ---
 

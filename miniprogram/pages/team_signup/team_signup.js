@@ -74,11 +74,21 @@ Page({
       success: res => {
         wx.hideLoading();
         if (res.result.success) {
+          // 获取球队名称用于更新本地存储
+          const team = this.data.teams.find(t => t._id === teamId);
+          if (team) {
+            wx.setStorageSync('selectedTeam', team.name);
+          }
           wx.showToast({
-            title: res.result.message,
-            icon: 'success'
+            title: '欢迎加入！',
+            icon: 'success',
+            duration: 2000,
+            success: () => {
+              setTimeout(() => {
+                wx.navigateBack(); // 签约成功后返回首页
+              }, 2000);
+            }
           });
-          this.getAllTeamsAndMyInfo();
         } else {
           wx.showToast({
             title: res.result.message,
@@ -110,10 +120,14 @@ Page({
       success: res => {
         wx.hideLoading();
         if (res.result.success) {
+          // 取消签约时清除本地存储的球队信息
+          wx.removeStorageSync('selectedTeam');
           wx.showToast({
-            title: res.result.message,
-            icon: 'success'
+            title: '解约成功',
+            icon: 'success',
+            duration: 2000
           });
+          // 重新加载数据以更新页面显示
           this.getAllTeamsAndMyInfo();
         } else {
           wx.showToast({
@@ -142,10 +156,14 @@ Page({
       success: res => {
         wx.hideLoading();
         if (res.result.success) {
+          // 重置选择时清除本地存储的球队信息
+          wx.removeStorageSync('selectedTeam');
           wx.showToast({
-            title: res.result.message,
-            icon: 'success'
+            title: '重置成功',
+            icon: 'success',
+            duration: 2000
           });
+          // 重新加载数据以更新页面显示
           this.getAllTeamsAndMyInfo();
         } else {
           wx.showToast({

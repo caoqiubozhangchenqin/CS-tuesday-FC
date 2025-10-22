@@ -22,6 +22,11 @@
         maxlength="200"
         show-confirm-bar="{{false}}"
       ></textarea>
+      <!-- 权限提示信息 - 仅在未完成评估或无球队时显示 -->
+      <view wx:if="!isAdmin && (!hasUserInfo || userValue <= 0 || !selectedTeam)" class="permission-tip">
+        <text wx:if="!hasUserInfo || userValue <= 0" class="tip-text">💡 请先完成身价评估</text>
+        <text wx:if="!selectedTeam" class="tip-text">💡 请先选择球队</text>
+      </view>
       <view class="post-actions">
         <view class="char-count">{{messageLength}}/200</view>
         <button class="post-btn" bindtap="submitMessage" disabled="{{!canPost}}">发布</button>
@@ -45,7 +50,9 @@
       <view wx:for="{{messageList}}" wx:key="id" class="message-card">
         <view class="message-header">
           <view class="user-info">
-            <text class="user-avatar">👤</text>
+            <!-- 优先显示用户头像，如果没有则显示默认图标 -->
+            <image wx:if="{{item.avatarUrl}}" class="user-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+            <text wx:else class="user-avatar">👤</text>
             <view class="user-details">
               <text class="user-name">{{item.userId}}</text>
               <view class="user-stats">
@@ -86,11 +93,18 @@
           </view>
         </view>
         
-        <!-- 回复列表 -->
-        <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
-          <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
-          <view class="reply-header">
-            <text class="reply-user">{{reply.userId}}</text>
+        <!-- 管理员删除按钮 - 右下角位置 -->
+          <view wx:if="{{isAdmin}}" class="delete-btn" bindtap="deleteMessage" data-id="{{item.id}}">
+            <text class="delete-icon">🗑️</text>
+          </view>
+          
+          <!-- 回复列表 -->
+          <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
+            <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
+                <view class="reply-header">
+                  <image wx:if="{{reply.avatarUrl}}" class="reply-avatar" src="{{reply.avatarUrl}}" mode="aspectFill"></image>
+                  <text wx:else class="reply-avatar">👤</text>
+                  <text class="reply-user">{{reply.userId}}</text>
             <text class="reply-time">{{reply.createTime}}</text>
           </view>
             <view class="reply-content">

@@ -181,6 +181,7 @@
   margin-bottom: 20rpx;
   border: 2rpx solid #eee;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .message-card:hover {
@@ -204,6 +205,21 @@
 
 .user-avatar {
   font-size: 32rpx;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 针对image元素的样式 */
+image.user-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
 }
 
 .user-details {
@@ -271,6 +287,52 @@
 
 .like-icon, .reply-icon {
   font-size: 24rpx;
+}
+
+/* 删除按钮样式 - 右下角位置 */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx;
+  border-radius: 15rpx;
+  background: transparent;
+  transition: all 0.3s ease;
+  position: absolute;
+  right: 15rpx;
+  bottom: 15rpx;
+  z-index: 10;
+}
+
+.delete-btn:active {
+  background: #f0f0f0;
+}
+
+.delete-icon {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 权限提示样式 */
+.permission-tip {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  border-left: 3px solid #e6e6e6;
+}
+
+.tip-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.tip-text-success {
+  font-size: 12px;
+  color: #07c160;
+  line-height: 1.5;
 }
 
 .like-count {
@@ -348,6 +410,25 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8rpx;
+}
+
+/* 回复头像样式 */
+.reply-avatar {
+  font-size: 24rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+image.reply-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
 }
 
 .reply-user {

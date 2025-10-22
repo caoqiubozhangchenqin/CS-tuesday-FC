@@ -107,9 +107,19 @@ Page({
       }
 
       // 5. 全部成功后的操作
-      wx.showToast({ title: '提交成功！', icon: 'success' });
-      wx.navigateTo({
-        url: `/pages/team_signup/team_signup?totalValue=${totalValue}`
+      // 保存用户评估状态和身价到本地存储，确保无论是否选择球队都能显示身价
+      wx.setStorageSync('hasCompletedSurvey', true);
+      wx.setStorageSync('userValue', totalValue);
+      
+      wx.showToast({ 
+        title: '评估完成！', 
+        icon: 'success',
+        duration: 2000,
+        success: () => {
+          setTimeout(() => {
+            wx.navigateBack(); // 返回首页
+          }, 2000);
+        }
       });
 
     } catch (err) {

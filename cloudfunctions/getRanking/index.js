@@ -9,6 +9,9 @@ const db = cloud.database()
 exports.main = async (event, context) => {
   try {
     const ranking = await db.collection('users')
+      .where({
+        selectedTeam: db.command.neq('')
+      })
       .orderBy('total_value', 'desc')
       .get()
 

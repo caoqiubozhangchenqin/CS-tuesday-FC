@@ -14,20 +14,28 @@
   </block>
 </view>
 
-<!-- Part 2: 功能按钮列表 -->
+<!-- 功能按钮列表 -->
 <view class="button-group">
   <!-- 新用户显示开始评估按钮 -->
   <button wx:if="{{showSurveyButton}}" class="menu-button primary-btn" bindtap="goToSurvey">  开始评估</button>
+  <!-- 已评估用户显示灰色不可用的开始评估按钮 -->
+  <button wx:elif="{{hasCompletedSurvey}}" class="menu-button primary-btn disabled" disabled>  已评估</button>
   
-  <!-- 已完成评估的用户显示身价信息 -->
+  <!-- 身价信息显示区域 -->
   <view wx:if="{{hasCompletedSurvey}}" class="user-value-display">
-    <text class="value-label">我的身价</text>
-    <text class="value-amount">¥{{userValue}}万</text>
-    <text wx:if="{{selectedTeam}}" class="team-info">已选择：{{selectedTeam}}</text>
+    <block wx:if="{{selectedTeam}}">
+      <text class="value-label">我的身价</text>
+      <text class="value-amount">¥{{userValue}}万</text>
+      <text class="team-info">已选择：{{selectedTeam}}</text>
+    </block>
+    <block wx:else>
+      <text class="value-label">球队信息</text>
+      <text class="team-info warning">请立即选择您的球队</text>
+    </block>
   </view>
   
-  <!-- 立即签约按钮 -->
-  <button wx:if="{{hasCompletedSurvey}}" class="menu-button primary-btn here-we-go-btn" bindtap="goToTeamSignup">  HERE WE GO! 立即签约</button>
+  <!-- 签约球队相关按钮 -->
+  <button wx:if="{{hasCompletedSurvey}}" class="menu-button primary-btn" bindtap="goToTeamSignup">  {{selectedTeam ? '更换球队' : '选择球队'}}</button>
   
   <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
   <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>
