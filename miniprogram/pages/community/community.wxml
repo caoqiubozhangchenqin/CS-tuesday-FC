@@ -43,6 +43,7 @@
         <text class="sort-btn {{sortBy === 'time' ? 'active' : ''}}" bindtap="setSortBy" data-type="time">最新</text>
         <text class="sort-btn {{sortBy === 'likes' ? 'active' : ''}}" bindtap="setSortBy" data-type="likes">热门</text>
       </view>
+      <!-- 管理员功能区域 -->
     </view>
 
     <!-- 留言列表 -->
@@ -50,9 +51,8 @@
       <view wx:for="{{messageList}}" wx:key="id" class="message-card">
         <view class="message-header">
           <view class="user-info">
-            <!-- 优先显示用户头像，如果没有则显示默认图标 -->
-            <image wx:if="{{item.avatarUrl}}" class="user-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
-            <text wx:else class="user-avatar">👤</text>
+              <image wx:if="{{item.avatarUrl}}" class="user-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+              <text wx:else class="user-avatar">👤</text>
             <view class="user-details">
               <text class="user-name">{{item.userId}}</text>
               <view class="user-stats">
@@ -105,8 +105,8 @@
                   <image wx:if="{{reply.avatarUrl}}" class="reply-avatar" src="{{reply.avatarUrl}}" mode="aspectFill"></image>
                   <text wx:else class="reply-avatar">👤</text>
                   <text class="reply-user">{{reply.userId}}</text>
-            <text class="reply-time">{{reply.createTime}}</text>
-          </view>
+                  <text class="reply-time">{{reply.createTime}}</text>
+                </view>
             <view class="reply-content">
               <text>{{reply.content}}</text>
             </view>
