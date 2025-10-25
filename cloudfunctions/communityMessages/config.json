@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "openapi": [],
+    "description": "社区留言板相关操作权限"
+  },
+  "timeout": 30,
+  "memorySize": 128,
+  "envId": "",
+  "runtime": "Nodejs12.16"
+}

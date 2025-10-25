@@ -162,51 +162,54 @@ Page({
 
     wx.showLoading({ title: '发布中...' });
 
-    // 模拟发布留言
-    setTimeout(() => {
+    try {
       const app = getApp();
-      // 由于onShow已经调用了loadUserInfo，这里直接使用本地数据
-    const userInfo = this.data.userInfo;
-    const userValue = this.data.userValue;
-    const selectedTeam = this.data.selectedTeam;
-    
-    const newMessage = {
-      id: Date.now(),
-      userId: userInfo ? userInfo.nickname : '匿名用户',
-      userOpenid: app.globalData.openid || '', // 存储用户openid用于身份识别
-      // 不再存储用户头像
-      userValue: userValue,
-      selectedTeam: selectedTeam,
-      content: content,
-      createTime: this.formatTime(new Date()),
-      likeCount: 0,
-      isLiked: false,
-      replies: [],
-      showReply: false
-    };
-
-      const messageList = [newMessage, ...this.data.messageList];
-      
-      // 限制只保留最新的500条留言
-      const limitedMessageList = messageList.slice(0, 500);
-      
-      // 保存到本地存储，实现持久化
-      try {
-        wx.setStorageSync('communityMessages', limitedMessageList);
-      } catch (e) {
-        console.error('保存留言失败', e);
-      }
-      
-      this.setData({
-        messageList: messageList,
-        newMessage: '',
-        messageLength: 0,
-        canPost: false
+      // 调用云函数提交留言
+      wx.cloud.callFunction({
+        name: 'communityMessages',
+        data: {
+          action: 'submitMessage',
+          data: {
+            content: content,
+            userInfo: this.data.userInfo,
+            userValue: this.data.userValue,
+            selectedTeam: this.data.selectedTeam
+          }
+        }
+      }).then(res => {
+        const result = res.result;
+        if (result.success) {
+          // 格式化时间显示
+          const messageWithFormattedTime = {
+            ...result.data,
+            createTime: this.formatTime(new Date(result.data.createTime))
+          };
+          
+          const messageList = [messageWithFormattedTime, ...this.data.messageList];
+          
+          this.setData({
+            messageList: messageList,
+            newMessage: '',
+            messageLength: 0,
+            canPost: false
+          });
+          
+          wx.hideLoading();
+          wx.showToast({ title: '发布成功！', icon: 'success' });
+        } else {
+          wx.hideLoading();
+          wx.showToast({ title: result.message || '发布失败', icon: 'none' });
+        }
+      }).catch(err => {
+        console.error('提交留言失败:', err);
+        wx.hideLoading();
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' });
       });
-
+    } catch (e) {
+      console.error('调用云函数失败:', e);
       wx.hideLoading();
-      wx.showToast({ title: '发布成功！', icon: 'success' });
-    }, 1000);
+      wx.showToast({ title: '系统错误，请重试', icon: 'none' });
+    }
   },
 
   // 设置排序方式
@@ -233,28 +236,42 @@ Page({
   // 切换点赞
   toggleLike: function(e) {
     const id = e.currentTarget.dataset.id;
-    const messageList = this.data.messageList.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          isLiked: !item.isLiked,
-          likeCount: item.isLiked ? item.likeCount - 1 : item.likeCount + 1
-        };
-      }
-      return item;
-    });
     
-    // 限制只保留最新的500条留言
-      const limitedMessageList = messageList.slice(0, 500);
-      
-      // 保存到本地存储
-      try {
-        wx.setStorageSync('communityMessages', limitedMessageList);
-      } catch (e) {
-        console.error('保存点赞状态失败', e);
-      }
-    
-    this.setData({ messageList });
+    try {
+      wx.cloud.callFunction({
+        name: 'communityMessages',
+        data: {
+          action: 'toggleLike',
+          data: {
+            messageId: id
+          }
+        }
+      }).then(res => {
+        const result = res.result;
+        if (result.success) {
+          const messageList = this.data.messageList.map(item => {
+            if (item.id === id) {
+              return {
+                ...item,
+                isLiked: result.data.isLiked,
+                likeCount: result.data.likeCount
+              };
+            }
+            return item;
+          });
+          
+          this.setData({ messageList });
+        } else {
+          wx.showToast({ title: result.message || '操作失败', icon: 'none' });
+        }
+      }).catch(err => {
+        console.error('切换点赞状态失败:', err);
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      });
+    } catch (e) {
+      console.error('调用云函数失败:', e);
+      wx.showToast({ title: '系统错误，请重试', icon: 'none' });
+    }
   },
 
   // 显示回复框
@@ -298,6 +315,19 @@ Page({
   submitReply: function(e) {
     const id = e.currentTarget.dataset.id;
     
+    // 查找对应的留言
+    const message = this.data.messageList.find(item => item.id === id);
+    if (!message || !message.replyText) {
+      wx.showToast({ title: '请输入回复内容', icon: 'none' });
+      return;
+    }
+    
+    const replyContent = message.replyText.trim();
+    if (!replyContent) {
+      wx.showToast({ title: '请输入回复内容', icon: 'none' });
+      return;
+    }
+    
     // 权限检查：只有管理员或有身价有球队的球员才能回复
     if (!this.data.isAdmin) {
       // 添加日志调试
@@ -330,179 +360,110 @@ Page({
       }
     }
     
-    const messageList = this.data.messageList.map(item => {
-      if (item.id === id) {
-        const replyContent = item.replyText.trim();
-        if (!replyContent) {
-          wx.showToast({ title: '请输入回复内容', icon: 'none' });
-          return item;
-        }
-
-        const app = getApp();
-      // 由于onShow已经调用了loadUserInfo，这里直接使用本地数据
-      const userInfo = this.data.userInfo;
-      const userValue = this.data.userValue;
-      const selectedTeam = this.data.selectedTeam;
-        
-        const newReply = {
-          id: Date.now(),
-          userId: userInfo ? userInfo.nickname : '匿名用户',
-          userOpenid: app.globalData.openid || '', // 存储用户openid用于身份识别
-          avatarUrl: userInfo ? userInfo.avatarUrl : '', // 存储用户头像
-          content: replyContent,
-          createTime: this.formatTime(new Date())
-        };
-
-        return {
-          ...item,
-          replies: [...item.replies, newReply],
-          showReply: false,
-          replyText: ''
-        };
-      }
-      return item;
-    });
+    wx.showLoading({ title: '回复中...' });
     
-    // 限制只保留最新的500条留言
-      // 限制只保留最新的500条留言
-        const limitedMessageList = messageList.slice(0, 500);
-        
-        // 保存到本地存储，实现持久化
-        try {
-          wx.setStorageSync('communityMessages', limitedMessageList);
-        } catch (e) {
-          console.error('保存删除状态失败', e);
+    try {
+      wx.cloud.callFunction({
+        name: 'communityMessages',
+        data: {
+          action: 'submitReply',
+          data: {
+            messageId: id,
+            content: replyContent,
+            userInfo: this.data.userInfo
+          }
         }
-    
-    this.setData({ messageList });
-    wx.showToast({ title: '回复成功！', icon: 'success' });
+      }).then(res => {
+        const result = res.result;
+        if (result.success) {
+          // 格式化时间显示
+          const replyWithFormattedTime = {
+            ...result.data,
+            userId: result.data.userInfo.nickname,
+            avatarUrl: result.data.userInfo.avatarUrl,
+            createTime: this.formatTime(new Date(result.data.createTime))
+          };
+          
+          const messageList = this.data.messageList.map(item => {
+            if (item.id === id) {
+              return {
+                ...item,
+                replies: [...item.replies, replyWithFormattedTime],
+                showReply: false,
+                replyText: ''
+              };
+            }
+            return item;
+          });
+          
+          this.setData({ messageList });
+          wx.hideLoading();
+          wx.showToast({ title: '回复成功！', icon: 'success' });
+        } else {
+          wx.hideLoading();
+          wx.showToast({ title: result.message || '回复失败', icon: 'none' });
+        }
+      }).catch(err => {
+        console.error('提交回复失败:', err);
+        wx.hideLoading();
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      });
+    } catch (e) {
+      console.error('调用云函数失败:', e);
+      wx.hideLoading();
+      wx.showToast({ title: '系统错误，请重试', icon: 'none' });
+    }
   },
 
-  // 加载留言数据
+  // 加载留言
   loadMessages: function() {
-    this.setData({ isLoading: true });
+    wx.showLoading({ title: '加载中...' });
     
-    // 模拟从服务器加载数据
-    setTimeout(() => {
-      let messageList = [];
-      const currentUserInfo = this.data.userInfo;
-      
-      // 尝试从本地存储读取留言数据
-      try {
-        // 检查本地存储是否存在，即使为空数组也视为有效
-        const hasStorageKey = wx.getStorageInfoSync().keys.includes('communityMessages');
-        const storedMessages = wx.getStorageSync('communityMessages');
-        
-        if (hasStorageKey) {
-          // 如果存储键存在，即使为空数组也使用它
-          if (storedMessages && storedMessages.length > 0) {
-            const app = getApp();
-            const userOpenid = app.globalData.openid;
-            
-            // 更新当前用户的历史留言名字
-            messageList = storedMessages.map(message => {
-              // 优先通过openid识别用户，这样更准确
-              if (currentUserInfo && userOpenid && message.userOpenid === userOpenid) {
-                return { ...message, userId: currentUserInfo.nickname };
-              }
-              // 兼容旧数据，通过昵称匹配
-              else if (currentUserInfo && message.userId && 
-                       typeof message.userId === 'string' && 
-                       message.userId !== '匿名用户' && 
-                       !message.userOpenid) {
-                // 尝试通过其他方式识别（如用户价值、团队信息等）
-                const isCurrentUser = message.userValue === this.data.userValue && 
-                                    message.selectedTeam === this.data.selectedTeam;
-                if (isCurrentUser) {
-                  return { ...message, userId: currentUserInfo.nickname, userOpenid: userOpenid };
-                }
-              }
-              return message;
-            });
-            
-            // 同时更新回复中的用户名字
-            messageList = messageList.map(message => {
-              if (message.replies && message.replies.length > 0) {
-                return {
-                  ...message,
-                  replies: message.replies.map(reply => {
-                    // 为回复添加openid标识，便于未来更新
-                    if (currentUserInfo && userOpenid && reply.userId && 
-                        reply.userId !== '匿名用户' && 
-                        reply.userId === currentUserInfo.nickname) {
-                      return { ...reply, userId: currentUserInfo.nickname, userOpenid: userOpenid };
-                    }
-                    return reply;
-                  })
-                };
-              }
-              return message;
-            });
-            
-            // 保存更新后的留言列表
-            wx.setStorageSync('communityMessages', messageList);
-          }
-          
-          this.setData({
-            messageList: storedMessages || [],
-            isLoading: false
-          });
-        } else {
-          // 如果存储键不存在，才使用模拟数据
-          const mockMessages = [
-            {
-              id: 1,
-              userId: '测试用户1',
-              userValue: 500,
-              selectedTeam: '测试队A',
-              content: '今天的比赛太精彩了！主队表现不错，期待下一场！',
-              createTime: this.formatTime(new Date(Date.now() - 2 * 60 * 60 * 1000)),
-              likeCount: 5,
-              isLiked: false,
-              replies: [
-                {
-                  id: 11,
-                  userId: '测试用户2',
-                  content: '同感！特别是那个进球太漂亮了',
-                  createTime: this.formatTime(new Date(Date.now() - 1 * 60 * 60 * 1000))
-                }
-              ],
-              showReply: false
-            },
-            {
-              id: 2,
-              userId: '测试用户3',
-              userValue: 800,
-              selectedTeam: '测试队B',
-              content: '积分榜变化真大，竞争越来越激烈了',
-              createTime: this.formatTime(new Date(Date.now() - 4 * 60 * 60 * 1000)),
-              likeCount: 3,
-              isLiked: true,
-              replies: [],
-              showReply: false
-            },
-            {
-              id: 3,
-              userId: 3456,
-              content: '预测一下明天的比赛结果吧，我觉得主队会赢',
-              createTime: this.formatTime(new Date(Date.now() - 6 * 60 * 60 * 1000)),
-              likeCount: 8,
-              isLiked: false,
-              replies: [],
-              showReply: false
-            }
-          ];
-          
-          this.setData({
-            messageList: mockMessages,
-            isLoading: false
-          });
+    try {
+      wx.cloud.callFunction({
+        name: 'communityMessages',
+        data: {
+          action: 'getMessages'
         }
-      } catch (e) {
-        console.error('加载留言失败', e);
-        this.setData({ isLoading: false });
-      }
-    }, 1000);
+      }).then(res => {
+        const result = res.result;
+        wx.hideLoading();
+        
+        if (result.success) {
+          // 格式化时间并准备留言列表
+          const formattedMessages = result.data.map(item => ({
+            ...item,
+            userId: item.userInfo.nickname,
+            avatarUrl: item.userInfo.avatarUrl,
+            createTime: this.formatTime(new Date(item.createTime)),
+            isLiked: item.likedUsers ? item.likedUsers.includes(getApp().globalData.openid || '') : false,
+            showReply: false,
+            replyText: '',
+            replies: item.replies.map(reply => ({
+              ...reply,
+              userId: reply.userInfo.nickname,
+              avatarUrl: reply.userInfo.avatarUrl,
+              createTime: this.formatTime(new Date(reply.createTime))
+            }))
+          }));
+          
+          this.setData({ messageList: formattedMessages });
+        } else {
+          console.error('获取留言失败:', result.message);
+          // 出错时使用空数组
+          this.setData({ messageList: [] });
+        }
+      }).catch(err => {
+        console.error('调用云函数失败:', err);
+        wx.hideLoading();
+        // 出错时使用空数组
+        this.setData({ messageList: [] });
+      });
+    } catch (e) {
+      console.error('加载留言数据异常:', e);
+      wx.hideLoading();
+      this.setData({ messageList: [] });
+    }
   },
 
   // 格式化时间
@@ -525,23 +486,59 @@ Page({
   deleteMessage: function(e) {
     const id = e.currentTarget.dataset.id;
     
+    // 权限检查：只有管理员或留言作者可以删除
+    const message = this.data.messageList.find(item => item.id === id);
+    if (!message) {
+      wx.showToast({ title: '留言不存在', icon: 'none' });
+      return;
+    }
+    
+    const app = getApp();
+    const isAuthor = app.globalData.openid && message.userOpenid === app.globalData.openid;
+    
+    if (!this.data.isAdmin && !isAuthor) {
+      wx.showToast({ title: '没有权限删除此留言', icon: 'none' });
+      return;
+    }
+    
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这条留言吗？',
       success: (res) => {
         if (res.confirm) {
-          // 过滤掉要删除的留言
-          const messageList = this.data.messageList.filter(item => item.id !== id);
+          wx.showLoading({ title: '删除中...' });
           
-          // 保存到本地存储
           try {
-            wx.setStorageSync('communityMessages', messageList);
+            wx.cloud.callFunction({
+              name: 'communityMessages',
+              data: {
+                action: 'deleteMessage',
+                data: {
+                  messageId: id
+                }
+              }
+            }).then(res => {
+              wx.hideLoading();
+              const result = res.result;
+              
+              if (result.success) {
+                // 从页面数据中移除该留言
+                const updatedMessages = this.data.messageList.filter(item => item.id !== id);
+                this.setData({ messageList: updatedMessages });
+                wx.showToast({ title: '删除成功', icon: 'success' });
+              } else {
+                wx.showToast({ title: result.message || '删除失败', icon: 'none' });
+              }
+            }).catch(err => {
+              console.error('删除留言失败:', err);
+              wx.hideLoading();
+              wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+            });
           } catch (e) {
-            console.error('删除留言失败', e);
+            console.error('调用云函数失败:', e);
+            wx.hideLoading();
+            wx.showToast({ title: '系统错误，请重试', icon: 'none' });
           }
-          
-          this.setData({ messageList });
-          wx.showToast({ title: '删除成功！', icon: 'success' });
         }
       }
     });
