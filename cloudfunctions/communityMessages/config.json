@@ -5,6 +5,5 @@
   },
   "timeout": 30,
   "memorySize": 128,
-  "envId": "cloud1-3ge5gomsffe800a7",
   "runtime": "Nodejs12.16"
 }
