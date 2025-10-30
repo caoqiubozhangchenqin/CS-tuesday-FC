@@ -36,10 +36,17 @@ exports.main = async (event, context) => {
     
     // 2. 检查是否已经选择了球队
     if (player.data[0].selectedTeam) {
-      return {
-        success: false,
-        message: '您已选择了一个球队！'
-      };
+      if (player.data[0].selectedTeam === teamId) {
+        return {
+          success: false,
+          message: '您已选择该球队，请勿重复操作！'
+        };
+      } else {
+        return {
+          success: false,
+          message: '您已选择了一个球队，请先解约再选择其他球队！'
+        };
+      }
     }
 
     // 3. 更新数据库：设置用户选择的球队
