@@ -28,7 +28,6 @@
             class="join-button" 
             bindtap="handleJoinTeam" 
             data-team-id="{{item._id}}"
-            disabled="{{mySelectedTeam}}"
           >
             Here We Go
           </button>

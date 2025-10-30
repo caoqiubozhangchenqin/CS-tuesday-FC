@@ -50,7 +50,6 @@
               class="join-button" 
               bindtap="handleJoinTeam" 
               data-team-id="{{item._id}}"
-              disabled="{{mySelectedTeam}}"
             >
               立即签约
             </button>
