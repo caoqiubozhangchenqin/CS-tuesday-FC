@@ -79,13 +79,10 @@ Page({
           wx.showToast({
             title: '欢迎加入！',
             icon: 'success',
-            duration: 2000,
-            success: () => {
-              setTimeout(() => {
-                wx.navigateBack(); // 签约成功后返回首页
-              }, 2000);
-            }
+            duration: 2000
           });
+          // 重新加载数据以更新页面显示
+          this.getAllTeamsAndMyInfo();
         } else {
           wx.showToast({
             title: res.result.message,
