@@ -15,6 +15,11 @@ Page({
     }
     this.getAllTeamsAndMyInfo();
   },
+
+  onShow: function () {
+    // 每次进入页面都刷新用户选择状态
+    this.getAllTeamsAndMyInfo();
+  },
   getAllTeamsAndMyInfo: async function () {
     wx.showLoading({
       title: '加载中...',
@@ -34,6 +39,7 @@ Page({
       });
       
       const mySelectedTeam = userRes.result.selectedTeam || '';
+      console.log('获取到的 mySelectedTeam:', mySelectedTeam);
       
       const updatedTeams = teamsWithValue.map(team => ({
         _id: team._id,
