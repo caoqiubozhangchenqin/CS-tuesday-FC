@@ -63,7 +63,7 @@ Page({
       
       const updatedTeams = teams.map(team => ({
         ...team,
-        isInterested: mySelectedTeam === team._id
+        isSelected: mySelectedTeam === team._id
       }));
       
       this.setData({
