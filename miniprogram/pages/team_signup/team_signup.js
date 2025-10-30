@@ -4,7 +4,7 @@ Page({
   data: {
     teams: [],
     myTotalValue: 0,
-    myInterestedTeams: []
+    mySelectedTeam: ''
   },
 
   onLoad: function (options) {
@@ -33,21 +33,21 @@ Page({
           name: 'getUserInterestedTeams'
       });
       
-      const myInterestedTeams = userRes.result.interestedTeams || [];
+      const mySelectedTeam = userRes.result.selectedTeam || '';
       
       const updatedTeams = teamsWithValue.map(team => ({
         _id: team._id,
         name: team.teamName,
         salary_cap: team.salary_cap || 0,
         totalTeamValue: team.totalTeamValue || 0,
-        isInterested: myInterestedTeams.includes(team._id)
+        isSelected: mySelectedTeam === team._id
       }));
       
       console.log('处理后的球队数据:', updatedTeams);
       
       this.setData({
         teams: updatedTeams,
-        myInterestedTeams: myInterestedTeams
+        mySelectedTeam: mySelectedTeam
       });
 
     } catch (e) {
@@ -145,11 +145,23 @@ Page({
   },
   
   handleResetSelections: async function() {
+    if (!this.data.mySelectedTeam) {
+      wx.showToast({
+        title: '您还没有选择队伍',
+        icon: 'none'
+      });
+      return;
+    }
+    
     wx.showLoading({
       title: '重置中...',
     });
+    
     wx.cloud.callFunction({
-      name: 'resetInterestedTeams',
+      name: 'cancelJoinTeam',
+      data: {
+        teamId: this.data.mySelectedTeam
+      },
       success: res => {
         wx.hideLoading();
         if (res.result.success) {

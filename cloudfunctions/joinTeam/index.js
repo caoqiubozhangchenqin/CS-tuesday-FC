@@ -34,30 +34,18 @@ exports.main = async (event, context) => {
       };
     }
     
-  const interestedTeams = Array.isArray(player.data[0].interested_teams) ? player.data[0].interested_teams : [];
-
-    // 2. 检查是否已达到意向报名的上限（2个）
-    if (interestedTeams.length >= 1) {
+    // 2. 检查是否已经选择了球队
+    if (player.data[0].selectedTeam) {
       return {
         success: false,
-        message: '最多只能意向加入1个球队！'
+        message: '您已选择了一个球队！'
       };
     }
 
-    // 3. 检查是否已经意向加入该球队
-    if (interestedTeams.includes(teamId)) {
-        return {
-            success: false,
-            message: '您已意向加入该球队，请勿重复操作！'
-        }
-    }
-
-    // 4. 更新数据库：将新的球队ID添加到感兴趣的球队数组中，并设置 selectedTeam
+    // 3. 更新数据库：设置用户选择的球队
     const updateRes = await db.collection('users').doc(player.data[0]._id).update({
       data: {
-        // 明确以数组形式 push，兼容性更好
-        interested_teams: _.push([teamId]),
-        selectedTeam: teamId // 设置用户选择的球队
+        selectedTeam: teamId
       }
     });
 

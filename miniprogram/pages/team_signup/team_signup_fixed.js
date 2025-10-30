@@ -1,10 +1,23 @@
 const db = wx.cloud.database();
 
 Page({
-  data: {
-    teams: [],
+       const userRes = await wx.cloud.callFunction({
+          name: 'getUserInterestedTeams'
+      });
+      
+      const mySelectedTeam = userRes.result.selectedTeam || '';
+      
+      const updatedTeams = teams.map(team => ({
+        ...team,
+        isInterested: mySelectedTeam === team._id
+      }));
+      
+      this.setData({
+        teams: updatedTeams,
+        mySelectedTeam: mySelectedTeam
+      });eams: [],
     myTotalValue: 0,
-    myInterestedTeams: [],
+    mySelectedTeam: '',
     globalBgUrl: ''
   },
 
@@ -46,16 +59,16 @@ Page({
           name: 'getUserInterestedTeams'
       });
       
-      const myInterestedTeams = userRes.result.interestedTeams || [];
+      const mySelectedTeam = userRes.result.selectedTeam || '';
       
       const updatedTeams = teams.map(team => ({
         ...team,
-        isInterested: myInterestedTeams.includes(team._id)
+        isInterested: mySelectedTeam === team._id
       }));
       
       this.setData({
         teams: updatedTeams,
-        myInterestedTeams: myInterestedTeams
+        mySelectedTeam: mySelectedTeam
       });
 
     } catch (e) {
@@ -142,11 +155,23 @@ Page({
   },
   
   handleResetSelections: async function() {
+    if (!this.data.mySelectedTeam) {
+      wx.showToast({
+        title: '您还没有选择队伍',
+        icon: 'none'
+      });
+      return;
+    }
+    
     wx.showLoading({
       title: '重置中...',
     });
+    
     wx.cloud.callFunction({
-      name: 'resetInterestedTeams',
+      name: 'cancelJoinTeam',
+      data: {
+        teamId: this.data.mySelectedTeam
+      },
       success: res => {
         wx.hideLoading();
         if (res.result.success) {

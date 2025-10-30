@@ -13,12 +13,11 @@ exports.main = async (event, context) => {
   const { teamId } = event
 
   try {
-    // 从用户的 interested_teams 数组中移除指定的球队ID，并清空 selectedTeam 字段
+    // 清空用户的已选球队
     await db.collection('users').where({
       openid: openid
     }).update({
       data: {
-        interested_teams: _.pull(teamId),
         selectedTeam: '' // 清空用户的已选球队
       }
     });

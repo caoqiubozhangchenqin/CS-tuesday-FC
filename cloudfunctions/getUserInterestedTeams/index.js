@@ -15,19 +15,16 @@ exports.main = async (event, context) => {
       openid: openid
     }).get()
 
-    let interestedTeams = [];
+    let selectedTeam = '';
     if (user.data.length > 0) {
-      // 检查并强制确保 interested_teams 是一个数组
-      if (Array.isArray(user.data[0].interested_teams)) {
-        interestedTeams = user.data[0].interested_teams;
-      }
+      selectedTeam = user.data[0].selectedTeam || '';
     }
 
-    console.log('云函数返回的 interestedTeams:', interestedTeams);
+    console.log('云函数返回的 selectedTeam:', selectedTeam);
 
     return {
       success: true,
-      interestedTeams: interestedTeams
+      selectedTeam: selectedTeam
     }
 
   } catch (err) {

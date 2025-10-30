@@ -13,22 +13,7 @@ exports.main = async (event, context) => {
         let: { team_id: '$_id' },
         pipeline: $.pipeline()
           .match({
-            $expr: {
-              $in: [
-                '$$team_id',
-                {
-                  $cond: [
-                    { $eq: [ { $type: '$interested_teams' }, 'array' ] },
-                    '$interested_teams',
-                    { $cond: [
-                      { $eq: [ { $type: '$interested_teams' }, 'missing' ] },
-                      [],
-                      { $concatArrays: [ [], [ '$interested_teams' ] ] }
-                    ]}
-                  ]
-                }
-              ]
-            }
+            selectedTeam: '$$team_id'
           })
           .project({
             _id: 0,
