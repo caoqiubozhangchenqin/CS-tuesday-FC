@@ -16,6 +16,8 @@
         <image class="avatar" src="{{item.avatarUrl}}"></image>
         <view class="player-info">
           <view class="nickname">{{item.nickname}}</view>
+          <view class="team-info" wx:if="{{item.teamName}}">{{item.teamName}}</view>
+          <view class="team-info free-agent" wx:else>自由球员 - 请赶紧签约</view>
           <view class="total-value">
             <text class="value-number">{{item.total_value}}</text>
             <text class="value-unit">万欧元</text>

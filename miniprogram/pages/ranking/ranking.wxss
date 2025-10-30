@@ -124,6 +124,17 @@
   color: #333;
 }
 
+.team-info {
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 6rpx;
+}
+
+.free-agent {
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
 .first-place .nickname {
   color: #FF8C00;
   font-size: 36rpx;
