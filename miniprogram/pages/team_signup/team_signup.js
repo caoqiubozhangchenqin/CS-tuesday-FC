@@ -74,15 +74,21 @@ Page({
       success: res => {
         wx.hideLoading();
         if (res.result.success) {
-          // 获取球队ID用于更新本地存储和数据库
+          // 更新本地数据
+          this.setData({ mySelectedTeam: teamId });
+          // 重新计算队伍选择状态
+          const updatedTeams = this.data.teams.map(team => ({
+            ...team,
+            isSelected: teamId === team._id
+          }));
+          this.setData({ teams: updatedTeams });
+          
           wx.setStorageSync('selectedTeam', teamId);
           wx.showToast({
             title: '欢迎加入！',
             icon: 'success',
             duration: 2000
           });
-          // 重新加载数据以更新页面显示
-          this.getAllTeamsAndMyInfo();
         } else {
           wx.showToast({
             title: res.result.message,

@@ -99,7 +99,14 @@ Page({
             title: res.result.message,
             icon: 'success'
           });
-          this.getAllTeamsAndMyInfo();
+          // 更新本地数据
+          this.setData({ mySelectedTeam: teamId });
+          // 重新计算队伍选择状态
+          const updatedTeams = this.data.teams.map(team => ({
+            ...team,
+            isSelected: teamId === team._id
+          }));
+          this.setData({ teams: updatedTeams });
         } else {
           wx.showToast({
             title: res.result.message,
