@@ -74,11 +74,8 @@ Page({
       success: res => {
         wx.hideLoading();
         if (res.result.success) {
-          // 获取球队名称用于更新本地存储
-          const team = this.data.teams.find(t => t._id === teamId);
-          if (team) {
-            wx.setStorageSync('selectedTeam', team.name);
-          }
+          // 获取球队ID用于更新本地存储和数据库
+          wx.setStorageSync('selectedTeam', teamId);
           wx.showToast({
             title: '欢迎加入！',
             icon: 'success',

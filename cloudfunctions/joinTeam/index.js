@@ -52,11 +52,12 @@ exports.main = async (event, context) => {
         }
     }
 
-    // 4. 更新数据库：将新的球队ID添加到感兴趣的球队数组中
+    // 4. 更新数据库：将新的球队ID添加到感兴趣的球队数组中，并设置 selectedTeam
     const updateRes = await db.collection('users').doc(player.data[0]._id).update({
       data: {
         // 明确以数组形式 push，兼容性更好
-        interested_teams: _.push([teamId])
+        interested_teams: _.push([teamId]),
+        selectedTeam: teamId // 设置用户选择的球队
       }
     });
 

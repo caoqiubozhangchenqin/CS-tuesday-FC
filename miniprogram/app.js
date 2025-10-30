@@ -67,20 +67,19 @@ App({
           // 设置音频管理器的属性
           backgroundAudioManager.title = 'One'; // 音乐标题
           backgroundAudioManager.singer = 'Snow Man'; // 歌手名
-          backgroundAudioManager.coverImgUrl = ' '; // 封面图
-          backgroundAudioManager.src = musicUrl; // 音频链接
-          
+          backgroundAudioManager.coverImgUrl = ''; // 封面图
+
+          // 不直接设置 src（因为设置 src 会触发自动播放），仅保存链接供用户触发播放时使用
+          this.globalData.musicUrl = musicUrl;
+
           // 设置音量
           backgroundAudioManager.volume = 0.3;
-          
+
           // 设置事件监听器
           this.setupMusicListeners(backgroundAudioManager);
-          
-          // 延迟播放，确保音频已加载
-          setTimeout(() => {
-            this.playMusic();
-            console.log('🎵 音乐自动播放');
-          }, 2000);
+
+          // 确保当前为暂停状态（保险措施）
+          try { backgroundAudioManager.pause(); } catch (e) {}
     
         } else {
           console.error("❌ 从云存储获取音乐文件链接失败", res);
@@ -125,7 +124,12 @@ App({
    */
   playMusic: function() {
     if (this.globalData.backgroundAudioManager) {
-      this.globalData.backgroundAudioManager.play();
+      const mgr = this.globalData.backgroundAudioManager;
+      // 如果尚未设置 src，则在用户触发播放时再设置，避免自动播放
+      if (!mgr.src && this.globalData.musicUrl) {
+        mgr.src = this.globalData.musicUrl;
+      }
+      try { mgr.play(); } catch (e) { console.error('调用 play 失败', e); }
     }
   },
 
