@@ -15,9 +15,24 @@ exports.main = async (event, context) => {
       .orderBy('total_value', 'desc')
       .get()
 
+    // 为每个用户添加队伍名称
+    const usersWithTeamNames = await Promise.all(ranking.data.map(async (user) => {
+      if (user.selectedTeam) {
+        try {
+          const teamDoc = await db.collection('teams').doc(user.selectedTeam).get();
+          if (teamDoc.data) {
+            user.teamName = teamDoc.data.name;
+          }
+        } catch (e) {
+          console.error('获取队伍名称失败', user.selectedTeam, e);
+        }
+      }
+      return user;
+    }));
+
     return {
       success: true,
-      data: ranking.data
+      data: usersWithTeamNames
     }
   } catch (err) {
     console.error(err)

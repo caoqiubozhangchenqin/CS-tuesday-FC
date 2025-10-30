@@ -10,10 +10,10 @@ exports.main = async (event, context) => {
     const aggregateResult = await db.collection('teams').aggregate()
       .lookup({
         from: 'users',
-        let: { team_id: '$_id', team_name: '$name' },
+        let: { team_id: '$_id' },
         pipeline: $.pipeline()
           .match({
-            selectedTeam: '$$team_name'
+            selectedTeam: '$$team_id'
           })
           .project({
             _id: 0,
