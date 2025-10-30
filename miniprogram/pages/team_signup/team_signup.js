@@ -4,10 +4,12 @@ Page({
   data: {
     teams: [],
     myTotalValue: 0,
-    mySelectedTeam: ''
+    mySelectedTeam: '',
+    globalBgUrl: ''
   },
 
   onLoad: function (options) {
+    getApp().setPageBackground(this);
     if (options.totalValue) {
       this.setData({
         myTotalValue: Number(options.totalValue)
@@ -16,41 +18,45 @@ Page({
     this.getAllTeamsAndMyInfo();
   },
 
-  onShow: function () {
+  onShow: function() {
     // 每次进入页面都刷新用户选择状态
     this.getAllTeamsAndMyInfo();
   },
+
   getAllTeamsAndMyInfo: async function () {
     wx.showLoading({
       title: '加载中...',
     });
     
     try {
-      // 调用云函数获取球队及其总身价
-      const adminRes = await wx.cloud.callFunction({
-        name: 'getAdminDetails'
-      });
-      
-      const teamsWithValue = adminRes.result.data || [];
-      console.log('球队数据（含总身价）:', teamsWithValue);
+      // 1. 并行获取球队列表(含价值)和用户签约状态
+      const [adminRes, userRes] = await Promise.all([
+        wx.cloud.callFunction({ name: 'getAdminDetails' }),
+        wx.cloud.callFunction({ name: 'getUserSelectedTeam' })
+      ]);
 
-      const userRes = await wx.cloud.callFunction({
-          name: 'getUserInterestedTeams'
+      const teamsWithValue = adminRes.result.data || [];
+      const mySelectedTeam = userRes.result.selectedTeam || '';
+
+      console.log('--- 报名页面数据刷新 ---');
+      console.log('我的队伍ID:', mySelectedTeam);
+
+      // 2. 核心逻辑：处理并匹配数据
+      const updatedTeams = teamsWithValue.map(team => {
+        // 健壮地处理 team._id，无论它是对象还是字符串
+        const teamIdStr = (team._id && typeof team._id === 'object') ? String(team._id) : String(team._id);
+        
+        return {
+          _id: team._id, // 保留原始ID用于操作
+          name: team.teamName,
+          salary_cap: team.salary_cap || 0,
+          totalTeamValue: team.totalTeamValue || 0,
+          // 关键：进行字符串比较
+          isSelected: mySelectedTeam === teamIdStr
+        };
       });
       
-      const mySelectedTeam = userRes.result.selectedTeam || '';
-      console.log('获取到的 mySelectedTeam:', mySelectedTeam);
-      
-      const updatedTeams = teamsWithValue.map(team => ({
-        _id: team._id,
-        name: team.teamName,
-        salary_cap: team.salary_cap || 0,
-        totalTeamValue: team.totalTeamValue || 0,
-        isSelected: mySelectedTeam === team._id
-      }));
-      
-      console.log('处理后的球队数据:', updatedTeams);
-      
+      // 3. 更新页面
       this.setData({
         teams: updatedTeams,
         mySelectedTeam: mySelectedTeam
@@ -70,134 +76,94 @@ Page({
   handleJoinTeam: async function (e) {
     const teamId = e.currentTarget.dataset.teamId;
     wx.showLoading({
-      title: '报名中...',
+      title: '签约中...',
     });
-    wx.cloud.callFunction({
-      name: 'joinTeam',
-      data: {
-        teamId: teamId
-      },
-      success: res => {
-        wx.hideLoading();
-        if (res.result.success) {
-          // 更新本地数据
-          this.setData({ mySelectedTeam: teamId });
-          // 重新计算队伍选择状态
-          const updatedTeams = this.data.teams.map(team => ({
-            ...team,
-            isSelected: teamId === team._id
-          }));
-          this.setData({ teams: updatedTeams });
-          
-          wx.setStorageSync('selectedTeam', teamId);
-          wx.showToast({
-            title: '欢迎加入！',
-            icon: 'success',
-            duration: 2000
-          });
-        } else {
-          wx.showToast({
-            title: res.result.message,
-            icon: 'none'
-          });
-        }
-      },
-      fail: err => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '报名失败，请重试',
-          icon: 'none'
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'joinTeam',
+        data: { teamId: teamId }
+      });
+
+      wx.hideLoading();
+
+      if (res.result.success) {
+        wx.showToast({ title: '签约成功！', icon: 'success' });
+        
+        // 核心：直接在本地更新数据，实现UI即时刷新
+        const updatedTeams = this.data.teams.map(team => {
+            const teamIdStr = (team._id && typeof team._id === 'object') ? String(team._id) : String(team._id);
+            return {
+                ...team,
+                isSelected: teamIdStr === teamId
+            };
         });
-        console.error(err);
+
+        this.setData({
+          teams: updatedTeams,
+          mySelectedTeam: teamId
+        });
+        
+        wx.setStorageSync('selectedTeam', teamId);
+
+      } else {
+        wx.showToast({ title: res.result.message || '签约失败', icon: 'none' });
       }
-    });
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: '请求失败，请重试', icon: 'none' });
+      console.error(err);
+    }
   },
   
-  handleCancelJoinTeam: function (e) {
+  handleCancelJoinTeam: async function (e) {
     const teamId = e.currentTarget.dataset.teamId;
     wx.showLoading({
-      title: '取消中...',
+      title: '解约中...',
     });
-    wx.cloud.callFunction({
-      name: 'cancelJoinTeam',
-      data: {
-        teamId: teamId
-      },
-      success: res => {
-        wx.hideLoading();
-        if (res.result.success) {
-          // 取消签约时清除本地存储的球队信息
-          wx.removeStorageSync('selectedTeam');
-          wx.showToast({
-            title: '解约成功',
-            icon: 'success',
-            duration: 2000
-          });
-          // 重新加载数据以更新页面显示
-          this.getAllTeamsAndMyInfo();
-        } else {
-          wx.showToast({
-            title: res.result.message,
-            icon: 'none'
-          });
-        }
-      },
-      fail: err => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '取消失败，请重试',
-          icon: 'none'
-        });
-        console.error(err);
-      }
-    });
-  },
-  
-  handleResetSelections: async function() {
-    if (!this.data.mySelectedTeam) {
-      wx.showToast({
-        title: '您还没有选择队伍',
-        icon: 'none'
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'cancelJoinTeam',
+        data: { teamId: teamId }
       });
-      return;
-    }
-    
-    wx.showLoading({
-      title: '重置中...',
-    });
-    
-    wx.cloud.callFunction({
-      name: 'cancelJoinTeam',
-      data: {
-        teamId: this.data.mySelectedTeam
-      },
-      success: res => {
-        wx.hideLoading();
-        if (res.result.success) {
-          // 重置选择时清除本地存储的球队信息
-          wx.removeStorageSync('selectedTeam');
-          wx.showToast({
-            title: '重置成功',
-            icon: 'success',
-            duration: 2000
-          });
-          // 重新加载数据以更新页面显示
-          this.getAllTeamsAndMyInfo();
-        } else {
-          wx.showToast({
-            title: res.result.message,
-            icon: 'none'
-          });
-        }
-      },
-      fail: err => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '重置失败，请重试',
-          icon: 'none'
+
+      wx.hideLoading();
+
+      if (res.result.success) {
+        wx.showToast({ title: '解约成功！', icon: 'success' });
+
+        // 核心：直接在本地更新数据，实现UI即时刷新
+        const updatedTeams = this.data.teams.map(team => ({
+          ...team,
+          isSelected: false
+        }));
+
+        this.setData({
+          teams: updatedTeams,
+          mySelectedTeam: ''
         });
-        console.error(err);
+
+        wx.removeStorageSync('selectedTeam');
+      } else {
+        wx.showToast({ title: res.result.message || '解约失败', icon: 'none' });
       }
-    });
-  }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: '请求失败，请重试', icon: 'none' });
+      console.error(err);
+    }
+  },
+
+  onReady: function () {},
+  onHide: function () {},
+  onUnload: function () {},
+
+  onPullDownRefresh: function () {
+    this.getAllTeamsAndMyInfo();
+    wx.stopPullDownRefresh();
+  },
+
+  onReachBottom: function () {},
+  onShareAppMessage: function () {}
 });

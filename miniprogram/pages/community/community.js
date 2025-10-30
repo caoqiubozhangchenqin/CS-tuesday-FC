@@ -578,7 +578,7 @@ Page({
     }
     
     const app = getApp();
-    const isAuthor = app.globalData.openid && message.userOpenid === app.globalData.openid;
+    const isAuthor = app.globalData.openid && message.openid === app.globalData.openid;
     
     if (!this.data.isAdmin && !isAuthor) {
       wx.showToast({ title: '没有权限删除此留言', icon: 'none' });

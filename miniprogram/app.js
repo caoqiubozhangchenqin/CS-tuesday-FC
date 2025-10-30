@@ -22,6 +22,27 @@ App({
   },
 
   /**
+   * 设置页面背景的辅助函数
+   * @param {Page} pageInstance - 小程序页面实例 (this)
+   */
+  setPageBackground: function(pageInstance) {
+    if (this.globalData.globalBackgroundImageUrl) {
+      pageInstance.setData({ globalBgUrl: this.globalData.globalBackgroundImageUrl });
+    } else {
+      // 如果背景图还没加载好，就添加一个一次性监听器
+      const listener = (url) => {
+        pageInstance.setData({ globalBgUrl: url });
+        // 移除监听器，避免重复设置
+        const index = this.globalData.bgListeners.indexOf(listener);
+        if (index > -1) {
+          this.globalData.bgListeners.splice(index, 1);
+        }
+      };
+      this.addBgListener(listener);
+    }
+  },
+
+  /**
    * 获取并全局存储 openid
    */
   getOpenid: function() {
@@ -224,6 +245,8 @@ App({
     openid: null,
     backgroundAudioManager: null,
     isMusicPlaying: false,
-    musicStatusListeners: [] // 存储所有页面的监听函数
+    musicStatusListeners: [], // 存储所有页面的监听函数
+    globalBackgroundImageUrl: null, // 全局背景图链接
+    bgListeners: [] // 背景图监听器
   }
 });

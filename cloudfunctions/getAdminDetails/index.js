@@ -13,7 +13,9 @@ exports.main = async (event, context) => {
         let: { team_id: '$_id' },
         pipeline: $.pipeline()
           .match({
-            selectedTeam: '$$team_id'
+            $expr: {
+              $eq: ['$selectedTeam', { $toString: '$$team_id' }]
+            }
           })
           .project({
             _id: 0,

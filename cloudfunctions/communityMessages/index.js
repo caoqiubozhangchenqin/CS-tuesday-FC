@@ -272,12 +272,9 @@ async function deleteMessage(data, openid) {
     
     // 检查是否是留言作者
     if (message.data.openid !== openid) {
-      // 检查是否是管理员
-      const adminResult = await db.collection('adminUsers').where({
-        openid: openid
-      }).count();
-      
-      if (adminResult.total === 0) {
+      // 检查是否是管理员（使用与前端相同的逻辑）
+      const ADMIN_OPENID = 'oVAxOvrDAY9Q0qG8WBnRxO3_m1nw';
+      if (openid !== ADMIN_OPENID) {
         return { success: false, message: '无权限删除该留言' };
       }
     }
