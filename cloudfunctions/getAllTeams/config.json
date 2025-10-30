@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "openapi": [],
+    "db": [
+      {
+        "resource": "teams",
+        "permission": "read"
+      }
+    ]
+  },
+  "timeout": 3,
+  "memorySize": 128
+}

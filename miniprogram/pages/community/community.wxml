@@ -22,11 +22,6 @@
         maxlength="200"
         show-confirm-bar="{{false}}"
       ></textarea>
-      <!-- 权限提示信息 - 仅在未完成评估或无球队时显示 -->
-      <view wx:if="!isAdmin && (!hasUserInfo || userValue <= 0 || !selectedTeam)" class="permission-tip">
-        <text wx:if="!hasUserInfo || userValue <= 0" class="tip-text">💡 请先完成身价评估</text>
-        <text wx:if="!selectedTeam" class="tip-text">💡 请先选择球队</text>
-      </view>
       <view class="post-actions">
         <view class="char-count">{{messageLength}}/200</view>
         <button class="post-btn" bindtap="submitMessage" disabled="{{!canPost}}">发布</button>
@@ -39,9 +34,15 @@
     <view class="section-header">
       <text class="section-icon">📝</text>
       <text>最新留言</text>
-      <view class="sort-options">
-        <text class="sort-btn {{sortBy === 'time' ? 'active' : ''}}" bindtap="setSortBy" data-type="time">最新</text>
-        <text class="sort-btn {{sortBy === 'likes' ? 'active' : ''}}" bindtap="setSortBy" data-type="likes">热门</text>
+      <view class="header-actions">
+        <view class="refresh-btn" bindtap="refreshMessages">
+          <text class="refresh-icon">🔄</text>
+          <text>刷新</text>
+        </view>
+        <view class="sort-options">
+          <text class="sort-btn {{sortBy === 'time' ? 'active' : ''}}" bindtap="setSortBy" data-type="time">最新</text>
+          <text class="sort-btn {{sortBy === 'likes' ? 'active' : ''}}" bindtap="setSortBy" data-type="likes">热门</text>
+        </view>
       </view>
       <!-- 管理员功能区域 -->
     </view>
@@ -51,16 +52,22 @@
       <view wx:for="{{messageList}}" wx:key="id" class="message-card">
         <view class="message-header">
           <view class="user-info">
-              <image wx:if="{{item.avatarUrl}}" class="user-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
-              <text wx:else class="user-avatar">👤</text>
+            <text class="user-avatar">👤</text>
             <view class="user-details">
-              <text class="user-name">{{item.userId}}</text>
+              <view class="user-name-row">
+                <text class="user-name">{{item.userId}}</text>
+                <text class="user-value 
+                  {{item.userValue >= 1400 ? 'value-legendary' : 
+                    item.userValue >= 1200 ? 'value-epic' : 
+                    item.userValue >= 1000 ? 'value-rare' : 
+                    item.userValue >= 800 ? 'value-uncommon' : 'value-common'}}">
+                  ¥{{item.userValue}}万
+                </text>
+              </view>
               <view class="user-stats">
-                <text class="user-value">身价: ¥{{item.userValue}}万</text>
                 <text wx:if="{{item.selectedTeam}}" class="user-team">{{item.selectedTeam}}</text>
               </view>
             </view>
-            <text class="post-time">{{item.createTime}}</text>
           </view>
           <view class="message-actions">
             <view class="like-btn {{item.isLiked ? 'liked' : ''}}" bindtap="toggleLike" data-id="{{item.id}}">
@@ -75,6 +82,11 @@
         
         <view class="message-content">
           <text>{{item.content}}</text>
+        </view>
+        
+        <!-- 留言时间 - 右下角 -->
+        <view class="message-time">
+          <text>{{item.createTime}}</text>
         </view>
         
         <!-- 回复区域 -->
@@ -102,10 +114,8 @@
           <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
             <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
                 <view class="reply-header">
-                  <image wx:if="{{reply.avatarUrl}}" class="reply-avatar" src="{{reply.avatarUrl}}" mode="aspectFill"></image>
-                  <text wx:else class="reply-avatar">👤</text>
+                  <text class="reply-avatar">👤</text>
                   <text class="reply-user">{{reply.userId}}</text>
-                  <text class="reply-time">{{reply.createTime}}</text>
                 </view>
             <view class="reply-content">
               <text>{{reply.content}}</text>

@@ -6,6 +6,18 @@ const _ = db.command;
 // 留言集合
 const MESSAGES_COLLECTION = 'communityMessages';
 
+// 初始化数据库集合
+async function initCollection() {
+  try {
+    // 尝试创建集合（如果不存在）
+    await db.createCollection(MESSAGES_COLLECTION);
+    console.log('Collection initialized:', MESSAGES_COLLECTION);
+  } catch (error) {
+    // 集合可能已经存在，忽略错误
+    console.log('Collection may already exist:', error.message);
+  }
+}
+
 // 处理消息体长度
 const truncateMessage = (message, maxLength = 500) => {
   if (typeof message !== 'string') return '';
@@ -18,6 +30,9 @@ exports.main = async (event, context) => {
   const { action, data } = event;
   
   try {
+    // 初始化集合
+    await initCollection();
+    
     switch (action) {
       case 'getMessages':
         return await getMessages(data, OPENID);
@@ -34,15 +49,18 @@ exports.main = async (event, context) => {
     }
   } catch (error) {
     console.error('处理社区留言时出错:', error);
-    return { success: false, message: error.message || '服务器内部错误' };
+    return { success: false, message: '服务器内部错误，请稍后重试' };
   }
 };
 
 // 获取留言列表
 async function getMessages(data, openid) {
-  const { sortBy = 'time', skip = 0, limit = 50 } = data || {};
+  const { sortBy = 'time', skip = 0, limit = 250 } = data || {};
   
   try {
+    // 确保集合存在
+    await initCollection();
+    
     // 构建查询
     let query = db.collection(MESSAGES_COLLECTION);
     
@@ -53,8 +71,8 @@ async function getMessages(data, openid) {
       query = query.orderBy('createTime', 'desc');
     }
     
-    // 分页
-    query = query.skip(skip).limit(limit);
+    // 分页 - 限制最多返回250条最新留言
+    query = query.skip(skip).limit(Math.min(limit, 250));
     
     // 执行查询
     const result = await query.get();
@@ -73,24 +91,53 @@ async function getMessages(data, openid) {
     return { success: true, data: messages };
   } catch (error) {
     console.error('获取留言列表失败:', error);
-    throw new Error('获取留言列表失败');
+    // 不抛出错误，而是返回成功但空数据
+    return { success: true, data: [] };
   }
 }
 
 // 提交新留言
 async function submitMessage(data, openid) {
+  console.log('submitMessage called with data:', data, 'openid:', openid);
+  
   const { content, userInfo, userValue, selectedTeam } = data;
   
   // 验证必填字段
   if (!content || !content.trim()) {
+    console.log('Validation failed: content is empty');
     return { success: false, message: '留言内容不能为空' };
   }
   
   if (!userInfo || !userValue || !selectedTeam) {
+    console.log('Validation failed: missing userInfo, userValue, or selectedTeam', { userInfo, userValue, selectedTeam });
     return { success: false, message: '用户信息不完整' };
   }
   
   try {
+    // 确保集合存在
+    await initCollection();
+    
+    console.log('Checking total message count...');
+    // 检查总留言数量，如果超过250条则删除最旧的留言
+    const totalCount = await db.collection(MESSAGES_COLLECTION).count();
+    console.log('Total messages count:', totalCount.total);
+    
+    if (totalCount.total >= 250) {
+      console.log('Deleting oldest message...');
+      // 获取最旧的留言（按创建时间升序排序）
+      const oldestMessages = await db.collection(MESSAGES_COLLECTION)
+        .orderBy('createTime', 'asc')
+        .limit(1)
+        .get();
+      
+      if (oldestMessages.data.length > 0) {
+        // 删除最旧的留言
+        await db.collection(MESSAGES_COLLECTION).doc(oldestMessages.data[0]._id).remove();
+        console.log('已删除最旧的留言以保持总数不超过250条');
+      }
+    }
+    
+    console.log('Creating new message...');
     const newMessage = {
       content: truncateMessage(content),
       userInfo: {
@@ -107,10 +154,12 @@ async function submitMessage(data, openid) {
       updateTime: db.serverDate()
     };
     
+    console.log('Adding message to database...');
     const result = await db.collection(MESSAGES_COLLECTION).add({
       data: newMessage
     });
     
+    console.log('Message added successfully, result:', result);
     return {
       success: true,
       data: {
@@ -122,7 +171,7 @@ async function submitMessage(data, openid) {
     };
   } catch (error) {
     console.error('提交留言失败:', error);
-    throw new Error('提交留言失败');
+    return { success: false, message: '提交留言失败，请稍后重试' };
   }
 }
 
@@ -168,7 +217,7 @@ async function toggleLike(data, openid) {
     };
   } catch (error) {
     console.error('切换点赞状态失败:', error);
-    throw new Error('切换点赞状态失败');
+    return { success: false, message: '操作失败，请稍后重试' };
   }
 }
 
@@ -205,7 +254,7 @@ async function submitReply(data, openid) {
     };
   } catch (error) {
     console.error('提交回复失败:', error);
-    throw new Error('提交回复失败');
+    return { success: false, message: '回复失败，请稍后重试' };
   }
 }
 
@@ -239,6 +288,6 @@ async function deleteMessage(data, openid) {
     return { success: true, message: '删除成功' };
   } catch (error) {
     console.error('删除留言失败:', error);
-    throw new Error('删除留言失败');
+    return { success: false, message: '删除失败，请稍后重试' };
   }
 }
