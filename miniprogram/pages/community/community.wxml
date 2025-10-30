@@ -14,10 +14,10 @@
       <text>发表你的看法</text>
     </view>
     <view class="post-form">
-      <textarea 
-        class="message-input" 
-        placeholder="分享你对比赛、球队的看法..." 
-        value="{{newMessage}}" 
+      <textarea
+        class="message-input"
+        placeholder="分享你对比赛、球队的看法..."
+        value="{{newMessage}}"
         bindinput="onMessageInput"
         maxlength="200"
         show-confirm-bar="{{false}}"
@@ -44,7 +44,6 @@
           <text class="sort-btn {{sortBy === 'likes' ? 'active' : ''}}" bindtap="setSortBy" data-type="likes">热门</text>
         </view>
       </view>
-      <!-- 管理员功能区域 -->
     </view>
 
     <!-- 留言列表 -->
@@ -56,11 +55,7 @@
             <view class="user-details">
               <view class="user-name-row">
                 <text class="user-name">{{item.userId}}</text>
-                <text class="user-value 
-                  {{item.userValue >= 1400 ? 'value-legendary' : 
-                    item.userValue >= 1200 ? 'value-epic' : 
-                    item.userValue >= 1000 ? 'value-rare' : 
-                    item.userValue >= 800 ? 'value-uncommon' : 'value-common'}}">
+                <text class="user-value {{item.userValue >= 1400 ? 'value-legendary' : item.userValue >= 1200 ? 'value-epic' : item.userValue >= 1000 ? 'value-rare' : item.userValue >= 800 ? 'value-uncommon' : 'value-common'}}">
                   ¥{{item.userValue}}万
                 </text>
               </view>
@@ -79,23 +74,23 @@
             </view>
           </view>
         </view>
-        
+
         <view class="message-content">
           <text>{{item.content}}</text>
         </view>
-        
+
         <!-- 留言时间 - 右下角 -->
         <view class="message-time">
           <text>{{item.createTime}}</text>
         </view>
-        
+
         <!-- 回复区域 -->
         <view wx:if="{{item.showReply}}" class="reply-section">
-          <textarea 
-            class="reply-input" 
-            placeholder="回复这条留言..." 
-            value="{{item.replyText}}" 
-            bindinput="onReplyInput" 
+          <textarea
+            class="reply-input"
+            placeholder="回复这条留言..."
+            value="{{item.replyText}}"
+            bindinput="onReplyInput"
             data-id="{{item.id}}"
             maxlength="100"
           ></textarea>
@@ -104,19 +99,19 @@
             <button class="reply-cancel-btn" bindtap="hideReply" data-id="{{item.id}}">取消</button>
           </view>
         </view>
-        
+
         <!-- 管理员删除按钮 - 右下角位置 -->
-          <view wx:if="{{isAdmin}}" class="delete-btn" bindtap="deleteMessage" data-id="{{item.id}}">
-            <text class="delete-icon">🗑️</text>
-          </view>
-          
-          <!-- 回复列表 -->
-          <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
-            <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
-                <view class="reply-header">
-                  <text class="reply-avatar">👤</text>
-                  <text class="reply-user">{{reply.userId}}</text>
-                </view>
+        <view wx:if="{{isAdmin}}" class="delete-btn" bindtap="deleteMessage" data-id="{{item.id}}">
+          <text class="delete-icon">🗑️</text>
+        </view>
+
+        <!-- 回复列表 -->
+        <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
+          <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
+            <view class="reply-header">
+              <text class="reply-avatar">👤</text>
+              <text class="reply-user">{{reply.userId}}</text>
+            </view>
             <view class="reply-content">
               <text>{{reply.content}}</text>
             </view>
@@ -127,7 +122,7 @@
 
     <!-- 加载状态 -->
     <view wx:if="{{isLoading}}" class="loading-tip">正在加载留言...</view>
-    
+
     <!-- 空状态 -->
     <view wx:if="{{!isLoading && messageList.length === 0}}" class="empty-tip">
       <text class="empty-icon">💭</text>
