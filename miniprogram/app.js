@@ -69,17 +69,14 @@ App({
           backgroundAudioManager.singer = 'Snow Man'; // 歌手名
           backgroundAudioManager.coverImgUrl = ''; // 封面图
 
-          // 不直接设置 src（因为设置 src 会触发自动播放），仅保存链接供用户触发播放时使用
-          this.globalData.musicUrl = musicUrl;
+          // 设置 src 并自动播放
+          backgroundAudioManager.src = musicUrl;
 
           // 设置音量
           backgroundAudioManager.volume = 0.3;
 
           // 设置事件监听器
           this.setupMusicListeners(backgroundAudioManager);
-
-          // 确保当前为暂停状态（保险措施）
-          try { backgroundAudioManager.pause(); } catch (e) {}
     
         } else {
           console.error("❌ 从云存储获取音乐文件链接失败", res);
