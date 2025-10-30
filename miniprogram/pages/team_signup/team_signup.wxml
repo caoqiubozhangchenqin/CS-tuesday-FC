@@ -13,15 +13,15 @@
   
   <view class="team-list">
     <block wx:for="{{teams}}" wx:key="_id">
-      <view class="team-item {{item.isInterested ? 'selected' : ''}}">
+      <view class="team-item {{item.isSelected ? 'selected' : ''}}">
         <view class="team-main">
           <view class="team-badge">
             <text class="badge-icon">👕</text>
+            <text wx:if="{{item.isSelected}}" class="selected-badge">✔️</text>
           </view>
           <view class="team-info">
             <view class="team-name">
               <text>{{item.name}}</text>
-              <text wx:if="{{item.isInterested}}" class="selected-badge">✔️</text>
             </view>
             <view class="team-stats">
               <view class="stat-row">
@@ -36,7 +36,7 @@
         </view>
         
         <view class="team-action">
-          <block wx:if="{{item.isInterested}}">
+          <block wx:if="{{item.isSelected}}">
             <button 
               class="cancel-button" 
               bindtap="handleCancelJoinTeam" 
@@ -50,7 +50,7 @@
               class="join-button" 
               bindtap="handleJoinTeam" 
               data-team-id="{{item._id}}"
-              disabled="{{myInterestedTeams.length >= 1}}"
+              disabled="{{mySelectedTeam}}"
             >
               立即签约
             </button>
@@ -62,7 +62,7 @@
   
   <view class="reset-button-container">
     <button 
-      wx:if="{{myInterestedTeams.length >= 1}}"
+      wx:if="{{mySelectedTeam}}"
       class="reset-button" 
       bindtap="handleResetSelections"
     >

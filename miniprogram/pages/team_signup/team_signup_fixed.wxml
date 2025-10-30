@@ -14,7 +14,7 @@
           </view>
         </view>
         
-        <block wx:if="{{item.isInterested}}">
+        <block wx:if="{{item.isSelected}}">
           <button 
             class="cancel-button" 
             bindtap="handleCancelJoinTeam" 
@@ -28,7 +28,7 @@
             class="join-button" 
             bindtap="handleJoinTeam" 
             data-team-id="{{item._id}}"
-            disabled="{{myInterestedTeams.length >= 1}}"
+            disabled="{{mySelectedTeam}}"
           >
             Here We Go
           </button>
@@ -39,7 +39,7 @@
   
   <view class="reset-button-container">
     <button 
-      wx:if="{{myInterestedTeams.length >= 1}}"
+      wx:if="{{mySelectedTeam}}"
       class="reset-button" 
       bindtap="handleResetSelections"
     >
