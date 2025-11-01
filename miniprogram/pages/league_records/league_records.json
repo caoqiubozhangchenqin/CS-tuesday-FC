@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "bg": "/components/bg/bg"
+  },
+  "navigationBarTitleText": "bug提交",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
+}

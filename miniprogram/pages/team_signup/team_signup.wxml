@@ -1,0 +1,71 @@
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <view class="title">
+    <text class="title-icon">⚽</text>
+    <text>Here We Go! 加入球队</text>
+  </view>
+  
+  <!-- 提示信息 -->
+  <view class="tip-card">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">选择球队后，可在"身价排行榜"页面查看您的身价</text>
+  </view>
+  
+  <view class="team-list">
+    <block wx:for="{{teams}}" wx:key="_id">
+      <view class="team-item {{item.isSelected ? 'selected' : ''}}">
+        <view class="team-main">
+          <view class="team-badge">
+            <text class="badge-icon">👕</text>
+            <text wx:if="{{item.isSelected}}" class="selected-badge">✔️</text>
+          </view>
+          <view class="team-info">
+            <view class="team-name">
+              <text>{{item.name}}</text>
+            </view>
+            <view class="team-stats">
+              <view class="stat-row">
+                <text class="stat-label">💰 当前总身价</text>
+                <view class="stat-value">
+                  <text class="stat-number">{{item.totalTeamValue || 0}}</text>
+                  <text class="stat-unit">万欧</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="team-action">
+          <block wx:if="{{item.isSelected}}">
+            <button 
+              class="cancel-button" 
+              bindtap="handleCancelJoinTeam" 
+              data-team-id="{{item._id}}"
+            >
+              解约
+            </button>
+          </block>
+          <block wx:else>
+            <button 
+              class="join-button" 
+              bindtap="handleJoinTeam" 
+              data-team-id="{{item._id}}"
+            >
+              立即签约
+            </button>
+          </block>
+        </view>
+      </view>
+    </block>
+  </view>
+  
+  <view class="reset-button-container">
+    <button 
+      wx:if="{{mySelectedTeam}}"
+      class="reset-button" 
+      bindtap="handleResetSelections"
+    >
+      重新选择
+    </button>
+  </view>
+</view>

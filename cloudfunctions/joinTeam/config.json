@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [],
+  "permission": {
+    "openapi": [
+      "database.add",
+      "database.update",
+      "database.remove",
+      "database.query",
+      "database.count",
+      "database.aggregate"
+    ]
+  }
+}

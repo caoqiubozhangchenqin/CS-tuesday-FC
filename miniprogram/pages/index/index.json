@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "基础能力",
+  "usingComponents": {
+    "bg": "/components/bg/bg"
+  }
+}

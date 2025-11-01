@@ -1,0 +1,3 @@
+<view class="global-background" style="background-image: url({{bgUrl}});">
+  <slot></slot>
+</view>

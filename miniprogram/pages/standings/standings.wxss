@@ -1,0 +1,162 @@
+/* pages/standings/standings.wxss */
+.container {
+  padding: 30rpx 20rpx;
+  background: transparent !important;
+}
+
+.page-title {
+  font-size: 48rpx;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 40rpx;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(51, 51, 51, 0.85));
+  padding: 40rpx;
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+  border: 4rpx solid #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.title-icon {
+  font-size: 52rpx;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.table {
+  width: 100%;
+  font-size: 26rpx;
+  color: #333;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  overflow: hidden;
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.15),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 4rpx solid #000;
+  backdrop-filter: blur(10px);
+}
+
+.table-header, .table-row {
+  display: flex;
+  width: 100%;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.table-header {
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(51, 51, 51, 0.9));
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  font-size: 28rpx;
+  border-bottom: 4rpx solid #000;
+}
+
+.table-row {
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.table-row:active {
+  background-color: rgba(240, 240, 240, 0.95);
+}
+
+.champion {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 193, 7, 0.8));
+  font-weight: 900;
+  border: 3rpx solid #ffd700;
+  box-shadow: 
+    0 8px 16px rgba(255, 215, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
+}
+
+.top-rank {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
+  border: 2rpx solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cell {
+  padding: 22rpx 5rpx;
+  text-align: center;
+  box-sizing: border-box;
+  width: 9%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* “排名”列 */
+.rank { 
+  width: 12%; 
+  font-weight: bold;
+  color: #888;
+  font-size: 28rpx;
+}
+
+.rank-1, .rank-2, .rank-3 {
+  font-size: 40rpx;
+}
+
+/* “球队”列 */
+.team { 
+  width: 28%; 
+  justify-content: flex-start;
+  padding-left: 15rpx;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* “积分”列 */
+.points { 
+  width: 10%;
+  font-weight: bold;
+  color: #E6393F;
+}
+
+/* 其他数据列的微调 */
+.cell:not(.team) {
+  color: #555;
+}
+
+.loading-tip, .empty-tip {
+  text-align: center;
+  color: #1a1a1a;
+  padding: 60rpx 0;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 12rpx;
+}
+
+/* --- 高亮显示前三名的样式 --- */
+.top-rank .rank {
+  background-color: #fffbe8;
+  color: #c89600;
+}
+.first-place-team {
+  background-color: #fffbe8; /* 一个非常淡的、优雅的金色背景 */
+  color: #c89600; /* 配套的深金色文字 */
+  border-radius: 8rpx; /* 给高亮区域一个小圆角，更精致 */
+}

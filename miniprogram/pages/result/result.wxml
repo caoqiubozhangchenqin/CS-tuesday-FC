@@ -1,0 +1,10 @@
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <image class="avatar" src="{{avatarUrl}}"></image>
+  <view class="nickname">{{nickname}}</view>
+  <view class="result-box">
+    <text class="result-text">您的身价是：</text>
+    <text class="total-value">{{totalValue}}</text>
+    <text class="unit">欧元</text>
+  </view>
+</view>

@@ -1,0 +1,3 @@
+<!--pages/registration_status/registration_status.wxml-->
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<text>pages/registration_status/registration_status.wxml</text>

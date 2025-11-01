@@ -1,0 +1,30 @@
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <view class="title">
+    <text class="title-icon">🏆</text>
+    <text>身价排名榜</text>
+  </view>
+  <view class="ranking-list">
+    <block wx:for="{{rankingList}}" wx:key="openid">
+      <view class="ranking-item {{index < 3 ? 'top-three' : ''}} {{index === 0 ? 'first-place' : ''}}">
+        <view class="rank rank-{{index + 1}}">
+          <text wx:if="{{index === 0}}">🥇</text>
+          <text wx:elif="{{index === 1}}">🥈</text>
+          <text wx:elif="{{index === 2}}">🥉</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
+        <image class="avatar" src="{{item.avatarUrl}}"></image>
+        <view class="player-info">
+          <view class="nickname">{{item.nickname}}</view>
+          <view class="team-info" wx:if="{{item.teamName}}">{{item.teamName}}</view>
+          <view class="team-info free-agent" wx:else>自由球员 - 请赶紧签约</view>
+          <view class="total-value">
+            <text class="value-number">{{item.total_value}}</text>
+            <text class="value-unit">万欧元</text>
+          </view>
+        </view>
+        <view wx:if="{{index === 0}}" class="crown">👑</view>
+      </view>
+    </block>
+  </view>
+</view>

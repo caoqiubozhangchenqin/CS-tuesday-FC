@@ -1,0 +1,279 @@
+/* pages/schedule/schedule.wxss */
+.container {
+  padding: 30rpx 20rpx;
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+.page-title {
+  font-size: 48rpx;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 40rpx;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.9), rgba(238, 90, 36, 0.85));
+  padding: 40rpx;
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  box-shadow: 
+    0 12px 24px rgba(255, 107, 107, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+  border: 4rpx solid #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.title-icon {
+  font-size: 52rpx;
+  animation: flip 2s ease-in-out infinite;
+}
+
+@keyframes flip {
+  0%, 100% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+}
+
+.match-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.8));
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  margin-bottom: 30rpx;
+  padding: 35rpx;
+  box-shadow: 
+    0 10px 24px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 4rpx solid #000;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.match-card:active {
+  transform: scale(0.95) rotate(1deg);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.match-card:hover {
+  transform: translateY(-4rpx) scale(1.02);
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  margin-bottom: 20rpx;
+  border-bottom: 2rpx solid rgba(155, 89, 182, 0.2);
+}
+
+.tournament-name {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #666;
+}
+
+.tournament-icon {
+  font-size: 28rpx;
+}
+
+.match-time {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.time-icon {
+  font-size: 24rpx;
+}
+
+/* --- 使用 CSS Grid 布局的核心样式 --- */
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* 三列网格：(队名) (比分) (队名) */
+  align-items: center;
+  padding: 25rpx 0;
+}
+
+.team-info {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.team-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 80rpx;
+  justify-content: center;
+}
+
+.team-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.team-info.winner {
+  font-weight: 700;
+}
+
+.team-info.loser {
+  color: #999;
+  opacity: 0.6;
+}
+
+.win-badge {
+  font-size: 20rpx;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  letter-spacing: 1rpx;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  height: 28rpx;
+  line-height: 20rpx;
+  animation: winBounce 1s ease-in-out infinite;
+}
+
+@keyframes winBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6rpx) scale(1.05);
+  }
+}
+
+.team-name-text {
+  position: relative;
+}
+
+.team-icon {
+  font-size: 32rpx;
+}
+
+/* 主客队文字左右对齐，更美观 */
+.home-team { text-align: left; }
+.away-team { text-align: right; }
+
+.vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 20rpx;
+}
+
+.vs-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #bbb;
+  background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  margin: 0 20rpx;
+  background: linear-gradient(135deg, rgba(230, 57, 63, 0.1), rgba(255, 71, 87, 0.05));
+  padding: 15rpx 25rpx;
+  border-radius: 20rpx;
+}
+
+.score {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #E6393F;
+  transition: all 0.3s ease;
+}
+
+.score.winning-score {
+  font-size: 52rpx;
+  font-weight: 900;
+}
+
+.score-divider {
+  font-size: 32rpx;
+  color: #999;
+}
+/* --- Grid 布局样式结束 --- */
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 24rpx;
+  color: #999;
+  padding-top: 20rpx;
+  margin-top: 20rpx;
+  border-top: 2rpx solid rgba(155, 89, 182, 0.1);
+  background: rgba(155, 89, 182, 0.05);
+  padding: 15rpx;
+  border-radius: 12rpx;
+}
+
+.note-icon {
+  font-size: 26rpx;
+}
+
+.loading-tip, .empty-tip {
+  text-align: center;
+  color: #1a1a1a;
+  padding: 40rpx 0;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 12rpx;
+}
+
+/* --- 新增的轮次标题样式 --- */
+.round-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  padding: 25rpx 30rpx;
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.95), rgba(142, 68, 173, 0.9));
+  border-radius: 20rpx;
+  margin: 30rpx 0 20rpx 0;
+  border-left: 6rpx solid #8e44ad;
+  box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+}
+
+.round-icon {
+  font-size: 36rpx;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8rpx); }
+}

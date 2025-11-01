@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "openapi": [],
+    "database": {
+      "collection_permissions": [
+        {
+          "collection": "messageBoard",
+          "read": true,
+          "write": true
+        }
+      ]
+    }
+  },
+  "timeout": 30,
+  "memorySize": 128,
+  "runtime": "Nodejs12.16"
+}

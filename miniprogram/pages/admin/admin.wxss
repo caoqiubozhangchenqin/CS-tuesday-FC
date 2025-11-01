@@ -1,0 +1,140 @@
+/* pages/admin/admin.wxss */
+page {
+  background: transparent !important;
+}
+
+.admin-container {
+  padding: 80rpx 40rpx; 
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: transparent !important;
+}
+
+.header {
+  margin-bottom: 100rpx; 
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.75);
+  padding: 40rpx;
+  border-radius: 20rpx;
+}
+
+.title {
+  font-size: 56rpx; 
+  font-weight: bold;
+  color: #1a1a1a;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+.subtitle {
+  font-size: 30rpx;
+  color: #555;
+  margin-top: 16rpx;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.danger-zone {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 24rpx;
+  padding: 50rpx 40rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  border-top: 6rpx solid #ee0a24;
+}
+
+.description {
+  font-size: 30rpx;
+  color: #646566;
+  line-height: 1.7;
+  margin-bottom: 60rpx;
+  text-align: justify;
+}
+
+/* =============================================== */
+/*   【核心修正】只修改了下面这个 .reset-button 样式  */
+/* =============================================== */
+.reset-button {
+  width: 100%;
+  height: 92rpx;
+  background-color: #ee0a24;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(238, 10, 36, 0.2);
+  transition: all 0.2s ease;
+
+  /* --- 以下是新增的核心代码 --- */
+  
+  /* 1. 移除可能导致问题的 line-height */
+  line-height: normal; 
+  
+  /* 2. 使用 Flexbox 布局来实现完美居中 */
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;    /* 垂直居中 */
+  
+  /* 3. 移除按钮的默认内外边距和边框 */
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+/* 解决小程序 button 默认边框问题 */
+.reset-button::after {
+  border: none;
+}
+
+/* 按钮按下的效果 (保持不变) */
+.reset-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+  background-color: #d40920; 
+}
+
+.init-zone {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 24rpx;
+  padding: 50rpx 40rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  border-top: 6rpx solid #07c160;
+  margin-top: 40rpx;
+}
+
+.init-button {
+  width: 100%;
+  height: 92rpx;
+  background-color: #07c160;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.2);
+  transition: all 0.2s ease;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: normal;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.init-button::after {
+  border: none;
+}
+
+.init-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+  background-color: #06a550;
+}
+
+.loading-tip {
+  text-align: center;
+  color: #1a1a1a;
+  padding-top: 200rpx;
+  font-size: 28rpx;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.75);
+  padding: 40rpx;
+  border-radius: 12rpx;
+}

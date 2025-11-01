@@ -1,0 +1,35 @@
+.bg-wrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; /* 让背景处于页面底层 */
+  pointer-events: none; /* 不阻塞页面交互 */
+  overflow: hidden;
+}
+.bg-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat; /* 默认不平铺，根据sizeMode决定 */
+  background-position: center center; /* 居中显示 */
+  background-size: cover; /* 默认使用cover模式自适应 */
+  image-rendering: -webkit-optimize-contrast; /* 优化图片渲染质量 */
+  image-rendering: crisp-edges; /* 保持边缘清晰 */
+}
+.bg-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0); /* 默认透明，可通过 overlayOpacity 属性调整 */
+  pointer-events: none;
+}
+
+

@@ -1,0 +1,19 @@
+<view class="page-background" style="background-image: url({{globalBgUrl}});"></view>
+
+<view class="container">
+  <view class="title">球员身价评估</view>
+  <view class="question-list">
+    <block wx:for="{{questions}}" wx:key="question_id">
+      <view class="question-item">
+        <view class="question-text">{{index + 1}}. {{item.question_text}}</view>
+        <radio-group class="radio-group" data-question-id="{{item.question_id}}" bindchange="handleRadioChange">
+          <label class="radio-label" wx:for="{{item.options}}" wx:for-item="option" wx:key="option">
+            <radio value="{{option.option}}" />
+            <text>{{option.text}}</text>
+          </label>
+        </radio-group>
+      </view>
+    </block>
+  </view>
+  <button class="submit-button" bindtap="submitAnswers">提交并查看身价</button>
+</view>

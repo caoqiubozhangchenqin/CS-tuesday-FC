@@ -1,0 +1,4 @@
+<view class="bg-wrapper" wx:if="{{bgUrl}}">
+  <view class="bg-image" style="background-image: url('{{bgUrl}}'); filter: blur({{blur}}px); background-size: {{sizeMode}}; background-repeat: {{repeat ? 'repeat' : 'no-repeat'}}; background-position: center center;"></view>
+  <view class="bg-overlay" style="background: rgba(0,0,0,{{overlayOpacity}});"></view>
+</view>

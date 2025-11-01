@@ -1,0 +1,79 @@
+<!--pages/schedule/schedule.wxml-->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <view class="page-title">
+    <text class="title-icon">📅</text>
+    <text>联赛赛程</text>
+  </view>
+
+<view wx:if="{{isLoading}}" class="loading-tip">正在加载...</view>
+
+<!-- 【核心修改】使用两层循环来渲染 -->
+<!-- 外层循环：遍历每一个轮次 -->
+<view wx:for="{{groupedScheduleList}}" wx:for-item="roundGroup" wx:key="round">
+  
+  <!-- 轮次标题 -->
+  <view class="round-header">
+    <text class="round-icon">🏆</text>
+    <text>{{roundGroup.round}}</text>
+  </view>
+  
+  <!-- 内层循环：遍历该轮次下的所有比赛 -->
+  <view wx:for="{{roundGroup.matches}}" wx:for-item="item" wx:key="_id" class="match-card">
+    
+    <!-- 卡片头部 -->
+    <view class="card-header">
+      <view class="tournament-name">
+        <text class="tournament-icon">⚽</text>
+        <text>{{item.tournamentName}}</text>
+      </view>
+      <view class="match-time">
+        <text class="time-icon">🕒</text>
+        <text>{{item.matchDate}} {{item.matchTime}}</text>
+      </view>
+    </view>
+    
+    <!-- 卡片主体 (使用我们最终优化的Grid布局) -->
+    <view class="card-body">
+      <view class="team-info home-team {{item.status === '已结束' && item.homeScore > item.awayScore ? 'winner' : ''}} {{item.status === '已结束' && item.homeScore < item.awayScore ? 'loser' : ''}}">
+        <view class="team-content">
+          <text wx:if="{{item.status === '已结束' && item.homeScore > item.awayScore}}" class="win-badge">WIN</text>
+          <view class="team-name-row">
+            <text class="team-icon">👕</text>
+            <text class="team-name-text">{{item.homeTeam}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{item.status === '已结束' && item.homeScore !== null}}" class="score-display">
+        <text class="score {{item.homeScore > item.awayScore ? 'winning-score' : ''}}">{{item.homeScore}}</text>
+        <text class="score-divider">-</text>
+        <text class="score {{item.awayScore > item.homeScore ? 'winning-score' : ''}}">{{item.awayScore}}</text>
+      </view>
+      <view wx:else class="vs">
+        <text class="vs-text">VS</text>
+      </view>
+      <view class="team-info away-team {{item.status === '已结束' && item.awayScore > item.homeScore ? 'winner' : ''}} {{item.status === '已结束' && item.awayScore < item.homeScore ? 'loser' : ''}}">
+        <view class="team-content">
+          <text wx:if="{{item.status === '已结束' && item.awayScore > item.homeScore}}" class="win-badge">WIN</text>
+          <view class="team-name-row">
+            <text class="team-name-text">{{item.awayTeam}}</text>
+            <text class="team-icon">👕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 卡片底部 -->
+    <view wx:if="{{item.notes}}" class="card-footer">
+      <text class="note-icon">📝</text>
+      <text>{{item.notes}}</text>
+    </view>
+    
+  </view>
+</view>
+
+<view wx:if="{{!isLoading && groupedScheduleList.length === 0}}" class="empty-tip">
+  暂无赛程信息
+</view>
+
+</view>

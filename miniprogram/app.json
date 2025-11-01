@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/survey/survey",
+    "pages/team_signup/team_signup",
+    "pages/result/result",
+    "pages/captain_panel/captain_panel",
+    "pages/ranking/ranking",
+    "pages/admin/admin",
+    "pages/registration_status/registration_status",
+    "pages/team_status/team_status",
+    "pages/schedule/schedule",
+    "pages/standings/standings",
+    "pages/league_records/league_records"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "我的小程序",
+    "navigationBarTextStyle": "black"
+  },
+  "requiredBackgroundModes": [
+    "audio"
+  ],
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

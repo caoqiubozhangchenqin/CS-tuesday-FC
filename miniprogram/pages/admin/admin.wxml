@@ -1,0 +1,39 @@
+<!-- pages/admin/admin.wxml -->
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="admin-container">
+  <!-- 只有在 isAdmin 为 true (验证通过) 时，才显示页面内容 -->
+  <view wx:if="{{isAdmin}}">
+    
+    <!-- 页面大标题 -->
+    <view class="header">
+      <view class="title">管理员后台</view>
+      <view class="subtitle">请谨慎操作以下功能</view>
+    </view>
+
+    <!-- 核心功能区 -->
+    <view class="danger-zone">
+      <view class="description">
+        清空赛季数据将会删除所有用户的报名信息、身价评估结果等。此操作不可逆转，请在赛季完全结束后再执行。
+      </view>
+      <button class="reset-button" bindtap="handleResetSeason">
+        清空本赛季所有数据
+      </button>
+    </view>
+
+    <!-- 系统初始化区 -->
+    <view class="init-zone">
+      <view class="description">
+        初始化系统数据库集合，确保新功能正常工作。
+      </view>
+      <button class="init-button" bindtap="handleInitBugsCollection">
+        初始化bug提交系统
+      </button>
+    </view>
+
+  </view>
+  
+  <!-- 如果身份验证还未完成或失败，则显示提示信息 -->
+  <view wx:else>
+    <view class="loading-tip">正在验证管理员身份...</view>
+  </view>
+</view>

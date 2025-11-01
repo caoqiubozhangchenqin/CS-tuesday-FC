@@ -1,0 +1,3 @@
+<!--pages/captain_panel/captain_panel.wxml-->
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<text>pages/captain_panel/captain_panel.wxml</text>

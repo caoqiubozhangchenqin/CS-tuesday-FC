@@ -1,0 +1,14 @@
+{
+  "envId": "cloud1-3ge5gomsffe800a7",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "communityMessages",
+      "timeout": 30,
+      "memorySize": 128
+    }
+  ],
+  "ai": {
+    "defaultAgent": "{{env.AI_DEFAULT_AGENT}}"
+  }
+}

@@ -1,0 +1,112 @@
+<!-- pages/league_records/league_records.wxml -->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-title">
+    <text class="title-icon">[BUG]</text>
+    <text>bug提交</text>
+  </view>
+
+  <!-- bug提交表单 -->
+  <view class="bug-form">
+    <view class="form-section">
+      <view class="form-header">
+        <text class="form-icon">[FORM]</text>
+        <text>提交bug报告</text>
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">bug描述</text>
+        <textarea
+          class="bug-desc-input"
+          placeholder="请详细描述bug的复现步骤、预期结果和实际结果..."
+          value="{{bugDescription}}"
+          bindinput="onDescInput"
+          maxlength="500"
+          show-confirm-bar="{{false}}"
+        ></textarea>
+        <view class="char-count">{{bugDescLength}}/500</view>
+      </view>
+
+      <view class="form-actions">
+        <button class="submit-btn" bindtap="submitBug" disabled="{{!canSubmit}}">提交bug</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交历史 -->
+  <view class="history-section">
+    <view class="section-header">
+      <text class="section-icon">[LOG]</text>
+      <text>提交历史</text>
+    </view>
+
+    <!-- bug列表 -->
+    <view wx:if="{{!isLoading}}" class="bugs-list">
+      <view wx:for="{{bugList}}" wx:key="id" class="bug-card">
+        <view class="bug-header">
+          <view class="bug-info">
+            <text class="bug-status {{item.status === 'resolved' ? 'status-resolved' : item.status === 'in-progress' ? 'status-progress' : 'status-open'}}">{{item.statusText}}</text>
+          </view>
+          <view class="bug-time">{{item.createTime}}</view>
+        </view>
+        <view class="bug-content">
+          <text>{{item.description}}</text>
+        </view>
+
+        <!-- 管理员操作区域 -->
+        <view wx:if="{{isAdmin}}" class="admin-actions">
+          <view class="action-buttons">
+            <button
+              wx:if="{{item.status !== 'in-progress'}}"
+              class="action-btn action-btn-progress"
+              bindtap="updateBugStatus"
+              data-bug-id="{{item.id}}"
+              data-status="in-progress"
+              size="mini"
+            >
+              处理中
+            </button>
+            <button
+              wx:if="{{item.status !== 'resolved'}}"
+              class="action-btn action-btn-resolved"
+              bindtap="updateBugStatus"
+              data-bug-id="{{item.id}}"
+              data-status="resolved"
+              size="mini"
+            >
+              已解决
+            </button>
+            <button
+              wx:if="{{item.status !== 'open'}}"
+              class="action-btn action-btn-reopen"
+              bindtap="updateBugStatus"
+              data-bug-id="{{item.id}}"
+              data-status="open"
+              size="mini"
+            >
+              重新打开
+            </button>
+            <button
+              class="action-btn action-btn-delete"
+              bindtap="deleteBug"
+              data-bug-id="{{item.id}}"
+              size="mini"
+            >
+              删除
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{isLoading}}" class="loading-tip">正在加载...</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!isLoading && bugList.length === 0}}" class="empty-tip">
+      <text class="empty-icon">[OK]</text>
+      <text>还没有提交bug记录</text>
+    </view>
+  </view>
+</view>

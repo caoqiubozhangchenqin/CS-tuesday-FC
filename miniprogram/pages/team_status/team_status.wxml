@@ -1,0 +1,46 @@
+<!-- pages/team_status/team_status.wxml -->
+<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <!-- 列表头部标题 -->
+  <view class="page-title">
+    <text class="title-icon">⚽</text>
+    <text>各队报名及总身价</text>
+  </view>
+
+  <!-- 加载中的提示 -->
+  <view wx:if="{{isLoading}}" class="loading-tip">数据加载中...</view>
+
+  <!-- 循环展示所有队伍 -->
+  <view class="team-card-list" wx:else>
+    <view class="team-card" wx:for="{{teamsWithInterest}}" wx:key="_id">
+      
+      <!-- 卡片头部：队名和总身价 -->
+      <view class="card-header">
+        <view class="team-name">
+          <text class="team-icon">👕</text>
+          <text>{{item.teamName}}</text>
+        </view>
+        <view class="team-value">
+          <text class="value-icon">💰</text>
+          <text class="value-number">{{item.totalTeamValue}}</text>
+          <text class="value-unit">万欧</text>
+        </view>
+      </view>
+
+      <!-- 新增报名成员列表 -->
+      <view class="user-list">
+        <view class="user-list-header">
+          <text class="member-icon">👥</text>
+          <text>队员 ({{item.interestedUsersWithAvatar.length || item.interestedUsers.length}})</text>
+        </view>
+        <view class="user-tags">
+          <view class="user-tag" wx:for="{{item.interestedUsersWithAvatar || item.interestedUsers}}" wx:for-item="user" wx:key="index">
+            <image wx:if="{{user.avatarUrl}}" class="user-avatar" src="{{user.avatarUrl}}" mode="aspectFill"></image>
+            <text class="user-name">{{user.nickname || user}}</text>
+          </view>
+        </view>
+      </view>
+
+    </view>
+  </view>
+</view>

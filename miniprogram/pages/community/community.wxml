@@ -1,0 +1,132 @@
+<!--pages/community/community.wxml-->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-title">
+    <text class="title-icon">💬</text>
+  <text>联赛记录</text>
+  </view>
+
+  <!-- 发布留言区域 -->
+  <view class="post-section">
+    <view class="post-header">
+      <text class="post-icon">✍️</text>
+      <text>发布记录</text>
+    </view>
+    <view class="post-form">
+      <textarea
+        class="message-input"
+        placeholder="记录你对比赛或球队的看法..."
+        value="{{newMessage}}"
+        bindinput="onMessageInput"
+        maxlength="200"
+        show-confirm-bar="{{false}}"
+      ></textarea>
+      <view class="post-actions">
+        <view class="char-count">{{messageLength}}/200</view>
+        <button class="post-btn" bindtap="submitMessage" disabled="{{!canPost}}">发布记录</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 留言列表 -->
+  <view class="messages-section">
+    <view class="section-header">
+      <text class="section-icon">📝</text>
+      <text>最新记录</text>
+      <view class="header-actions">
+        <view class="refresh-btn" bindtap="refreshMessages">
+          <text class="refresh-icon">🔄</text>
+          <text>刷新</text>
+        </view>
+        <view class="sort-options">
+          <text class="sort-btn {{sortBy === 'time' ? 'active' : ''}}" bindtap="setSortBy" data-type="time">最新</text>
+          <text class="sort-btn {{sortBy === 'likes' ? 'active' : ''}}" bindtap="setSortBy" data-type="likes">热门</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 留言列表 -->
+    <view wx:if="{{!isLoading}}" class="messages-list">
+      <view wx:for="{{messageList}}" wx:key="id" class="message-card">
+        <view class="message-header">
+          <view class="user-info">
+            <text class="user-avatar">👤</text>
+            <view class="user-details">
+              <view class="user-name-row">
+                <text class="user-name">{{item.userId}}</text>
+                <text class="user-value {{item.userValue >= 1400 ? 'value-legendary' : item.userValue >= 1200 ? 'value-epic' : item.userValue >= 1000 ? 'value-rare' : item.userValue >= 800 ? 'value-uncommon' : 'value-common'}}">
+                  ¥{{item.userValue}}万
+                </text>
+              </view>
+              <view class="user-stats">
+                <text wx:if="{{item.selectedTeam}}" class="user-team">{{item.selectedTeam}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="message-actions">
+            <view class="like-btn {{item.isLiked ? 'liked' : ''}}" bindtap="toggleLike" data-id="{{item.id}}">
+              <text class="like-icon">{{item.isLiked ? '❤️' : '🤍'}}</text>
+              <text class="like-count">{{item.likeCount}}</text>
+            </view>
+            <view class="reply-btn" bindtap="showReply" data-id="{{item.id}}">
+              <text class="reply-icon">💬</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="message-content">
+          <text>{{item.content}}</text>
+        </view>
+
+        <!-- 留言时间 - 右下角 -->
+        <view class="message-time">
+          <text>{{item.createTime}}</text>
+        </view>
+
+        <!-- 回复区域 -->
+        <view wx:if="{{item.showReply}}" class="reply-section">
+          <textarea
+            class="reply-input"
+            placeholder="回复这条记录..."
+            value="{{item.replyText}}"
+            bindinput="onReplyInput"
+            data-id="{{item.id}}"
+            maxlength="100"
+          ></textarea>
+          <view class="reply-actions">
+            <button class="reply-submit-btn" bindtap="submitReply" data-id="{{item.id}}">回复</button>
+            <button class="reply-cancel-btn" bindtap="hideReply" data-id="{{item.id}}">取消</button>
+          </view>
+        </view>
+
+        <!-- 管理员删除按钮 - 右下角位置 -->
+        <view wx:if="{{isAdmin}}" class="delete-btn" bindtap="deleteMessage" data-id="{{item.id}}">
+          <text class="delete-icon">🗑️</text>
+        </view>
+
+        <!-- 回复列表 -->
+        <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
+          <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="reply-item">
+            <view class="reply-header">
+              <text class="reply-avatar">👤</text>
+              <text class="reply-user">{{reply.userId}}</text>
+            </view>
+            <view class="reply-content">
+              <text>{{reply.content}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="loading-tip">正在加载记录...</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!isLoading && messageList.length === 0}}" class="empty-tip">
+      <text class="empty-icon">💭</text>
+      <text>还没有记录，快来发布第一条吧！</text>
+    </view>
+  </view>
+</view>
