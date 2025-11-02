@@ -85,13 +85,16 @@ App({
         if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
           const musicUrl = res.fileList[0].tempFileURL;
           
-          // 存储音乐URL，但不自动设置src（暂停自动播放）
+          // 存储音乐URL
           this.globalData.musicUrl = musicUrl;
           
-          // 设置音频管理器的属性（但不设置src）
+          // 设置音频管理器的属性
           backgroundAudioManager.title = 'One'; // 音乐标题
           backgroundAudioManager.singer = 'Snow Man'; // 歌手名
           backgroundAudioManager.coverImgUrl = ''; // 封面图
+
+          // 设置 src 并自动播放
+          backgroundAudioManager.src = musicUrl;
 
           // 设置音量
           backgroundAudioManager.volume = 0.3;
@@ -143,7 +146,7 @@ App({
   playMusic: function() {
     if (this.globalData.backgroundAudioManager) {
       const mgr = this.globalData.backgroundAudioManager;
-      // 如果尚未设置 src，则在用户触发播放时再设置，避免自动播放
+      // 如果尚未设置 src，则在用户触发播放时再设置（备用逻辑）
       if (!mgr.src && this.globalData.musicUrl) {
         mgr.src = this.globalData.musicUrl;
       }

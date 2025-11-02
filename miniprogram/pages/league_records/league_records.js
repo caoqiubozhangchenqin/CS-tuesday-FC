@@ -47,17 +47,14 @@ Page({
   },
   
   onShow: function() {
+    console.log('📱 页面显示 (onShow)');
+    
     // 每次显示页面时调用loadUserInfo，确保从本地存储加载最新的用户信息
     this.loadUserInfo();
     
-    // 如果还没有加载过bug数据，则加载一次
-    if (!this.data.isBugsLoaded) {
-      // 延迟一点时间再加载，避免页面切换时的卡顿
-      setTimeout(() => {
-        this.loadBugs();
-        this.setData({ isBugsLoaded: true });
-      }, 500);
-    }
+    // 每次进入页面都重新加载bug数据
+    console.log('📋 每次进入页面都重新加载bug数据');
+    this.loadBugs();
   },
 
   // 加载用户信息
@@ -100,10 +97,18 @@ Page({
     const adminOpenid = 'oVAxOvrDAY9Q0qG8WBnRxO3_m1nw'; // 管理员OpenID
     const userOpenid = getApp().globalData.openid;
     
+    console.log('🔍 检查管理员权限:', {
+      adminOpenid,
+      userOpenid,
+      isAdmin: userOpenid === adminOpenid
+    });
+    
     if (userOpenid === adminOpenid) {
       this.setData({ isAdmin: true });
+      console.log('✅ 用户是管理员');
     } else {
       this.setData({ isAdmin: false });
+      console.log('❌ 用户不是管理员');
     }
   },
 
@@ -318,46 +323,89 @@ Page({
   loadBugs: function() {
     // 防止重复加载
     if (this.data.isLoading) {
+      console.log('⚠️ 正在加载中，跳过重复请求');
       return;
     }
     
+    console.log('🚀 开始加载bug列表...');
     this.setData({ isLoading: true });
     wx.showLoading({ title: '加载中...' });
     
     try {
       const db = wx.cloud.database();
+      const currentUserOpenid = getApp().globalData.openid;
       
-      db.collection('bugs')
-        .orderBy('createTime', 'desc')
-        .get()
+      console.log('📊 当前用户信息:', {
+        openid: currentUserOpenid,
+        isAdmin: this.data.isAdmin
+      });
+      
+      // 重要：不添加任何过滤条件，查询所有bug记录
+      const query = db.collection('bugs')
+        .orderBy('createTime', 'desc');
+      
+      console.log('🔍 执行查询:', query);
+      
+      query.get()
         .then(res => {
+          console.log('📥 数据库返回结果:', {
+            success: !!res.data,
+            count: res.data ? res.data.length : 0,
+            data: res.data
+          });
+          
           this.setData({ isLoading: false });
           wx.hideLoading();
           
           if (res.data) {
-            // 格式化时间显示
-            const formattedBugs = res.data.map(item => ({
-              ...item,
-              id: item._id,
-              createTime: this.formatTime(new Date(item.createTime)),
-              statusText: item.status === 'resolved' ? '已解决' : 
-                         item.status === 'in-progress' ? '处理中' : '待处理'
-            }));
+            // 格式化时间显示，并添加调试信息
+            const formattedBugs = res.data.map(item => {
+              const isOwnBug = item._openid === currentUserOpenid;
+              console.log('🐛 处理bug记录:', {
+                id: item._id,
+                openid: item._openid,
+                isOwnBug,
+                status: item.status,
+                description: item.description?.substring(0, 50) + '...'
+              });
+              
+              return {
+                ...item,
+                id: item._id,
+                createTime: this.formatTime(new Date(item.createTime)),
+                statusText: item.status === 'resolved' ? '已解决' : 
+                           item.status === 'in-progress' ? '处理中' : '待处理',
+                isOwnBug // 标记是否是自己的bug
+              };
+            });
+            
+            console.log('✅ 格式化后的bug列表:', {
+              total: formattedBugs.length,
+              ownBugs: formattedBugs.filter(b => b.isOwnBug).length,
+              otherBugs: formattedBugs.filter(b => !b.isOwnBug).length
+            });
             
             this.setData({ bugList: formattedBugs });
+            
+            // 显示加载结果
+            wx.showToast({
+              title: `加载到${formattedBugs.length}条记录`,
+              icon: 'none',
+              duration: 2000
+            });
           } else {
-            console.error('获取bug列表失败');
+            console.error('❌ 获取bug列表失败: 没有数据');
             wx.showToast({ title: '加载bug列表失败，请稍后重试', icon: 'none', duration: 2000 });
             this.setData({ bugList: [] });
           }
         }).catch(err => {
           this.setData({ isLoading: false });
           wx.hideLoading();
-          console.error('调用数据库失败:', err);
+          console.error('❌ 调用数据库失败:', err);
           
           // 检查是否是集合不存在的错误
           if (err.errCode === -502005 || err.errMsg && err.errMsg.includes('collection not exists')) {
-            console.log('bugs集合不存在，这是正常的，首次使用时需要创建');
+            console.log('⚠️ bugs集合不存在，这是正常的，首次使用时需要创建');
             wx.showToast({ title: 'bug系统尚未初始化', icon: 'none', duration: 2000 });
             this.setData({ bugList: [] });
           } else {
@@ -368,7 +416,7 @@ Page({
     } catch (e) {
       this.setData({ isLoading: false });
       wx.hideLoading();
-      console.error('加载bug数据异常:', e);
+      console.error('❌ 加载bug数据异常:', e);
       wx.showToast({ title: '系统错误，请重试', icon: 'none', duration: 2000 });
       this.setData({ bugList: [] });
     }
@@ -378,11 +426,6 @@ Page({
   formatTime: function(date) {
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   },
-
-
-  
-  
-  
 
   onShareAppMessage: function() {
     return {
