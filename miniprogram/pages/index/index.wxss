@@ -198,34 +198,64 @@
   50% { transform: scale(1.05); }
 }
 
-/* 分组标题样式 */
-.section-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #fff;
-  margin-top: 30rpx;
-  margin-bottom: 20rpx;
-  padding-left: 20rpx;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  letter-spacing: 2rpx;
+/* 冠军主题按钮组装饰 */
+.button-group {
+  position: relative;
 }
 
-.section-title:first-child {
-  margin-top: 0;
+.button-group::before {
+  content: '⭐⭐⭐';
+  position: absolute;
+  top: -20rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24rpx;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  animation: starsTwinkle 3s ease-in-out infinite;
+  z-index: 1;
 }
 
-/* 【修改点】手绘漫画风格按钮基础样式 */
+.button-group::after {
+  content: '⚽';
+  position: absolute;
+  bottom: -15rpx;
+  right: 20rpx;
+  font-size: 20rpx;
+  color: #FFD700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  animation: ballBounce 4s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes starsTwinkle {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+}
+
+@keyframes ballBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-5rpx) rotate(90deg); }
+  50% { transform: translateY(0) rotate(180deg); }
+  75% { transform: translateY(-3rpx) rotate(270deg); }
+}
+
+/* 【冠军主题】手绘漫画风格按钮基础样式 */
 .menu-button {
   width: 100%;
   height: 130rpx;
   margin-bottom: 35rpx;
-  border-radius: 50rpx 20rpx 50rpx 20rpx;
+  /* 冠军杯形状设计 */
+  border-radius: 60rpx 20rpx 60rpx 20rpx;
+  clip-path: polygon(0% 0%, 95% 0%, 100% 20%, 100% 80%, 95% 100%, 5% 100%, 0% 80%, 0% 20%);
   font-size: 38rpx;
   font-weight: 900;
+  /* 金色冠军主题阴影 */
   box-shadow: 
-    0 8px 0 rgba(0, 0, 0, 0.4),
-    0 4px 0 rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    0 8px 0 rgba(184, 134, 11, 0.6),
+    0 4px 0 rgba(218, 165, 32, 0.4),
+    inset 0 2px 0 rgba(255, 215, 0, 0.4),
+    0 0 20px rgba(255, 215, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   display: flex;
   align-items: center;
@@ -235,7 +265,7 @@
   position: relative;
   overflow: hidden;
   letter-spacing: 2rpx;
-  border: 6rpx solid #000;
+  border: 6rpx solid #DAA520;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
   transform: translateY(0);
   opacity: 0.9;
@@ -249,7 +279,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+  /* 金色光泽效果 */
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.3) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -265,67 +296,59 @@
 .menu-button:active {
   transform: translateY(6rpx) scale(0.95);
   box-shadow: 
-    0 2px 0 rgba(0, 0, 0, 0.4),
-    0 1px 0 rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 2px 0 rgba(184, 134, 11, 0.6),
+    0 1px 0 rgba(218, 165, 32, 0.4),
+    inset 0 1px 0 rgba(255, 215, 0, 0.2);
   opacity: 0.8;
 }
 
-/* 手绘风格悬停效果 */
+/* 冠军主题悬停效果 */
 .menu-button:hover {
   transform: translateY(-3rpx) scale(1.02) rotate(1deg);
   box-shadow: 
-    0 11px 0 rgba(0, 0, 0, 0.4),
-    0 5px 0 rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    0 11px 0 rgba(184, 134, 11, 0.6),
+    0 5px 0 rgba(218, 165, 32, 0.4),
+    inset 0 2px 0 rgba(255, 215, 0, 0.4),
+    0 0 30px rgba(255, 215, 0, 0.5);
   opacity: 1;
 }
 
-/* 漫画风格动画效果 */
-@keyframes mangaBounce {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-5rpx); }
-  100% { transform: translateY(0); }
-}
-
-.menu-button:active {
-  animation: mangaBounce 0.1s ease-in-out;
-}
-
-/* 漫画风格装饰效果 */
+/* 冠军杯装饰效果 */
 .menu-button::after {
-  content: '⚡';
+  content: '🏆';
   position: absolute;
   top: 10rpx;
   right: 15rpx;
   font-size: 24rpx;
   opacity: 0;
   transition: opacity 0.2s ease;
-  animation: sparkle 1s infinite;
+  animation: championGlow 1s infinite;
 }
 
-@keyframes sparkle {
-  0%, 100% { opacity: 0; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+@keyframes championGlow {
+  0%, 100% { opacity: 0; transform: scale(1) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(5deg); }
 }
 
 .menu-button:hover::after {
   opacity: 1;
 }
 
-/* 【修改点】手绘风格主要功能按钮 */
+/* 【冠军主题】手绘风格主要功能按钮 */
 .primary-btn {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.8) 100%);
+  /* 金色冠军渐变背景 */
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(218, 165, 32, 0.9) 50%, rgba(184, 134, 11, 0.85) 100%);
   color: #000;
   font-weight: 900;
   box-shadow: 
-    0 8px 0 rgba(102, 102, 102, 0.6),
-    0 4px 0 rgba(51, 51, 51, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.6);
-  border: 6rpx solid #000;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    0 8px 0 rgba(184, 134, 11, 0.8),
+    0 4px 0 rgba(139, 69, 19, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    0 0 25px rgba(255, 215, 0, 0.4);
+  border: 6rpx solid #DAA520;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
-  opacity: 0.85;
+  opacity: 0.9;
   backdrop-filter: blur(8px);
 }
 
@@ -336,7 +359,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  /* 金色光泽效果 */
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -345,19 +369,21 @@
   transform: translateX(100%);
 }
 
-/* 手绘风格特殊功能按钮 */
+/* 冠军主题特殊功能按钮 */
 .admin-button {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(51, 51, 51, 0.7) 100%);
-  color: #ffffff;
+  /* 深金色管理员按钮 */
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.9) 0%, rgba(160, 82, 45, 0.85) 100%);
+  color: #FFD700;
   font-weight: 900;
   box-shadow: 
-    0 8px 0 rgba(102, 102, 102, 0.6),
-    0 4px 0 rgba(51, 51, 51, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.3);
-  border: 6rpx solid #000;
+    0 8px 0 rgba(101, 67, 33, 0.8),
+    0 4px 0 rgba(85, 56, 28, 0.6),
+    inset 0 2px 0 rgba(255, 215, 0, 0.4),
+    0 0 20px rgba(139, 69, 19, 0.5);
+  border: 6rpx solid #8B4513;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
   position: relative;
-  opacity: 0.8;
+  opacity: 0.85;
   backdrop-filter: blur(8px);
 }
 
@@ -368,7 +394,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.3) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -378,17 +404,19 @@
 }
 
 .logout-button {
-  background: linear-gradient(135deg, rgba(102, 102, 102, 0.8) 0%, rgba(51, 51, 51, 0.7) 100%);
-  color: #ffffff;
+  /* 银色退出按钮 */
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.9) 0%, rgba(169, 169, 169, 0.85) 100%);
+  color: #000;
   font-weight: 900;
   box-shadow: 
-    0 8px 0 rgba(0, 0, 0, 0.6),
-    0 4px 0 rgba(51, 51, 51, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.3);
-  border: 6rpx solid #000;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+    0 8px 0 rgba(105, 105, 105, 0.8),
+    0 4px 0 rgba(128, 128, 128, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    0 0 15px rgba(192, 192, 192, 0.4);
+  border: 6rpx solid #808080;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
-  opacity: 0.75;
+  opacity: 0.8;
   backdrop-filter: blur(8px);
 }
 
@@ -399,7 +427,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -486,10 +514,11 @@
 }
 .save-button::after { border: none; }
 
-/* 签到按钮样式 - 漫画风格 */
+/* 冠军主题签到按钮样式 */
 .sign-in-button {
   margin-top: 25rpx;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.95) 0%, rgba(255, 152, 0, 0.9) 100%);
+  /* 璀璨金色冠军签到按钮 */
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.98) 0%, rgba(255, 193, 7, 0.95) 50%, rgba(218, 165, 32, 0.92) 100%);
   color: #000;
   padding: 20rpx 45rpx;
   text-align: center;
@@ -498,18 +527,22 @@
   justify-content: center;
   font-size: 32rpx;
   font-weight: 900;
-  border: 5rpx solid #000;
-  border-radius: 40rpx 15rpx 40rpx 15rpx;
+  border: 5rpx solid #FFD700;
+  /* 冠军杯形状 */
+  border-radius: 50rpx 15rpx 50rpx 15rpx;
+  clip-path: polygon(0% 0%, 95% 0%, 100% 20%, 100% 80%, 95% 100%, 5% 100%, 0% 80%, 0% 20%);
   box-shadow: 
-    0 6px 0 rgba(0, 0, 0, 0.4),
-    0 3px 0 rgba(0, 0, 0, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.4),
-    0 8px 16px rgba(255, 193, 7, 0.3);
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    0 6px 0 rgba(184, 134, 11, 0.8),
+    0 3px 0 rgba(139, 69, 19, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    0 8px 20px rgba(255, 215, 0, 0.6),
+    0 0 30px rgba(255, 215, 0, 0.4);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(5px);
+  animation: championPulse 2s ease-in-out infinite;
 }
 
 .sign-in-button::before {
@@ -519,7 +552,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -535,10 +568,11 @@
 .sign-in-button:active {
   transform: translateY(4rpx) scale(0.96);
   box-shadow: 
-    0 2px 0 rgba(0, 0, 0, 0.4),
-    0 1px 0 rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 8px rgba(255, 193, 7, 0.2);
+    0 2px 0 rgba(184, 134, 11, 0.8),
+    0 1px 0 rgba(139, 69, 19, 0.6),
+    inset 0 1px 0 rgba(255, 215, 0, 0.3),
+    0 4px 10px rgba(255, 215, 0, 0.4);
+  animation: none;
 }
 
 .sign-in-icon {
@@ -549,6 +583,25 @@
 
 .sign-in-text {
   letter-spacing: 2rpx;
+}
+
+@keyframes championPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 6px 0 rgba(184, 134, 11, 0.8),
+      0 3px 0 rgba(139, 69, 19, 0.6),
+      inset 0 2px 0 rgba(255, 255, 255, 0.6),
+      0 8px 20px rgba(255, 215, 0, 0.6),
+      0 0 30px rgba(255, 215, 0, 0.4);
+  }
+  50% { 
+    box-shadow: 
+      0 6px 0 rgba(184, 134, 11, 0.8),
+      0 3px 0 rgba(139, 69, 19, 0.6),
+      inset 0 2px 0 rgba(255, 255, 255, 0.6),
+      0 8px 25px rgba(255, 215, 0, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.6);
+  }
 }
 
 @keyframes signInBounce {
