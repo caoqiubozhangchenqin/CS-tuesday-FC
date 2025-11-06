@@ -243,177 +243,75 @@
 /* 【冠军主题】手绘漫画风格按钮基础样式 */
 .menu-button {
   width: 100%;
-  height: 130rpx;
-  margin-bottom: 35rpx;
-  font-size: 38rpx;
-  font-weight: 900;
-  color: #fff;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  height: 120rpx;
+  margin-bottom: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 32rpx;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  box-shadow: 0 8px 24px rgba(79, 172, 254, 0.18);
   border: none;
-  clip-path: path('M0,40 Q50,0 100,40 T200,40 V130 H0 Z');
-  text-align: center;
-  line-height: 130rpx;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  padding: 0 36rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #fff;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+  overflow: hidden;
+}
+
+.menu-button::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0; width: 12rpx;
+  background: linear-gradient(180deg, #ffd700 0%, #fff 100%);
+  border-radius: 32rpx 0 0 32rpx;
+  opacity: 0.7;
 }
 
 .menu-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 32px rgba(79, 172, 254, 0.28);
+  transform: scale(1.03);
 }
 
 .menu-button:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.12);
+  transform: scale(0.97);
 }
 
-/* 冠军杯装饰效果 */
-.menu-button::after {
-  content: '🏆';
-  position: absolute;
-  top: 10rpx;
-  right: 15rpx;
-  font-size: 24rpx;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  animation: championGlow 1s infinite;
+.menu-button .icon {
+  width: 56rpx;
+  height: 56rpx;
+  margin-right: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: #ffd700;
+  background: rgba(255,255,255,0.12);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(255,215,0,0.12);
 }
 
-@keyframes championGlow {
-  0%, 100% { opacity: 0; transform: scale(1) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(5deg); }
+.menu-button .text {
+  flex: 1;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2rpx;
 }
 
-.menu-button:hover::after {
-  opacity: 1;
+/* 禁用按钮样式 */
+.menu-button.disabled {
+  background: #e0e0e0;
+  color: #aaa;
+  box-shadow: none;
 }
-
-/* 【冠军主题】手绘风格主要功能按钮 */
-.primary-btn {
-  /* 金色冠军渐变背景 */
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(218, 165, 32, 0.9) 50%, rgba(184, 134, 11, 0.85) 100%);
-  color: #000;
-  font-weight: 900;
-  box-shadow: 
-    0 8px 0 rgba(184, 134, 11, 0.8),
-    0 4px 0 rgba(139, 69, 19, 0.6),
-    inset 0 2px 0 rgba(255, 255, 255, 0.6),
-    0 0 25px rgba(255, 215, 0, 0.4);
-  border: 6rpx solid #DAA520;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
-  position: relative;
-  opacity: 0.9;
-  backdrop-filter: blur(8px);
+.menu-button.disabled .icon {
+  color: #ccc;
+  background: #f5f5f5;
 }
-
-.primary-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* 金色光泽效果 */
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-.primary-btn:active::before {
-  transform: translateX(100%);
-}
-
-/* 冠军主题特殊功能按钮 */
-.admin-button {
-  /* 深金色管理员按钮 */
-  background: linear-gradient(135deg, rgba(139, 69, 19, 0.9) 0%, rgba(160, 82, 45, 0.85) 100%);
-  color: #FFD700;
-  font-weight: 900;
-  box-shadow: 
-    0 8px 0 rgba(101, 67, 33, 0.8),
-    0 4px 0 rgba(85, 56, 28, 0.6),
-    inset 0 2px 0 rgba(255, 215, 0, 0.4),
-    0 0 20px rgba(139, 69, 19, 0.5);
-  border: 6rpx solid #8B4513;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
-  position: relative;
-  opacity: 0.85;
-  backdrop-filter: blur(8px);
-}
-
-.admin-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.3) 50%, transparent 70%);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-.admin-button:active::before {
-  transform: translateX(100%);
-}
-
-.logout-button {
-  /* 银色退出按钮 */
-  background: linear-gradient(135deg, rgba(192, 192, 192, 0.9) 0%, rgba(169, 169, 169, 0.85) 100%);
-  color: #000;
-  font-weight: 900;
-  box-shadow: 
-    0 8px 0 rgba(105, 105, 105, 0.8),
-    0 4px 0 rgba(128, 128, 128, 0.6),
-    inset 0 2px 0 rgba(255, 255, 255, 0.6),
-    0 0 15px rgba(192, 192, 192, 0.4);
-  border: 6rpx solid #808080;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
-  position: relative;
-  opacity: 0.8;
-  backdrop-filter: blur(8px);
-}
-
-.logout-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-.logout-button:active::before {
-  transform: translateX(100%);
-}
-
-
-/* 【修改点】音乐图标，移至右上角 */
-.music-icon-wrapper {
-  position: fixed;
-  /* 调整 top 和 right 值让它位于右上角合适的位置 */
-  top: 120rpx; 
-  right: 40rpx;
-  width: 90rpx;
-  height: 90rpx;
-  z-index: 990;
-  transform-origin: center;
-}
-.music-icon {
-  width: 100%;
-  height: 100%;
-}
-.music-icon-wrapper.playing {
-  animation: spin 3s linear infinite;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 
 /* 登录弹窗样式 (保持不变) */
 /* ... (以下弹窗样式无需修改) ... */
