@@ -140,11 +140,9 @@
 
 /* 为按钮组添加半透明背景 */
 .button-group {
-  background-color: rgba(255, 248, 225, 0.9);
+  background-color: transparent;
   padding: 30rpx;
   border-radius: 20rpx;
-  border: 4rpx solid rgba(245, 124, 0, 0.3);
-  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.2);
 }
 
 /* 用户身价显示 */
