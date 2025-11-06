@@ -247,66 +247,63 @@
   margin-bottom: 32rpx;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   border-radius: 32rpx;
-  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-  box-shadow: 0 8px 24px rgba(79, 172, 254, 0.18);
-  border: none;
+  background: linear-gradient(90deg, #ffe082 0%, #fffde7 60%, #ffd600 100%);
+  box-shadow: 0 6px 24px rgba(255, 193, 7, 0.12), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1.5rpx solid #ffd600;
   padding: 0 36rpx;
   font-size: 36rpx;
   font-weight: 700;
-  color: #fff;
+  color: #a67c00;
   position: relative;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
   overflow: hidden;
+  letter-spacing: 2rpx;
 }
-
 .menu-button::before {
   content: '';
   position: absolute;
-  left: 0; top: 0; bottom: 0; width: 12rpx;
-  background: linear-gradient(180deg, #ffd700 0%, #fff 100%);
+  left: 0; top: 0; bottom: 0; width: 8rpx;
+  background: linear-gradient(180deg, #ffd600 0%, #fffde7 100%);
   border-radius: 32rpx 0 0 32rpx;
   opacity: 0.7;
 }
-
 .menu-button:hover {
-  box-shadow: 0 12px 32px rgba(79, 172, 254, 0.28);
+  box-shadow: 0 12px 32px rgba(255, 193, 7, 0.22);
+  background: linear-gradient(90deg, #fffde7 0%, #ffe082 60%, #ffd600 100%);
   transform: scale(1.03);
 }
-
 .menu-button:active {
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.12);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.18);
+  background: linear-gradient(90deg, #ffd600 0%, #ffe082 60%, #fffde7 100%);
   transform: scale(0.97);
 }
-
 .menu-button .icon {
-  width: 56rpx;
-  height: 56rpx;
-  margin-right: 24rpx;
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48rpx;
-  color: #ffd700;
-  background: rgba(255,255,255,0.12);
+  font-size: 40rpx;
+  color: #ffd600;
+  background: rgba(255,255,255,0.18);
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(255,215,0,0.12);
+  box-shadow: 0 2px 8px rgba(255,215,0,0.10);
 }
-
 .menu-button .text {
   flex: 1;
   font-size: 36rpx;
   font-weight: 700;
-  color: #fff;
+  color: #a67c00;
   letter-spacing: 2rpx;
 }
-
-/* 禁用按钮样式 */
 .menu-button.disabled {
-  background: #e0e0e0;
-  color: #aaa;
+  background: #f5f5f5;
+  color: #ccc;
   box-shadow: none;
+  border: 1.5rpx solid #eee;
 }
 .menu-button.disabled .icon {
   color: #ccc;
