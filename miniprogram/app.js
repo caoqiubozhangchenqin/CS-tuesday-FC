@@ -77,7 +77,7 @@ App({
 
     // 步骤 2: 从云存储获取音乐文件的临时链接
     // 注意：这里的 File ID 是您上传到云存储的音乐文件ID
-    const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/K\'naan - Wavin\' Flag (Coca-Cola® Celebration Mix).mp3';
+        const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/K\'naan - Wavin\' Flag (Coca-Cola® Celebration Mix).mp3';
 
     wx.cloud.getTempFileURL({
       fileList: [BGM_FILE_ID],
