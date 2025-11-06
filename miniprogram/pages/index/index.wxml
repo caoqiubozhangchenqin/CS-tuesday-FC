@@ -1,6 +1,12 @@
 <!-- pages/index/index.wxml -->
-<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/bluelock.jpg" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/泰州.jpg" overlayOpacity="0.4" blur="0" sizeMode="cover" repeat="false" />
 <view class="container main-container">
+
+<!-- 夺冠庆祝标题 -->
+<view class="champion-banner">
+  <text class="champion-text">🏆 苏超冠军 - 泰州队 🏆</text>
+  <text class="champion-subtitle">恭喜泰州队夺得苏超冠军！</text>
+</view>
 
 <!-- Part 1: 头部信息区 -->
 <view class="welcome-header">
