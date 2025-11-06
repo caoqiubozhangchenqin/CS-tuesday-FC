@@ -266,5 +266,36 @@ Page({
       path: '/pages/index/index',
       imageUrl: '/images/your-team-logo.png'
     };
+  },
+  onSignIn: function () {
+    wx.showLoading({ title: '签到中...' });
+    wx.cloud.callFunction({
+      name: 'signIn',
+      success: res => {
+        wx.hideLoading();
+        if (res.result.success) {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'success'
+          });
+          // 签到成功后刷新页面数据
+          this.fetchUserInfo();
+          this.checkUserStatus();
+        } else {
+          wx.showToast({
+            title: res.result.message,
+            icon: 'none'
+          });
+        }
+      },
+      fail: err => {
+        wx.hideLoading();
+        console.error('签到失败:', err);
+        wx.showToast({
+          title: '签到失败，请稍后重试',
+          icon: 'none'
+        });
+      }
+    });
   }
 });
