@@ -77,7 +77,7 @@ App({
 
     // 步骤 2: 从云存储获取音乐文件的临时链接
     // 注意：这里的 File ID 是您上传到云存储的音乐文件ID
-    const BGM_FILE_ID = '	cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/Snow Man - One.mp3';
+    const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/K\'naan - Wavin\' Flag (Coca-Cola® Celebration Mix).mp3';
 
     wx.cloud.getTempFileURL({
       fileList: [BGM_FILE_ID],
@@ -89,8 +89,8 @@ App({
           this.globalData.musicUrl = musicUrl;
           
           // 设置音频管理器的属性
-          backgroundAudioManager.title = 'One'; // 音乐标题
-          backgroundAudioManager.singer = 'Snow Man'; // 歌手名
+          backgroundAudioManager.title = 'Wavin\' Flag (Coca-Cola® Celebration Mix)'; // 音乐标题
+          backgroundAudioManager.singer = 'K\'naan'; // 歌手名
           backgroundAudioManager.coverImgUrl = ''; // 封面图
 
           // 设置 src 并自动播放
