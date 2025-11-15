@@ -1,0 +1,115 @@
+<!-- pages/european_standings/european_standings.wxml -->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.4" blur="0" sizeMode="cover" repeat="false" />
+
+<view class="container">
+  <!-- 标题区域 -->
+  <view class="header">
+    <text class="title">🌍 欧洲五大联赛积分榜</text>
+    <text class="subtitle">2025-2026赛季</text>
+  </view>
+
+  <!-- 联赛切换标签 -->
+  <view class="league-tabs">
+    <view 
+      class="tab-item {{currentLeague === 'PL' ? 'active pl' : ''}}" 
+      bindtap="switchLeague" 
+      data-league="PL"
+    >
+      <text class="tab-text">英超</text>
+    </view>
+    <view 
+      class="tab-item {{currentLeague === 'PD' ? 'active pd' : ''}}" 
+      bindtap="switchLeague" 
+      data-league="PD"
+    >
+      <text class="tab-text">西甲</text>
+    </view>
+    <view 
+      class="tab-item {{currentLeague === 'BL1' ? 'active bl1' : ''}}" 
+      bindtap="switchLeague" 
+      data-league="BL1"
+    >
+      <text class="tab-text">德甲</text>
+    </view>
+    <view 
+      class="tab-item {{currentLeague === 'FL1' ? 'active fl1' : ''}}" 
+      bindtap="switchLeague" 
+      data-league="FL1"
+    >
+      <text class="tab-text">法甲</text>
+    </view>
+    <view 
+      class="tab-item {{currentLeague === 'SA' ? 'active sa' : ''}}" 
+      bindtap="switchLeague" 
+      data-league="SA"
+    >
+      <text class="tab-text">意甲</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <text class="loading-text">⚽ 正在加载{{leagueName}}积分榜...</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:elif="{{error}}" class="error-container">
+    <text class="error-text">❌ {{error}}</text>
+    <button class="retry-button" bindtap="loadStandings">重新加载</button>
+  </view>
+
+  <!-- 积分榜列表 -->
+  <view wx:else class="standings-list">
+    <!-- 表头 -->
+    <view class="standings-header">
+      <text class="col-rank">排名</text>
+      <text class="col-team">球队</text>
+      <text class="col-played">赛</text>
+      <text class="col-record">胜/平/负</text>
+      <text class="col-gd">净胜球</text>
+      <text class="col-points">积分</text>
+    </view>
+
+    <!-- 球队列表 -->
+    <view class="standings-row" 
+          wx:for="{{standings}}" 
+          wx:key="position">
+      <text class="col-rank {{item.rankClass}}">{{item.position}}</text>
+      <view class="col-team team-info">
+        <image wx:if="{{item.team.crest}}" class="team-logo" src="{{item.team.crest}}" mode="aspectFit"></image>
+        <text class="team-name">{{item.team.shortName || item.team.name}}</text>
+      </view>
+      <text class="col-played">{{item.playedGames}}</text>
+      <view class="col-record record-wrapper">
+        <text class="record-win">{{item.won}}</text>
+        <text class="record-separator">/</text>
+        <text class="record-draw">{{item.draw}}</text>
+        <text class="record-separator">/</text>
+        <text class="record-lost">{{item.lost}}</text>
+      </view>
+      <text class="col-gd {{item.goalDifference > 0 ? 'gd-positive' : item.goalDifference < 0 ? 'gd-negative' : 'gd-zero'}}">{{item.goalDifference > 0 ? '+' : ''}}{{item.goalDifference}}</text>
+      <text class="col-points points">{{item.points}}</text>
+    </view>
+  </view>
+
+  <!-- 图例说明 -->
+  <view wx:if="{{!loading && !error && standings.length > 0}}" class="legend">
+    <view class="legend-item">
+      <view class="legend-color champion"></view>
+      <text class="legend-text">欧冠</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-color europa"></view>
+      <text class="legend-text">欧联</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-color relegation"></view>
+      <text class="legend-text">降级</text>
+    </view>
+  </view>
+
+  <!-- 更新时间 -->
+  <view wx:if="{{!loading && !error && standings.length > 0}}" class="update-time">
+    <text>数据更新于: {{updateTime}}</text>
+  </view>
+</view>

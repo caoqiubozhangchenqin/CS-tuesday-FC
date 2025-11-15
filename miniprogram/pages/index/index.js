@@ -140,6 +140,12 @@ Page({
   goToStandingsPage: function() {
     wx.navigateTo({ url: '/pages/standings/standings' });
   },
+  goToEuropeanStandings: function() {
+    wx.navigateTo({ url: '/pages/european_standings/european_standings' });
+  },
+  goToEuropeanSchedule: function() {
+    wx.navigateTo({ url: '/pages/european_schedule/european_schedule' });
+  },
   goToLeagueRecordsPage: function() {
     wx.navigateTo({ url: '/pages/league_records/league_records' });
   },

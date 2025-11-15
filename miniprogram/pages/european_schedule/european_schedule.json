@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "欧洲五大联赛赛程",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "bg": "/components/bg/bg"
+  }
+}

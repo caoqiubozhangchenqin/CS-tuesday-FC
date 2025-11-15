@@ -11,7 +11,9 @@
     "pages/team_status/team_status",
     "pages/schedule/schedule",
     "pages/standings/standings",
-    "pages/league_records/league_records"
+    "pages/league_records/league_records",
+    "pages/european_standings/european_standings",
+    "pages/european_schedule/european_schedule"
   ],
   "window": {
     "backgroundTextStyle": "light",
