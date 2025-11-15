@@ -1,5 +1,5 @@
 <!-- pages/admin/admin.wxml -->
-<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="admin-container">
   <!-- 只有在 isAdmin 为 true (验证通过) 时，才显示页面内容 -->
   <view wx:if="{{isAdmin}}">

@@ -77,7 +77,7 @@ App({
 
     // 步骤 2: 从云存储获取音乐文件的临时链接
     // 注意：这里的 File ID 是您上传到云存储的音乐文件ID
-        const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/K\'naan - Wavin\' Flag (Coca-Cola® Celebration Mix).mp3';
+        const BGM_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bgm/Universal - Sunderland Forever.ogg';
 
     wx.cloud.getTempFileURL({
       fileList: [BGM_FILE_ID],
@@ -89,8 +89,8 @@ App({
           this.globalData.musicUrl = musicUrl;
           
           // 设置音频管理器的属性
-          backgroundAudioManager.title = 'Wavin\' Flag (Coca-Cola® Celebration Mix)'; // 音乐标题
-          backgroundAudioManager.singer = 'K\'naan'; // 歌手名
+          backgroundAudioManager.title = 'Sunderland Forever'; // 音乐标题
+          backgroundAudioManager.singer = 'Universal'; // 歌手名
           backgroundAudioManager.coverImgUrl = ''; // 封面图
 
           // 设置 src 并自动播放
@@ -132,11 +132,11 @@ App({
       this.notifyMusicStatusChange();
     });
     manager.onEnded(() => { 
-      console.log('音乐：播放结束');
-      this.globalData.isMusicPlaying = false;
-      this.notifyMusicStatusChange();
-      // 【可选功能】如果希望音乐循环播放，可以取消下面这行代码的注释
-      // this.playMusic(); 
+      console.log('音乐：播放结束，开始循环播放');
+      // 单曲循环：直接重新设置src来重新播放
+      if (this.globalData.musicUrl) {
+        manager.src = this.globalData.musicUrl;
+      }
     });
   },
 
@@ -150,7 +150,11 @@ App({
       if (!mgr.src && this.globalData.musicUrl) {
         mgr.src = this.globalData.musicUrl;
       }
-      try { mgr.play(); } catch (e) { console.error('调用 play 失败', e); }
+      try { 
+        mgr.play(); 
+        this.globalData.isMusicPlaying = true; // 确保播放状态正确
+        this.notifyMusicStatusChange();
+      } catch (e) { console.error('调用 play 失败', e); }
     }
   },
 
@@ -158,13 +162,14 @@ App({
    * 从云存储获取背景图的临时链接，保存到 globalData.bgImageUrl
    */
   setupBackgroundImage: function() {
-    const BG_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/football 2.png';
+    const BG_FILE_ID = 'cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/足球.png';
     if (!wx.cloud || !wx.cloud.getTempFileURL) return;
     wx.cloud.getTempFileURL({
       fileList: [BG_FILE_ID],
       success: res => {
         if (res && res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
           this.globalData.bgImageUrl = res.fileList[0].tempFileURL;
+          this.globalData.globalBackgroundImageUrl = res.fileList[0].tempFileURL; // 设置全局背景图片URL
           console.log('✅ 已获取并存储背景图临时链接', this.globalData.bgImageUrl);
           // 通知所有 bg 监听器
           if (typeof this.notifyBgUrl === 'function') {

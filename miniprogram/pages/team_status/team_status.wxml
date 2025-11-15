@@ -1,5 +1,5 @@
 <!-- pages/team_status/team_status.wxml -->
-<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
   <!-- 列表头部标题 -->
   <view class="page-title">

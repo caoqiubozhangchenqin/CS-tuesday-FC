@@ -1,4 +1,4 @@
-<bg overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<bg src="{{bgImageUrl}}" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
   <view class="title">
     <text class="title-icon">🏆</text>
