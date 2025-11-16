@@ -13,8 +13,8 @@
   <block wx:if="{{hasUserInfo}}">
     <image class="welcome-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
     <view class="welcome-text">欢迎回来, {{userInfo.nickname}}</view>
-    <!-- 签到按钮 - 紧贴在欢迎信息下方 -->
-    <button bindtap="onSignIn" class="sign-in-button">
+    <!-- 签到按钮 - 只有已评估（身价 >= 50）的用户才显示 -->
+    <button wx:if="{{userValue >= 50}}" bindtap="onSignIn" class="sign-in-button">
       <text class="sign-in-icon">📅</text>
       <text class="sign-in-text">每日签到</text>
     </button>
@@ -29,11 +29,11 @@
 <view class="button-group">
   <!-- 新用户显示开始评估按钮 -->
   <button wx:if="{{showSurveyButton}}" class="menu-button primary-btn" bindtap="goToSurvey">  开始评估</button>
-  <!-- 已评估用户显示灰色不可用的开始评估按钮 -->
-  <button wx:elif="{{userValue > 0}}" class="menu-button primary-btn disabled" disabled>  已评估</button>
+  <!-- 已评估用户（身价 >= 50）显示灰色不可用的开始评估按钮 -->
+  <button wx:elif="{{userValue >= 50}}" class="menu-button primary-btn disabled" disabled>  已评估</button>
   
-  <!-- 身价信息显示区域 -->
-  <view wx:if="{{userValue > 0}}" class="user-value-display">
+  <!-- 身价信息显示区域 - 只有身价 >= 50 的用户才显示 -->
+  <view wx:if="{{userValue >= 50}}" class="user-value-display">
     <block wx:if="{{selectedTeam}}">
       <text class="value-label">我的身价</text>
       <text class="value-amount">¥{{userValue}}万</text>
@@ -45,8 +45,8 @@
     </block>
   </view>
   
-  <!-- 签约球队相关按钮 -->
-  <button wx:if="{{userValue > 0}}" class="menu-button primary-btn" bindtap="goToTeamSignup">  {{selectedTeam ? '更换球队' : '选择球队'}}</button>
+  <!-- 签约球队相关按钮 - 只有身价 >= 50 的用户才显示 -->
+  <button wx:if="{{userValue >= 50}}" class="menu-button primary-btn" bindtap="goToTeamSignup">  {{selectedTeam ? '更换球队' : '选择球队'}}</button>
   
   <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
   <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>

@@ -24,6 +24,14 @@ exports.main = async (event, context) => {
     const user = userRes.data[0];
     const today = new Date().toISOString().split('T')[0]; // 获取当前日期（格式：YYYY-MM-DD）
 
+    // 检查用户是否已完成身价评估（身价需要 >= 50）
+    if (!user.total_value || user.total_value < 50) {
+      return {
+        success: false,
+        message: '请先完成身价评估'
+      };
+    }
+
     // 检查是否已经签到
     if (user.lastSignInDate === today) {
       return {

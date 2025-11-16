@@ -52,7 +52,7 @@ Page({
       this.setData({
         userValue: userValue,
         selectedTeam: selectedTeam,
-        showSurveyButton: !(userValue > 0)
+        showSurveyButton: userValue < 50 // 身价小于50需要做评估
       });
       // 如果有选择的球队，获取球队名称
       if (selectedTeam) {
@@ -121,7 +121,7 @@ Page({
     wx.navigateTo({ url: '../admin/admin' });
   },
   goToTeamSignup: function() {
-    if (!(this.data.userValue > 0)) {
+    if (this.data.userValue < 50) {
       wx.showToast({ title: '请先完成身价评估', icon: 'none' });
       return;
     }
@@ -209,7 +209,7 @@ Page({
             wx.setStorageSync('userInfo', userInfo);
             if (userInfo.total_value !== undefined) {
               wx.setStorageSync('userValue', userInfo.total_value);
-              this.setData({ userValue: userInfo.total_value, showSurveyButton: !(userInfo.total_value > 0) });
+              this.setData({ userValue: userInfo.total_value, showSurveyButton: userInfo.total_value < 50 }); // 身价小于50需要做评估
             }
             if (userInfo.selectedTeam) {
               wx.setStorageSync('selectedTeam', userInfo.selectedTeam);

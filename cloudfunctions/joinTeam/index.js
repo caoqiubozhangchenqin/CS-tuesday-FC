@@ -27,7 +27,7 @@ exports.main = async (event, context) => {
       openid: openid
     }).get();
 
-    if (player.data.length === 0 || !player.data[0].total_value) {
+    if (player.data.length === 0 || !player.data[0].total_value || player.data[0].total_value < 50) {
       return {
         success: false,
         message: '请先完成身价评估！'
