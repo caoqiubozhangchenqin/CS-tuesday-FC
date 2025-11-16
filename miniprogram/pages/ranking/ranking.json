@@ -1,5 +1,7 @@
 {
   "usingComponents": {
     "bg": "/components/bg/bg"
-  }
+  },
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50
 }

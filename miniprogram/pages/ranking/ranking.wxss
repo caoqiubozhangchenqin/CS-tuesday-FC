@@ -173,3 +173,41 @@
   75% { transform: rotate(15deg); }
   100% { transform: rotate(0deg); }
 }
+
+/* 统计信息样式 */
+.stats-info {
+  text-align: center;
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16rpx;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stats-text {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 加载更多样式 */
+.load-more {
+  text-align: center;
+  padding: 40rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.no-more {
+  text-align: center;
+  padding: 40rpx;
+}
+
+.no-more-text {
+  font-size: 28rpx;
+  color: #ccc;
+  font-style: italic;
+}

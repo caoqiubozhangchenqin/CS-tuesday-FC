@@ -8,13 +8,25 @@ const db = cloud.database()
 
 exports.main = async (event, context) => {
   try {
+    const { page = 1, pageSize = 50 } = event;
+    const skip = (page - 1) * pageSize;
+
+    // 获取总数
+    const totalRes = await db.collection('users')
+      .where({
+        selectedTeam: db.command.neq('')
+      })
+      .count();
+
+    // 获取分页数据
     const ranking = await db.collection('users')
       .where({
         selectedTeam: db.command.neq('')
       })
       .orderBy('total_value', 'desc')
-      .limit(500) // 设置更大的限制以显示更多排名
-      .get()
+      .skip(skip)
+      .limit(pageSize)
+      .get();
 
     // 为每个用户添加队伍名称
     const usersWithTeamNames = await Promise.all(ranking.data.map(async (user) => {
@@ -33,8 +45,12 @@ exports.main = async (event, context) => {
 
     return {
       success: true,
-      data: usersWithTeamNames
-    }
+      data: usersWithTeamNames,
+      totalCount: totalRes.total,
+      currentPage: page,
+      pageSize: pageSize,
+      hasMore: skip + ranking.data.length < totalRes.total
+    };
   } catch (err) {
     console.error(err)
     return {
