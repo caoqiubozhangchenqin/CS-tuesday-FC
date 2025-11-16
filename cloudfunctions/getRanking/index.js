@@ -13,6 +13,7 @@ exports.main = async (event, context) => {
         selectedTeam: db.command.neq('')
       })
       .orderBy('total_value', 'desc')
+      .limit(500) // 设置更大的限制以显示更多排名
       .get()
 
     // 为每个用户添加队伍名称
