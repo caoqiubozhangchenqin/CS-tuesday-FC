@@ -231,37 +231,43 @@ Page({
       header: { 'X-Auth-Token': apiKey },
       success: res => {
         wx.hideLoading();
+        console.log('API返回数据:', res.data); // 调试日志
         if (res.statusCode === 200 && res.data) {
           const teamData = res.data;
           const squad = teamData.squad || [];
-          const coach = teamData.coach || null;
           
-          // 按位置分组
+          // 按位置分组（顺序：前锋、中场、后卫、门将）
           const groupedSquad = {
-            goalkeepers: [],
-            defenders: [],
-            midfielders: [],
             attackers: [],
-            coaches: []
+            midfielders: [],
+            defenders: [],
+            goalkeepers: []
           };
           
           squad.forEach(player => {
             const position = player.position;
+            // 处理球员统计数据
+            const playerData = {
+              ...player,
+              // 如果有统计数据，提取出场、进球、助攻
+              appearances: player.appearances || 0,
+              goals: player.goals || 0,
+              assists: player.assists || 0
+            };
+            
             if (position === 'Goalkeeper') {
-              groupedSquad.goalkeepers.push(player);
+              groupedSquad.goalkeepers.push(playerData);
             } else if (position === 'Defence') {
-              groupedSquad.defenders.push(player);
+              groupedSquad.defenders.push(playerData);
             } else if (position === 'Midfield') {
-              groupedSquad.midfielders.push(player);
+              groupedSquad.midfielders.push(playerData);
             } else if (position === 'Offence' || position === 'Attack') {
-              groupedSquad.attackers.push(player);
+              groupedSquad.attackers.push(playerData);
             }
           });
           
-          // 添加教练
-          if (coach) {
-            groupedSquad.coaches.push(coach);
-          }
+          console.log('分组后的阵容:', groupedSquad); // 调试日志
+          console.log('总球员数:', squad.length); // 调试日志
           
           this.setData({
             showSquadModal: true,
