@@ -366,3 +366,222 @@
   margin: 20rpx 2rpx;
   backdrop-filter: blur(5px);
 }
+
+/* 阵容弹窗样式 */
+.squad-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(10rpx);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.squad-modal-content {
+  width: 90%;
+  max-width: 700rpx;
+  max-height: 80vh;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 30rpx;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 弹窗头部 */
+.squad-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 30rpx 25rpx;
+  background: linear-gradient(135deg, rgba(61, 25, 91, 0.95) 0%, rgba(41, 128, 185, 0.9) 100%);
+  border-bottom: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.squad-team-logo {
+  width: 80rpx;
+  height: 80rpx;
+  margin-right: 20rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  padding: 8rpx;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.squad-header-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.squad-team-name {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 8rpx;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.squad-count {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+.close-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: 300;
+  transition: all 0.3s;
+}
+
+.close-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.9);
+}
+
+/* 弹窗内容 */
+.squad-body {
+  max-height: 60vh;
+  padding: 20rpx;
+}
+
+/* 位置分组 */
+.position-group {
+  margin-bottom: 30rpx;
+}
+
+.position-title {
+  display: flex;
+  align-items: center;
+  padding: 15rpx 20rpx;
+  background: linear-gradient(135deg, rgba(61, 25, 91, 0.1) 0%, rgba(41, 128, 185, 0.1) 100%);
+  border-radius: 15rpx;
+  margin-bottom: 15rpx;
+  border-left: 6rpx solid #3D195B;
+}
+
+.position-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.position-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #3D195B;
+}
+
+/* 球员列表 */
+.player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 20rpx;
+  background: #fff;
+  border-radius: 15rpx;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  border: 2rpx solid transparent;
+}
+
+.player-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(61, 25, 91, 0.2);
+}
+
+.player-number {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3D195B 0%, #2980b9 100%);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 700;
+  border-radius: 12rpx;
+  margin-right: 15rpx;
+  box-shadow: 0 2px 6px rgba(61, 25, 91, 0.3);
+}
+
+.player-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.player-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-meta {
+  font-size: 22rpx;
+  color: #999;
+  font-weight: 500;
+}
+
+/* 受伤徽章 */
+.injury-badge {
+  display: flex;
+  align-items: center;
+  padding: 6rpx 12rpx;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: #fff;
+  font-size: 20rpx;
+  font-weight: 700;
+  border-radius: 8rpx;
+  margin-left: 10rpx;
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 教练特殊样式 */
+.coach-item .player-number {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.coach-item {
+  border-left: 4rpx solid #f39c12;
+}

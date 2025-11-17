@@ -9,6 +9,18 @@ Page({
     updateTime: '',
     bgImageUrl: '',
     
+    // 阵容弹窗相关
+    showSquadModal: false,
+    currentTeam: {},
+    squadPlayers: [],
+    squadByPosition: {
+      goalkeepers: [],
+      defenders: [],
+      midfielders: [],
+      attackers: [],
+      coaches: []
+    },
+    
     // 联赛配置
     leagueConfig: {
       'PL': { 
@@ -202,5 +214,100 @@ Page({
     if (this._removeBgListener) {
       this._removeBgListener();
     }
+  },
+
+  // 弹窗显示阵容
+  showSquad(e) {
+    const teamId = e.currentTarget.dataset.teamId;
+    const teamName = e.currentTarget.dataset.teamName;
+    const apiKey = 'c4906718aabe4287b5963a412e4c81ce';
+    const url = `https://api.football-data.org/v4/teams/${teamId}`;
+
+    wx.showLoading({ title: '加载阵容中...' });
+    
+    wx.request({
+      url,
+      method: 'GET',
+      header: { 'X-Auth-Token': apiKey },
+      success: res => {
+        wx.hideLoading();
+        if (res.statusCode === 200 && res.data) {
+          const teamData = res.data;
+          const squad = teamData.squad || [];
+          const coach = teamData.coach || null;
+          
+          // 按位置分组
+          const groupedSquad = {
+            goalkeepers: [],
+            defenders: [],
+            midfielders: [],
+            attackers: [],
+            coaches: []
+          };
+          
+          squad.forEach(player => {
+            const position = player.position;
+            if (position === 'Goalkeeper') {
+              groupedSquad.goalkeepers.push(player);
+            } else if (position === 'Defence') {
+              groupedSquad.defenders.push(player);
+            } else if (position === 'Midfield') {
+              groupedSquad.midfielders.push(player);
+            } else if (position === 'Offence' || position === 'Attack') {
+              groupedSquad.attackers.push(player);
+            }
+          });
+          
+          // 添加教练
+          if (coach) {
+            groupedSquad.coaches.push(coach);
+          }
+          
+          this.setData({
+            showSquadModal: true,
+            currentTeam: {
+              name: teamData.name || teamName,
+              crest: teamData.crest
+            },
+            squadPlayers: squad,
+            squadByPosition: groupedSquad
+          });
+        } else {
+          wx.showToast({
+            title: '阵容获取失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: err => {
+        wx.hideLoading();
+        console.error('获取阵容失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      }
+    });
+  },
+  
+  // 关闭阵容弹窗
+  closeSquadModal() {
+    this.setData({
+      showSquadModal: false,
+      currentTeam: {},
+      squadPlayers: [],
+      squadByPosition: {
+        goalkeepers: [],
+        defenders: [],
+        midfielders: [],
+        attackers: [],
+        coaches: []
+      }
+    });
+  },
+  
+  // 阻止冒泡
+  stopPropagation() {
+    return false;
   }
 });

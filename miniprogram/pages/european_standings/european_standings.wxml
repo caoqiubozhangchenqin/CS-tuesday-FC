@@ -77,7 +77,7 @@
       <text class="col-rank {{item.rankClass}}">{{item.position}}</text>
       <view class="col-team team-info">
         <image wx:if="{{item.team.crest}}" class="team-logo" src="{{item.team.crest}}" mode="aspectFit"></image>
-        <text class="team-name">{{item.team.shortName || item.team.name}}</text>
+  <text class="team-name" bindtap="showSquad" data-team-id="{{item.team.id}}" data-team-name="{{item.team.shortName || item.team.name}}">{{item.team.shortName || item.team.name}}</text>
       </view>
       <text class="col-played">{{item.playedGames}}</text>
       <view class="col-record record-wrapper">
@@ -111,5 +111,111 @@
   <!-- 更新时间 -->
   <view wx:if="{{!loading && !error && standings.length > 0}}" class="update-time">
     <text>数据更新于: {{updateTime}}</text>
+  </view>
+</view>
+
+<!-- 阵容弹窗 -->
+<view class="squad-modal" wx:if="{{showSquadModal}}" catchtap="closeSquadModal">
+  <view class="squad-modal-content" catchtap="stopPropagation">
+    <!-- 弹窗头部 -->
+    <view class="squad-header">
+      <image wx:if="{{currentTeam.crest}}" class="squad-team-logo" src="{{currentTeam.crest}}" mode="aspectFit"></image>
+      <view class="squad-header-text">
+        <text class="squad-team-name">{{currentTeam.name}}</text>
+        <text class="squad-count">阵容 {{squadPlayers.length}} 人</text>
+      </view>
+      <view class="close-btn" catchtap="closeSquadModal">✕</view>
+    </view>
+
+    <!-- 阵容分组 -->
+    <scroll-view class="squad-body" scroll-y>
+      <!-- 门将 -->
+      <view class="position-group" wx:if="{{squadByPosition.goalkeepers.length > 0}}">
+        <view class="position-title">
+          <text class="position-icon">🧤</text>
+          <text class="position-name">门将 ({{squadByPosition.goalkeepers.length}})</text>
+        </view>
+        <view class="player-list">
+          <view class="player-item" wx:for="{{squadByPosition.goalkeepers}}" wx:key="id">
+            <view class="player-number">{{item.shirtNumber || '-'}}</view>
+            <view class="player-info">
+              <text class="player-name">{{item.name}}</text>
+              <text class="player-meta">{{item.nationality || ''}}</text>
+            </view>
+            <view wx:if="{{item.injured}}" class="injury-badge">🤕 伤</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 后卫 -->
+      <view class="position-group" wx:if="{{squadByPosition.defenders.length > 0}}">
+        <view class="position-title">
+          <text class="position-icon">🛡️</text>
+          <text class="position-name">后卫 ({{squadByPosition.defenders.length}})</text>
+        </view>
+        <view class="player-list">
+          <view class="player-item" wx:for="{{squadByPosition.defenders}}" wx:key="id">
+            <view class="player-number">{{item.shirtNumber || '-'}}</view>
+            <view class="player-info">
+              <text class="player-name">{{item.name}}</text>
+              <text class="player-meta">{{item.nationality || ''}}</text>
+            </view>
+            <view wx:if="{{item.injured}}" class="injury-badge">🤕 伤</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 中场 -->
+      <view class="position-group" wx:if="{{squadByPosition.midfielders.length > 0}}">
+        <view class="position-title">
+          <text class="position-icon">⚽</text>
+          <text class="position-name">中场 ({{squadByPosition.midfielders.length}})</text>
+        </view>
+        <view class="player-list">
+          <view class="player-item" wx:for="{{squadByPosition.midfielders}}" wx:key="id">
+            <view class="player-number">{{item.shirtNumber || '-'}}</view>
+            <view class="player-info">
+              <text class="player-name">{{item.name}}</text>
+              <text class="player-meta">{{item.nationality || ''}}</text>
+            </view>
+            <view wx:if="{{item.injured}}" class="injury-badge">🤕 伤</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 前锋 -->
+      <view class="position-group" wx:if="{{squadByPosition.attackers.length > 0}}">
+        <view class="position-title">
+          <text class="position-icon">⚡</text>
+          <text class="position-name">前锋 ({{squadByPosition.attackers.length}})</text>
+        </view>
+        <view class="player-list">
+          <view class="player-item" wx:for="{{squadByPosition.attackers}}" wx:key="id">
+            <view class="player-number">{{item.shirtNumber || '-'}}</view>
+            <view class="player-info">
+              <text class="player-name">{{item.name}}</text>
+              <text class="player-meta">{{item.nationality || ''}}</text>
+            </view>
+            <view wx:if="{{item.injured}}" class="injury-badge">🤕 伤</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 教练组 -->
+      <view class="position-group" wx:if="{{squadByPosition.coaches.length > 0}}">
+        <view class="position-title">
+          <text class="position-icon">👔</text>
+          <text class="position-name">教练组</text>
+        </view>
+        <view class="player-list">
+          <view class="player-item coach-item" wx:for="{{squadByPosition.coaches}}" wx:key="id">
+            <view class="player-info">
+              <text class="player-name">{{item.name}}</text>
+              <text class="player-meta">{{item.nationality || ''}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </view>
