@@ -354,6 +354,191 @@ const teamNameMap = {
 };
 
 /**
+ * 关键词匹配规则
+ * 只要队名包含这些关键词，就映射到对应的中文名
+ */
+const keywordMap = {
+  // 英超
+  'Manchester City': '曼城',
+  'Man City': '曼城',
+  'Arsenal': '阿森纳',
+  'Liverpool': '利物浦',
+  'Aston Villa': '阿斯顿维拉',
+  'Tottenham': '托特纳姆热刺',
+  'Manchester United': '曼联',
+  'Man United': '曼联',
+  'Man Utd': '曼联',
+  'West Ham': '西汉姆联',
+  'Chelsea': '切尔西',
+  'Newcastle': '纽卡斯尔联',
+  'Brighton': '布莱顿',
+  'Wolverhampton': '狼队',
+  'Wolves': '狼队',
+  'Fulham': '富勒姆',
+  'Bournemouth': '伯恩茅斯',
+  'Crystal Palace': '水晶宫',
+  'Brentford': '布伦特福德',
+  'Everton': '埃弗顿',
+  'Nottingham': '诺丁汉森林',
+  'Luton': '卢顿',
+  'Burnley': '伯恩利',
+  'Sheffield United': '谢菲尔德联',
+  'Sheffield Utd': '谢菲尔德联',
+  'Leicester': '莱斯特城',
+  'Leeds': '利兹联',
+  'Southampton': '南安普顿',
+  'Watford': '沃特福德',
+  'Norwich': '诺维奇',
+  'Ipswich': '伊普斯维奇',
+  'Queens Park': '女王公园巡游者',
+  'QPR': '女王公园巡游者',
+  'Reading': '雷丁',
+  'Stoke': '斯托克城',
+  'Swansea': '斯旺西',
+  'West Brom': '西布罗姆维奇',
+  'Huddersfield': '哈德斯菲尔德',
+  'Cardiff': '卡迪夫城',
+  'Middlesbrough': '米德尔斯堡',
+  'Sunderland': '桑德兰',
+  'Hull': '赫尔城',
+  'Blackburn': '布莱克本',
+  'Bolton': '博尔顿',
+  'Wigan': '维冈竞技',
+  'Portsmouth': '朴茨茅斯',
+  
+  // 德甲
+  'Bayern': '拜仁慕尼黑',
+  'Dortmund': '多特蒙德',
+  'Leipzig': '莱比锡红牛',
+  'Union Berlin': '柏林联合',
+  'Freiburg': '弗赖堡',
+  'Leverkusen': '勒沃库森',
+  'Frankfurt': '法兰克福',
+  'Wolfsburg': '沃尔夫斯堡',
+  'Mainz': '美因茨',
+  'Gladbach': '门兴格拉德巴赫',
+  'Köln': '科隆',
+  'Cologne': '科隆',
+  'Hoffenheim': '霍芬海姆',
+  'Bremen': '云达不莱梅',
+  'Bochum': '波鸿',
+  'Augsburg': '奥格斯堡',
+  'Stuttgart': '斯图加特',
+  'Hertha': '柏林赫塔',
+  'Schalke': '沙尔克04',
+  'Bielefeld': '比勒费尔德',
+  'Fürth': '菲尔特',
+  'Düsseldorf': '杜塞尔多夫',
+  'Hannover': '汉诺威96',
+  'Nürnberg': '纽伦堡',
+  'Hamburg': '汉堡',
+  'Paderborn': '帕德博恩',
+  'Heidenheim': '海登海姆',
+  'Darmstadt': '达姆施塔特',
+  
+  // 西甲
+  'Real Madrid': '皇家马德里',
+  'Barcelona': '巴塞罗那',
+  'Atlético': '马德里竞技',
+  'Atletico': '马德里竞技',
+  'Athletic': '毕尔巴鄂竞技',
+  'Sociedad': '皇家社会',
+  'Betis': '皇家贝蒂斯',
+  'Villarreal': '比利亚雷亚尔',
+  'Valencia': '瓦伦西亚',
+  'Osasuna': '奥萨苏纳',
+  'Getafe': '赫塔菲',
+  'Sevilla': '塞维利亚',
+  'Girona': '赫罗纳',
+  'Rayo': '巴列卡诺',
+  'Mallorca': '马略卡',
+  'Alavés': '阿拉维斯',
+  'Alaves': '阿拉维斯',
+  'Las Palmas': '拉斯帕尔马斯',
+  'Cádiz': '加的斯',
+  'Cadiz': '加的斯',
+  'Celta': '塞尔塔',
+  'Granada': '格拉纳达',
+  'Almería': '阿尔梅里亚',
+  'Almeria': '阿尔梅里亚',
+  'Espanyol': '西班牙人',
+  'Elche': '埃尔切',
+  'Levante': '莱万特',
+  'Eibar': '埃瓦尔',
+  'Valladolid': '巴拉多利德',
+  'Deportivo': '拉科鲁尼亚',
+  'Huesca': '韦斯卡',
+  'Leganés': '莱加内斯',
+  'Leganes': '莱加内斯',
+  
+  // 意甲
+  'Inter': '国际米兰',
+  'Milan': 'AC米兰',
+  'Juventus': '尤文图斯',
+  'Atalanta': '亚特兰大',
+  'Roma': '罗马',
+  'Lazio': '拉齐奥',
+  'Fiorentina': '佛罗伦萨',
+  'Torino': '都灵',
+  'Napoli': '那不勒斯',
+  'Bologna': '博洛尼亚',
+  'Frosinone': '弗罗西诺内',
+  'Sassuolo': '萨索洛',
+  'Lecce': '莱切',
+  'Udinese': '乌迪内斯',
+  'Genoa': '热那亚',
+  'Monza': '蒙扎',
+  'Verona': '维罗纳',
+  'Cagliari': '卡利亚里',
+  'Empoli': '恩波利',
+  'Salernitana': '萨勒尼塔纳',
+  'Sampdoria': '桑普多利亚',
+  'Spezia': '斯佩齐亚',
+  'Cremonese': '克雷莫纳',
+  'Parma': '帕尔马',
+  'Benevento': '贝内文托',
+  'Crotone': '克罗托内',
+  'Chievo': '切沃',
+  'Palermo': '巴勒莫',
+  'Brescia': '布雷西亚',
+  'SPAL': '斯帕尔',
+  
+  // 法甲
+  'Paris': '巴黎圣日耳曼',
+  'PSG': '巴黎圣日耳曼',
+  'Monaco': '摩纳哥',
+  'Lille': '里尔',
+  'Marseille': '马赛',
+  'Lens': '朗斯',
+  'Rennes': '雷恩',
+  'Nice': '尼斯',
+  'Lyon': '里昂',
+  'Montpellier': '蒙彼利埃',
+  'Strasbourg': '斯特拉斯堡',
+  'Reims': '兰斯',
+  'Toulouse': '图卢兹',
+  'Nantes': '南特',
+  'Lorient': '洛里昂',
+  'Le Havre': '勒阿弗尔',
+  'Brest': '布雷斯特',
+  'Clermont': '克莱蒙',
+  'Metz': '梅斯',
+  'Troyes': '特鲁瓦',
+  'Auxerre': '欧塞尔',
+  'Ajaccio': '阿雅克肖',
+  'Angers': '昂热',
+  'Saint-Étienne': '圣埃蒂安',
+  'Saint-Etienne': '圣埃蒂安',
+  'Bordeaux': '波尔多',
+  'Nîmes': '尼姆',
+  'Nimes': '尼姆',
+  'Dijon': '第戎',
+  'Amiens': '亚眠',
+  'Guingamp': '甘冈',
+  'Caen': '卡昂',
+};
+
+/**
  * 将英文球队名翻译为中文
  * @param {string} englishName - 英文球队名
  * @returns {string} - 中文球队名（如果映射表中没有，返回原英文名）
@@ -361,18 +546,30 @@ const teamNameMap = {
 function translateTeamName(englishName) {
   if (!englishName) return '';
   
-  // 先尝试完全匹配
+  // 1. 先尝试完全匹配
   if (teamNameMap[englishName]) {
     return teamNameMap[englishName];
   }
   
-  // 尝试去除多余空格后匹配
+  // 2. 尝试去除多余空格后匹配
   const trimmedName = englishName.trim();
   if (teamNameMap[trimmedName]) {
     return teamNameMap[trimmedName];
   }
   
-  // 如果没有找到映射，返回原英文名
+  // 3. 模糊匹配：遍历关键词映射表
+  // 按关键词长度降序排列，优先匹配长关键词（更精确）
+  const keywords = Object.keys(keywordMap).sort((a, b) => b.length - a.length);
+  
+  for (const keyword of keywords) {
+    // 使用正则表达式进行不区分大小写的匹配
+    const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    if (regex.test(englishName)) {
+      return keywordMap[keyword];
+    }
+  }
+  
+  // 4. 如果没有找到任何匹配，返回原英文名
   return englishName;
 }
 
