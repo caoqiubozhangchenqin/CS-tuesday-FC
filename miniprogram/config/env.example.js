@@ -5,6 +5,10 @@
 // 3. env.js 已在 .gitignore 中，不会被上传到 Git
 
 module.exports = {
+  // 微信小程序 AppID
+  // 获取方式：微信公众平台 -> 开发 -> 开发管理 -> 开发设置 -> AppID
+  appId: 'wxYOUR_APPID_HERE',
+
   // 微信云开发环境 ID
   // 获取方式：在微信开发者工具 -> 云开发控制台 -> 设置 -> 环境 ID
   cloudEnvId: 'cloud1-xxxxxxxxx',

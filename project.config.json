@@ -2,7 +2,7 @@
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": true,
     "enhance": true,
     "postcss": true,
@@ -44,7 +44,7 @@
     "swc": false,
     "disableSWC": true
   },
-  "appid": "wxYOUR_APPID_HERE",
+  "appid": "wxb0112230d1040cf5",
   "projectname": "CSFC-Football-Club",
   "libVersion": "3.10.2",
   "cloudfunctionTemplateRoot": "cloudfunctions/",

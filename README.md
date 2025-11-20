@@ -50,6 +50,9 @@ cd CSFC
 
 ```javascript
 module.exports = {
+  // 微信小程序 AppID（在微信公众平台 -> 开发 -> 开发设置中获取）
+  appId: 'wxYOUR_APPID_HERE',
+
   // 云开发环境 ID（在微信开发者工具 -> 云开发 -> 设置中获取）
   cloudEnvId: 'cloud1-xxxxxxxxx',
 
@@ -70,6 +73,8 @@ module.exports = {
   "appid": "你的小程序AppID"
 }
 ```
+
+> ⚠️ **注意**：AppID 需要在 `env.js` 和 `project.config.json` 中都填写相同的值。
 
 ### 4️⃣ 部署云函数
 
