@@ -5,7 +5,6 @@
   <!-- 页面标题 -->
   <view class="page-header">
     <text class="page-title">🌍 五大联赛历史数据</text>
-    <text class="page-subtitle">查询历史赛季积分榜</text>
   </view>
 
   <!-- 联赛选择标签 -->
