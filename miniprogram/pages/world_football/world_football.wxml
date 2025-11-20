@@ -4,8 +4,8 @@
 <view class="container main-container">
   <!-- 页面标题 -->
   <view class="page-header">
-    <text class="page-title">🌍 世界足球历史</text>
-    <text class="page-subtitle">五大联赛历史积分榜查询</text>
+    <text class="page-title">🌍 五大联赛历史数据</text>
+    <text class="page-subtitle">查询历史赛季积分榜</text>
   </view>
 
   <!-- 联赛选择标签 -->
@@ -21,18 +21,15 @@
     </block>
   </view>
 
-  <!-- 赛季选择器 -->
+  <!-- 赛季选择器 - 改为下拉选择 -->
   <view class="season-selector">
-    <scroll-view scroll-x="true" class="season-scroll" enable-flex="true">
-      <block wx:for="{{seasons}}" wx:key="id">
-        <view 
-          class="season-item {{currentSeason === item.id ? 'active' : ''}}" 
-          bindtap="switchSeason" 
-          data-season="{{item.id}}">
-          <text class="season-text">{{item.name}}</text>
-        </view>
-      </block>
-    </scroll-view>
+    <view class="season-label">选择赛季：</view>
+    <picker class="season-picker" mode="selector" range="{{seasons}}" range-key="name" value="{{seasonIndex}}" bindchange="onSeasonChange">
+      <view class="picker-value">
+        {{seasons[seasonIndex].name}}
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
   </view>
 
   <!-- 赛季信息 -->

@@ -70,46 +70,50 @@
   font-weight: bold;
 }
 
-/* ===== 赛季选择器（新增） ===== */
+/* ===== 赛季选择器 - 下拉框样式 ===== */
 .season-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 25rpx;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15rpx);
   border-radius: 16rpx;
-  padding: 15rpx 10rpx;
+  padding: 25rpx 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
 }
 
-.season-scroll {
+.season-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-right: 20rpx;
   white-space: nowrap;
 }
 
-.season-item {
-  display: inline-block;
-  padding: 18rpx 35rpx;
-  margin: 0 8rpx;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12rpx;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2rpx solid transparent;
+.season-picker {
+  flex: 1;
+  max-width: 400rpx;
 }
 
-.season-item.active {
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  box-shadow: 0 6rpx 20rpx rgba(245, 87, 108, 0.45);
-  transform: translateY(-3rpx);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.season-text {
+  padding: 18rpx 30rpx;
+  border-radius: 12rpx;
   font-size: 26rpx;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 6rpx 20rpx rgba(245, 87, 108, 0.4);
+  transition: all 0.3s ease;
 }
 
-.season-item.active .season-text {
-  color: #fff;
-  font-weight: 600;
+.picker-arrow {
+  margin-left: 15rpx;
+  font-size: 20rpx;
+  opacity: 0.8;
 }
 
 /* ===== 赛季信息栏（新增） ===== */
