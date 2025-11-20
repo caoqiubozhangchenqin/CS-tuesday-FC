@@ -62,13 +62,7 @@
       "list": []
     },
     "miniprogram": {
-      "list": [
-        {
-          "id": -1,
-          "name": "db guide",
-          "pathName": "pages/databaseGuide/databaseGuide"
-        }
-      ]
+      "list": []
     }
   },
   "compileType": "miniprogram",
@@ -83,6 +77,6 @@
   },
   "simulatorPluginLibVersion": {},
   "runFunctions": {
-    "envId": "cloud1-3ge5gomsffe800a7"
+    "envId": "YOUR_CLOUD_ENV_ID"
   }
 }

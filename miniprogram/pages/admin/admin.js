@@ -1,5 +1,6 @@
 // pages/admin/admin.js
 const app = getApp();
+const config = require('../../config/env.js');
 
 Page({
   data: {
@@ -12,7 +13,7 @@ Page({
 
   // 身份验证函数 (保持不变)
   checkAdminStatus: function(retryCount = 0) {
-    const adminOpenid = 'oVAxOvrDAY9Q0qG8WBnRxO3_m1nw'; // 您的管理员OpenID
+    const adminOpenid = config.adminOpenId; // 从配置文件读取管理员OpenID
     const userOpenid = app.globalData.openid;
 
     if (!userOpenid) {

@@ -1,4 +1,6 @@
 // pages/index/index.js
+const config = require('../../config/env.js');
+
 Page({
   data: {
     userInfo: null,
@@ -13,7 +15,9 @@ Page({
     userValue: 0,
     selectedTeam: '',
     showSurveyButton: true,
-    selectedTeamName: ''
+    selectedTeamName: '',
+    weatherData: [], // 天气数据
+    showWeather: false // 控制天气弹窗显示
   },
   onLoad: function () {
     const app = getApp();
@@ -26,6 +30,7 @@ Page({
     } catch (e) {}
     this.checkUserStatus();
     this.fetchUserInfo();
+    this.fetchWeatherData(); // 获取天气数据
     this.musicStatusListener = (isPlaying) => {
       if (this.data.isMusicPlaying !== isPlaying) {
         this.setData({ isMusicPlaying: isPlaying });
@@ -302,6 +307,114 @@ Page({
           icon: 'none'
         });
       }
+    });
+  },
+  fetchWeatherData: function() {
+    // 使用 ALAPI v3 接口获取常熟7天天气预报
+    wx.request({
+      url: 'https://v3.alapi.cn/api/tianqi/seven',
+      data: {
+        token: config.alapiToken,
+        city: '常熟'
+      },
+      success: (res) => {
+        console.log('天气API响应:', res.data);
+        let weatherList = [];
+        
+        if (res.data && res.data.code === 200 && res.data.data) {
+          const rawData = res.data.data;
+          console.log('完整的天气数据:', rawData);
+          
+          // v3 接口的 seven 端点直接返回数组
+          if (Array.isArray(rawData)) {
+            weatherList = rawData;
+            // 打印第一条数据用于调试
+            if (weatherList.length > 0) {
+              console.log('第一条天气数据:', JSON.stringify(weatherList[0]));
+            }
+          } else if (rawData.forecast && Array.isArray(rawData.forecast)) {
+            weatherList = rawData.forecast;
+          } else if (rawData.daily && Array.isArray(rawData.daily)) {
+            weatherList = rawData.daily;
+          } else if (rawData.list && Array.isArray(rawData.list)) {
+            weatherList = rawData.list;
+          }
+          
+          // 只取前7天并处理数据
+          weatherList = weatherList.slice(0, 7).map(item => {
+            return {
+              ...item,
+              dateShort: this.formatDate(item.date),
+              weatherEmoji: this.getWeatherEmoji(item.wea_day, item.wea_night)
+            };
+          });
+          console.log('处理后的7天天气数据:', weatherList);
+        } else {
+          console.error('获取天气数据失败:', res.data);
+          wx.showToast({
+            title: '获取天气失败',
+            icon: 'none'
+          });
+        }
+        
+        this.setData({
+          weatherData: weatherList
+        }, () => {
+          console.log('setData完成，当前weatherData长度:', this.data.weatherData.length);
+        });
+      },
+      fail: (err) => {
+        console.error('请求天气API失败:', err);
+        wx.showToast({
+          title: '网络请求失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+  
+  // 格式化日期，去掉年份
+  formatDate: function(dateStr) {
+    if (!dateStr) return '';
+    // dateStr 格式: 2025-11-19
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[1]}-${parts[2]}`; // 返回 11-19
+    }
+    return dateStr;
+  },
+  
+  // 根据天气描述返回对应的 emoji
+  getWeatherEmoji: function(weaDay, weaNight) {
+    // 优先使用白天天气
+    const wea = weaDay || weaNight || '';
+    
+    if (wea.includes('晴')) return '☀️';
+    if (wea.includes('多云')) return '⛅';
+    if (wea.includes('阴')) return '☁️';
+    if (wea.includes('雨')) {
+      if (wea.includes('大雨') || wea.includes('暴雨')) return '🌧️';
+      if (wea.includes('小雨')) return '🌦️';
+      return '🌧️';
+    }
+    if (wea.includes('雪')) return '❄️';
+    if (wea.includes('雾') || wea.includes('霾')) return '🌫️';
+    if (wea.includes('雷')) return '⛈️';
+    
+    return '🌤️'; // 默认
+  },
+  
+  // 切换天气弹窗显示/隐藏
+  toggleWeather: function() {
+    this.setData({
+      showWeather: !this.data.showWeather
+    });
+  },
+  
+  // 关闭天气弹窗
+  closeWeather: function() {
+    this.setData({
+      showWeather: false
     });
   }
 });

@@ -50,14 +50,38 @@
   
   <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
   <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>
-  <button class="menu-button primary-btn" bindtap="goToSchedulePage">  查看联赛赛程</button>
   <button class="menu-button primary-btn" bindtap="goToStandingsPage">  查看联赛积分榜</button>
+  <button class="menu-button primary-btn" bindtap="goToSchedulePage">  查看联赛赛程</button>
   <button class="menu-button primary-btn" bindtap="goToEuropeanStandings">  欧洲五大联赛积分榜</button>
   <button class="menu-button primary-btn" bindtap="goToEuropeanSchedule">  欧洲五大联赛赛程</button>
   <button class="menu-button primary-btn" bindtap="goToLeagueRecordsPage">  bug提交</button>
   
   <button class="menu-button admin-button" bindtap="goToAdminPage">  进入管理员页面</button>
   <button wx:if="{{hasUserInfo}}" class="menu-button logout-button" bindtap="logout">  退出登录</button>
+</view>
+
+<!-- 天气预报按钮 -->
+<view class="weather-trigger" bindtap="toggleWeather">
+  <text class="weather-trigger-icon">🌤️</text>
+</view>
+
+<!-- 天气预报侧边弹窗 -->
+<view class="weather-mask {{showWeather ? 'show' : ''}}" bindtap="closeWeather"></view>
+<view class="weather-drawer {{showWeather ? 'show' : ''}}">
+  <view class="weather-drawer-header">
+    <text class="weather-drawer-title">📍 常熟市7天天气</text>
+    <text class="weather-drawer-close" bindtap="closeWeather">✕</text>
+  </view>
+  <view wx:if="{{weatherData && weatherData.length > 0}}" class="weather-drawer-content">
+    <view wx:for="{{weatherData}}" wx:key="date" class="weather-drawer-item">
+      <text class="weather-drawer-date">{{item.dateShort}}</text>
+      <text class="weather-drawer-emoji">{{item.weatherEmoji}}</text>
+      <text class="weather-drawer-temp">{{item.temp_night}}°C ~ {{item.temp_day}}°C</text>
+    </view>
+  </view>
+  <view wx:else class="weather-drawer-content">
+    <text class="weather-drawer-loading">加载天气中...</text>
+  </view>
 </view>
 
 <!-- 音乐播放器图标 -->

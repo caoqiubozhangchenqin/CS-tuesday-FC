@@ -1,5 +1,6 @@
 // pages/league_records/league_records.js
 const app = getApp();
+const config = require('../../config/env.js');
 
 Page({
   data: {
@@ -94,7 +95,7 @@ Page({
   
   // 检查管理员状态（与admin.js保持一致的逻辑）
   checkAdminStatus: function() {
-    const adminOpenid = 'oVAxOvrDAY9Q0qG8WBnRxO3_m1nw'; // 管理员OpenID
+    const adminOpenid = config.adminOpenId; // 从配置文件读取管理员OpenID
     const userOpenid = getApp().globalData.openid;
     
     console.log('🔍 检查管理员权限:', {

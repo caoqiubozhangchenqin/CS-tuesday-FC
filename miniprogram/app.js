@@ -1,4 +1,6 @@
 // app.js
+const config = require('./config/env.js');
+
 App({
   onLaunch: function () {
     // 1. 初始化云开发环境
@@ -6,7 +8,7 @@ App({
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
     } else {
       wx.cloud.init({
-        env: 'cloud1-3ge5gomsffe800a7', // 您的云开发环境 ID
+        env: config.cloudEnvId, // 从配置文件读取云开发环境 ID
         traceUser: true,
       });
     }
