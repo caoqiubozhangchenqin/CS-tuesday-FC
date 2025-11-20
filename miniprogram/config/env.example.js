@@ -20,7 +20,11 @@ module.exports = {
   // 管理员 OpenID
   // 获取方式：在小程序中登录后，在控制台查看或从数据库获取
   adminOpenId: 'your_admin_openid_here',
-
-  // 其他 API 配置可以在这里添加
-  // 例如：天行数据 API Key 等
+  
+  // OpenFootball 数据源配置（多个镜像源，按优先级排序）
+  openFootballSources: [
+    'https://raw.githubusercontent.com/openfootball/football.json/master',
+    'https://ghproxy.com/https://raw.githubusercontent.com/openfootball/football.json/master',
+    'https://mirror.ghproxy.com/https://raw.githubusercontent.com/openfootball/football.json/master'
+  ]
 };

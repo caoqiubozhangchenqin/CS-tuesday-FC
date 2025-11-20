@@ -1,5 +1,6 @@
 // pages/world_football/world_football.js
 const app = getApp();
+const config = require('../../config/env.js');
 
 Page({
   data: {
@@ -93,12 +94,44 @@ Page({
   loadLeagueData() {
     this.setData({ loading: true, error: '' });
     
-    const url = `https://raw.githubusercontent.com/openfootball/football.json/master/${this.data.currentSeason}/${this.data.currentLeague}.json`;
+    // 从配置文件获取数据源列表
+    const baseSources = config.openFootballSources || [
+      'https://raw.githubusercontent.com/openfootball/football.json/master'
+    ];
     
-    console.log('加载历史赛季数据:', url);
+    // 构建完整的URL列表
+    const sources = baseSources.map(base => 
+      `${base}/${this.data.currentSeason}/${this.data.currentLeague}.json`
+    );
+    
+    console.log('加载历史赛季数据，尝试多个数据源...', sources);
+    
+    // 尝试加载数据
+    this.tryLoadData(sources, 0);
+  },
+  
+  // 尝试从多个源加载数据
+  tryLoadData(sources, index) {
+    if (index >= sources.length) {
+      // 所有源都失败了
+      this.setData({
+        loading: false,
+        error: '数据加载失败，请检查网络连接或稍后重试'
+      });
+      wx.showToast({
+        title: '网络连接失败',
+        icon: 'none',
+        duration: 3000
+      });
+      return;
+    }
+    
+    const url = sources[index];
+    console.log(`尝试数据源 ${index + 1}/${sources.length}:`, url);
     
     wx.request({
       url: url,
+      timeout: 10000, // 10秒超时
       success: (res) => {
         console.log('联赛数据响应:', res);
         
@@ -124,22 +157,16 @@ Page({
             loading: false
           });
           
-          console.log('积分榜:', standings);
+          console.log('数据加载成功！积分榜:', standings);
         } else {
           throw new Error('数据格式错误');
         }
       },
       fail: (err) => {
-        console.error('加载失败:', err);
-        this.setData({
-          loading: false,
-          error: '加载失败，该赛季可能没有数据或网络连接异常'
-        });
-        wx.showToast({
-          title: '加载失败',
-          icon: 'none',
-          duration: 2000
-        });
+        console.error(`数据源 ${index + 1} 加载失败:`, err);
+        
+        // 尝试下一个数据源
+        this.tryLoadData(sources, index + 1);
       }
     });
   },
