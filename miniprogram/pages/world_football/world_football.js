@@ -1,6 +1,7 @@
 // pages/world_football/world_football.js
 const app = getApp();
 const config = require('../../config/env.js');
+const { translateTeamName, checkMissingTranslations } = require('../../utils/teamNameMap.js');
 
 Page({
   data: {
@@ -243,7 +244,7 @@ Page({
     });
     
     // 转换为数组并排序
-    return Object.values(standings)
+    const standingsArray = Object.values(standings)
       .sort((a, b) => {
         // 首先按积分排序
         if (b.pts !== a.pts) return b.pts - a.pts;
@@ -252,6 +253,19 @@ Page({
         // 净胜球相同按进球数
         return b.gf - a.gf;
       });
+    
+    // 检查是否有缺失的翻译
+    const missing = checkMissingTranslations(standingsArray);
+    if (missing.length > 0) {
+      console.warn('以下球队名称缺少中文翻译:', missing);
+    }
+    
+    // 翻译球队名为中文
+    return standingsArray.map(team => ({
+      ...team,
+      originalName: team.team, // 保留原始英文名
+      team: translateTeamName(team.team) // 翻译为中文
+    }));
   },
 
   // 获取冠军球队
