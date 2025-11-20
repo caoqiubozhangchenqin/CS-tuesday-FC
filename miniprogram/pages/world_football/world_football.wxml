@@ -3,8 +3,9 @@
 
 <view class="container main-container">
   <!-- 页面标题 -->
-  <view class="page-header">
-    <text class="page-title">🌍 五大联赛历史数据</text>
+  <view class="page-title">
+    <text class="title-icon">🌍</text>
+    <text>五大联赛历史数据</text>
   </view>
 
   <!-- 联赛选择标签 -->
@@ -40,12 +41,6 @@
         <text wx:if="{{seasonIndex === index}}" class="check-icon">✓</text>
       </view>
     </block>
-  </view>
-
-  <!-- 赛季信息 -->
-  <view wx:if="{{seasonInfo && !loading && !error}}" class="season-info-bar">
-    <text class="season-title">📊 {{seasonInfo}}</text>
-    <text wx:if="{{standings.length > 0}}" class="champion-info">🏆 冠军: {{standings[0].team}}</text>
   </view>
 
   <!-- 加载状态 -->
