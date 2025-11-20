@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "世界足球",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "light",
+  "usingComponents": {
+    "bg": "/components/bg/bg"
+  }
+}

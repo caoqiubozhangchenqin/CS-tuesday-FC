@@ -48,13 +48,14 @@
   <!-- 签约球队相关按钮 - 只有身价 >= 50 的用户才显示 -->
   <button wx:if="{{userValue >= 50}}" class="menu-button primary-btn" bindtap="goToTeamSignup">  {{selectedTeam ? '更换球队' : '选择球队'}}</button>
   
-  <button class="menu-button primary-btn" bindtap="goToRanking">  身价排行榜</button>
-  <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">  各队报名情况</button>
-  <button class="menu-button primary-btn" bindtap="goToStandingsPage">  查看联赛积分榜</button>
-  <button class="menu-button primary-btn" bindtap="goToSchedulePage">  查看联赛赛程</button>
-  <button class="menu-button primary-btn" bindtap="goToEuropeanStandings">  欧洲五大联赛积分榜</button>
-  <button class="menu-button primary-btn" bindtap="goToEuropeanSchedule">  欧洲五大联赛赛程</button>
-  <button class="menu-button primary-btn" bindtap="goToLeagueRecordsPage">  bug提交</button>
+  <button class="menu-button primary-btn" bindtap="goToRanking">🏆  身价排行榜</button>
+  <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">👥  各队报名情况</button>
+  <button class="menu-button primary-btn" bindtap="goToStandingsPage">📊  查看联赛积分榜</button>
+  <button class="menu-button primary-btn" bindtap="goToSchedulePage">📅  查看联赛赛程</button>
+  <button class="menu-button primary-btn world-football-btn" bindtap="goToWorldFootball">🌍  世界足球数据</button>
+  <button class="menu-button primary-btn" bindtap="goToEuropeanStandings">🇪🇺  欧洲五大联赛积分榜</button>
+  <button class="menu-button primary-btn" bindtap="goToEuropeanSchedule">⚽  欧洲五大联赛赛程</button>
+  <button class="menu-button primary-btn" bindtap="goToLeagueRecordsPage">🐛  bug提交</button>
   
   <button class="menu-button admin-button" bindtap="goToAdminPage">  进入管理员页面</button>
   <button wx:if="{{hasUserInfo}}" class="menu-button logout-button" bindtap="logout">  退出登录</button>

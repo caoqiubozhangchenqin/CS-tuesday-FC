@@ -151,6 +151,9 @@ Page({
   goToEuropeanSchedule: function() {
     wx.navigateTo({ url: '/pages/european_schedule/european_schedule' });
   },
+  goToWorldFootball: function() {
+    wx.navigateTo({ url: '/pages/world_football/world_football' });
+  },
   goToLeagueRecordsPage: function() {
     wx.navigateTo({ url: '/pages/league_records/league_records' });
   },

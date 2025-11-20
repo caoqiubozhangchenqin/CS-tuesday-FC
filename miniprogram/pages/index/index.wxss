@@ -701,3 +701,42 @@
   flex: 1;
   text-align: right;
 }
+
+/* 世界足球按钮特殊样式 */
+.world-football-btn {
+  background: linear-gradient(135deg, 
+    rgba(56, 189, 248, 0.9) 0%, 
+    rgba(59, 130, 246, 0.9) 50%,
+    rgba(37, 99, 235, 0.9) 100%) !important;
+  border-color: #0ea5e9 !important;
+  animation: worldPulse 2s ease-in-out infinite;
+}
+
+@keyframes worldPulse {
+  0%, 100% {
+    box-shadow: 
+      0 8px 0 rgba(14, 165, 233, 0.6),
+      0 4px 0 rgba(14, 165, 233, 0.4),
+      inset 0 2px 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 
+      0 8px 0 rgba(14, 165, 233, 0.8),
+      0 4px 0 rgba(14, 165, 233, 0.6),
+      inset 0 2px 0 rgba(255, 255, 255, 0.6),
+      0 0 30rpx rgba(56, 189, 248, 0.6);
+  }
+}
+
+.world-football-btn:hover {
+  transform: translateY(-3rpx) scale(1.05) !important;
+  box-shadow: 
+    0 11px 0 rgba(14, 165, 233, 0.8),
+    0 5px 0 rgba(14, 165, 233, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    0 0 40rpx rgba(56, 189, 248, 0.8) !important;
+}
+
+.world-football-btn::after {
+  content: '🌟';
+}

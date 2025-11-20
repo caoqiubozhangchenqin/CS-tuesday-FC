@@ -1,0 +1,191 @@
+<!-- pages/world_football/world_football.wxml -->
+<bg src="{{bgImageUrl}}" overlayOpacity="0.5" blur="0" sizeMode="cover" repeat="false" />
+
+<view class="container main-container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">🌍 世界足球</text>
+    <text class="page-subtitle">五大联赛数据中心</text>
+  </view>
+
+  <!-- 联赛选择标签 -->
+  <view class="league-tabs">
+    <block wx:for="{{leagues}}" wx:key="id">
+      <view 
+        class="league-tab {{currentLeague === item.id ? 'active' : ''}}" 
+        bindtap="switchLeague" 
+        data-league="{{item.id}}"
+        data-name="{{item.name}}">
+        <text class="league-name">{{item.name}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:if="{{error}}" class="error-container">
+    <text class="error-icon">⚠️</text>
+    <text class="error-text">{{error}}</text>
+    <button class="retry-btn" bindtap="loadLeagueData">重试</button>
+  </view>
+
+  <!-- 数据展示区 -->
+  <view wx:if="{{!loading && !error}}" class="content-area">
+    <!-- 功能标签页 -->
+    <view class="function-tabs">
+      <view 
+        class="function-tab {{activeTab === 'standings' ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-tab="standings">
+        <text>🏆 积分榜</text>
+      </view>
+      <view 
+        class="function-tab {{activeTab === 'matches' ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-tab="matches">
+        <text>⚽ 最近赛果</text>
+      </view>
+      <view 
+        class="function-tab {{activeTab === 'upcoming' ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-tab="upcoming">
+        <text>📅 即将开赛</text>
+      </view>
+    </view>
+
+    <!-- 积分榜 -->
+    <view wx:if="{{activeTab === 'standings'}}" class="standings-container">
+      <view class="section-title">{{leagueName}} 2024-25 赛季积分榜</view>
+      
+      <view wx:if="{{standings.length === 0}}" class="empty-state">
+        <text class="empty-icon">🏆</text>
+        <text class="empty-text">暂无积分榜数据</text>
+      </view>
+
+      <!-- 积分榜表头 -->
+      <view wx:if="{{standings.length > 0}}" class="standings-header">
+        <text class="col-rank">排名</text>
+        <text class="col-team">球队</text>
+        <text class="col-stat">赛</text>
+        <text class="col-stat">胜</text>
+        <text class="col-stat">平</text>
+        <text class="col-stat">负</text>
+        <text class="col-stat">进</text>
+        <text class="col-stat">失</text>
+        <text class="col-stat">净</text>
+        <text class="col-pts">积分</text>
+      </view>
+
+      <!-- 积分榜数据 -->
+      <view class="standings-list">
+        <block wx:for="{{standings}}" wx:key="team">
+          <view class="standing-item {{index < 4 ? 'champions-league' : index < 6 ? 'europa-league' : index >= standings.length - 3 ? 'relegation' : ''}}">
+            <text class="col-rank rank-badge">{{index + 1}}</text>
+            <text class="col-team team-name">{{item.team}}</text>
+            <text class="col-stat">{{item.played}}</text>
+            <text class="col-stat stat-won">{{item.won}}</text>
+            <text class="col-stat stat-draw">{{item.draw}}</text>
+            <text class="col-stat stat-lost">{{item.lost}}</text>
+            <text class="col-stat">{{item.gf}}</text>
+            <text class="col-stat">{{item.ga}}</text>
+            <text class="col-stat {{item.gd > 0 ? 'positive' : item.gd < 0 ? 'negative' : ''}}">{{item.gd > 0 ? '+' : ''}}{{item.gd}}</text>
+            <text class="col-pts points-badge">{{item.pts}}</text>
+          </view>
+        </block>
+      </view>
+
+      <!-- 图例 -->
+      <view class="legend">
+        <view class="legend-item">
+          <view class="legend-color champions-league-color"></view>
+          <text>欧冠区</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-color europa-league-color"></view>
+          <text>欧联区</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-color relegation-color"></view>
+          <text>降级区</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近赛果 -->
+    <view wx:if="{{activeTab === 'matches'}}" class="matches-container">
+      <view class="section-title">最近20场比赛</view>
+      
+      <view wx:if="{{recentMatches.length === 0}}" class="empty-state">
+        <text class="empty-icon">⚽</text>
+        <text class="empty-text">暂无比赛记录</text>
+      </view>
+
+      <view class="matches-list">
+        <block wx:for="{{recentMatches}}" wx:key="index">
+          <view class="match-item">
+            <view class="match-header">
+              <text class="match-round">{{item.round}}</text>
+              <text class="match-date">{{item.date}}</text>
+            </view>
+            <view class="match-body">
+              <view class="match-team home-team">
+                <text class="team-name">{{item.team1}}</text>
+              </view>
+              <view class="match-score">
+                <text class="score-num">{{item.score.ft[0]}}</text>
+                <text class="score-separator">-</text>
+                <text class="score-num">{{item.score.ft[1]}}</text>
+              </view>
+              <view class="match-team away-team">
+                <text class="team-name">{{item.team2}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 即将开赛 -->
+    <view wx:if="{{activeTab === 'upcoming'}}" class="upcoming-container">
+      <view class="section-title">未来20场比赛</view>
+      
+      <view wx:if="{{upcomingMatches.length === 0}}" class="empty-state">
+        <text class="empty-icon">📅</text>
+        <text class="empty-text">暂无即将进行的比赛</text>
+      </view>
+
+      <view class="matches-list">
+        <block wx:for="{{upcomingMatches}}" wx:key="index">
+          <view class="match-item upcoming-item">
+            <view class="match-header">
+              <text class="match-round">{{item.round}}</text>
+              <text class="match-date">{{item.date}}</text>
+            </view>
+            <view class="match-body">
+              <view class="match-team home-team">
+                <text class="team-name">{{item.team1}}</text>
+              </view>
+              <view class="vs-badge">
+                <text class="vs-text">VS</text>
+              </view>
+              <view class="match-team away-team">
+                <text class="team-name">{{item.team2}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据来源说明 -->
+  <view class="footer-info">
+    <text class="info-text">数据来源：OpenFootball</text>
+    <text class="info-text">每周自动更新</text>
+  </view>
+</view>
