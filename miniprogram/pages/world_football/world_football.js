@@ -9,7 +9,8 @@ Page({
     currentLeague: 'en.1',
     leagueName: '英超',
     currentSeason: '2023-24',
-    seasonIndex: 0, // 新增：当前选择的赛季索引
+    seasonIndex: 0, // 当前选择的赛季索引
+    showDropdown: false, // 新增：控制下拉列表显示
     
     // 数据
     standings: [],
@@ -68,13 +69,43 @@ Page({
       leagueName: leagueName,
       matches: [],
       standings: [],
-      error: ''
+      error: '',
+      showDropdown: false // 关闭下拉列表
     });
     
     this.loadLeagueData();
   },
 
-  // 赛季选择器改变事件
+  // 切换下拉列表显示状态
+  toggleSeasonDropdown() {
+    this.setData({
+      showDropdown: !this.data.showDropdown
+    });
+  },
+
+  // 选择赛季
+  selectSeason(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    const season = this.data.seasons[index];
+    
+    if (season.id === this.data.currentSeason) {
+      // 只关闭下拉列表，不重新加载
+      this.setData({ showDropdown: false });
+      return;
+    }
+    
+    this.setData({
+      seasonIndex: index,
+      currentSeason: season.id,
+      standings: [],
+      error: '',
+      showDropdown: false // 关闭下拉列表
+    });
+    
+    this.loadLeagueData();
+  },
+
+  // 赛季选择器改变事件（保留兼容）
   onSeasonChange(e) {
     const index = parseInt(e.detail.value);
     const season = this.data.seasons[index];

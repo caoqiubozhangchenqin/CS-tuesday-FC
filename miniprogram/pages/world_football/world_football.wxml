@@ -20,15 +20,26 @@
     </block>
   </view>
 
-  <!-- 赛季选择器 - 改为下拉选择 -->
+  <!-- 赛季选择器 - 改为页面内嵌的下拉列表 -->
   <view class="season-selector">
     <view class="season-label">选择赛季：</view>
-    <picker class="season-picker" mode="selector" range="{{seasons}}" range-key="name" value="{{seasonIndex}}" bindchange="onSeasonChange">
-      <view class="picker-value">
-        {{seasons[seasonIndex].name}}
-        <text class="picker-arrow">▼</text>
+    <view class="season-dropdown" bindtap="toggleSeasonDropdown">
+      <text class="dropdown-value">{{seasons[seasonIndex].name}}</text>
+      <text class="dropdown-arrow {{showDropdown ? 'expanded' : ''}}">▼</text>
+    </view>
+  </view>
+
+  <!-- 下拉选项列表 -->
+  <view wx:if="{{showDropdown}}" class="dropdown-options">
+    <block wx:for="{{seasons}}" wx:key="id">
+      <view 
+        class="dropdown-option {{seasonIndex === index ? 'selected' : ''}}" 
+        bindtap="selectSeason" 
+        data-index="{{index}}">
+        <text>{{item.name}}</text>
+        <text wx:if="{{seasonIndex === index}}" class="check-icon">✓</text>
       </view>
-    </picker>
+    </block>
   </view>
 
   <!-- 赛季信息 -->

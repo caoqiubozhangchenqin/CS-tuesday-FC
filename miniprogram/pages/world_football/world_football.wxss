@@ -63,12 +63,12 @@
   font-weight: bold;
 }
 
-/* ===== 赛季选择器 - 下拉框样式 ===== */
+/* ===== 赛季选择器 - 页面内嵌下拉样式 ===== */
 .season-selector {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25rpx;
+  margin-bottom: 15rpx;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15rpx);
   border-radius: 16rpx;
@@ -84,12 +84,9 @@
   white-space: nowrap;
 }
 
-.season-picker {
+.season-dropdown {
   flex: 1;
   max-width: 400rpx;
-}
-
-.picker-value {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,12 +98,83 @@
   color: #fff;
   box-shadow: 0 6rpx 20rpx rgba(245, 87, 108, 0.4);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.picker-arrow {
+.season-dropdown:active {
+  transform: scale(0.98);
+}
+
+.dropdown-value {
+  flex: 1;
+}
+
+.dropdown-arrow {
   margin-left: 15rpx;
   font-size: 20rpx;
   opacity: 0.8;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+/* 下拉选项列表 */
+.dropdown-options {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20rpx);
+  border-radius: 16rpx;
+  padding: 10rpx;
+  margin-bottom: 25rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.15);
+  max-height: 500rpx;
+  overflow-y: auto;
+  animation: dropdownSlide 0.3s ease;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 25rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+  margin-bottom: 5rpx;
+}
+
+.dropdown-option:last-child {
+  margin-bottom: 0;
+}
+
+.dropdown-option:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0.98);
+}
+
+.dropdown-option.selected {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+  color: #fff;
+  font-weight: 600;
+}
+
+.check-icon {
+  font-size: 28rpx;
+  color: #4ade80;
+  font-weight: bold;
 }
 
 /* ===== 赛季信息栏（新增） ===== */
