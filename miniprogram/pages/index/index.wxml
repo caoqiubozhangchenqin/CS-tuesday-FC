@@ -52,7 +52,7 @@
   <button class="menu-button primary-btn" bindtap="goToTeamStatusPage">👥  各队报名情况</button>
   <button class="menu-button primary-btn" bindtap="goToStandingsPage">📊  查看联赛积分榜</button>
   <button class="menu-button primary-btn" bindtap="goToSchedulePage">📅  查看联赛赛程</button>
-  <button class="menu-button primary-btn world-football-btn" bindtap="goToWorldFootball">🌍  世界足球数据</button>
+  <button class="menu-button primary-btn world-football-btn" bindtap="goToWorldFootball">🌍  世界足球历史赛季</button>
   <button class="menu-button primary-btn" bindtap="goToEuropeanStandings">🇪🇺  欧洲五大联赛积分榜</button>
   <button class="menu-button primary-btn" bindtap="goToEuropeanSchedule">⚽  欧洲五大联赛赛程</button>
   <button class="menu-button primary-btn" bindtap="goToLeagueRecordsPage">🐛  bug提交</button>

@@ -6,19 +6,15 @@ Page({
     // 当前选择的联赛
     currentLeague: 'en.1',
     leagueName: '英超',
-    season: '2024-25',
+    currentSeason: '2023-24',
     
     // 数据
-    matches: [],
-    allMatches: [],
     standings: [],
-    recentMatches: [],
-    upcomingMatches: [],
+    seasonInfo: '',
     
     // 状态
     loading: false,
     error: '',
-    activeTab: 'standings', // standings, matches, upcoming
     
     // 联赛配置
     leagues: [
@@ -27,6 +23,20 @@ Page({
       { id: 'es.1', name: '西甲', code: 'PD' },
       { id: 'it.1', name: '意甲', code: 'SA' },
       { id: 'fr.1', name: '法甲', code: 'L1' }
+    ],
+    
+    // 历史赛季配置（最近5个赛季）
+    seasons: [
+      { id: '2023-24', name: '2023-24赛季' },
+      { id: '2022-23', name: '2022-23赛季' },
+      { id: '2021-22', name: '2021-22赛季' },
+      { id: '2020-21', name: '2020-21赛季' },
+      { id: '2019-20', name: '2019-20赛季' },
+      { id: '2018-19', name: '2018-19赛季' },
+      { id: '2017-18', name: '2017-18赛季' },
+      { id: '2016-17', name: '2016-17赛季' },
+      { id: '2015-16', name: '2015-16赛季' },
+      { id: '2014-15', name: '2014-15赛季' }
     ],
     
     // 背景图
@@ -61,19 +71,28 @@ Page({
     this.loadLeagueData();
   },
 
-  // 切换标签页
-  switchTab(e) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ activeTab: tab });
+  // 切换赛季
+  switchSeason(e) {
+    const season = e.currentTarget.dataset.season;
+    
+    if (season === this.data.currentSeason) return;
+    
+    this.setData({
+      currentSeason: season,
+      standings: [],
+      error: ''
+    });
+    
+    this.loadLeagueData();
   },
 
   // 加载联赛数据
   loadLeagueData() {
     this.setData({ loading: true, error: '' });
     
-    const url = `https://raw.githubusercontent.com/openfootball/football.json/master/${this.data.season}/${this.data.currentLeague}.json`;
+    const url = `https://raw.githubusercontent.com/openfootball/football.json/master/${this.data.currentSeason}/${this.data.currentLeague}.json`;
     
-    console.log('加载联赛数据:', url);
+    console.log('加载历史赛季数据:', url);
     
     wx.request({
       url: url,
@@ -82,25 +101,27 @@ Page({
         
         if (res.statusCode === 200 && res.data) {
           const matches = res.data.matches || [];
+          const seasonName = res.data.name || `${this.data.leagueName} ${this.data.currentSeason}`;
           
-          // 计算积分榜
+          // 计算积分榜（只使用已完成的比赛）
           const standings = this.calculateStandings(matches);
           
-          // 筛选最近和即将进行的比赛
-          const { recent, upcoming } = this.filterMatches(matches);
+          if (standings.length === 0) {
+            this.setData({
+              loading: false,
+              error: '该赛季暂无数据',
+              seasonInfo: seasonName
+            });
+            return;
+          }
           
           this.setData({
-            allMatches: matches,
-            matches: matches,
             standings: standings,
-            recentMatches: recent,
-            upcomingMatches: upcoming,
+            seasonInfo: seasonName,
             loading: false
           });
           
           console.log('积分榜:', standings);
-          console.log('最近比赛:', recent.length);
-          console.log('即将比赛:', upcoming.length);
         } else {
           throw new Error('数据格式错误');
         }
@@ -109,11 +130,12 @@ Page({
         console.error('加载失败:', err);
         this.setData({
           loading: false,
-          error: '加载失败，请检查网络连接'
+          error: '加载失败，该赛季可能没有数据或网络连接异常'
         });
         wx.showToast({
           title: '加载失败',
-          icon: 'none'
+          icon: 'none',
+          duration: 2000
         });
       }
     });
@@ -202,47 +224,12 @@ Page({
       });
   },
 
-  // 筛选比赛
-  filterMatches(matches) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const recent = [];
-    const upcoming = [];
-    
-    matches.forEach(match => {
-      const matchDate = new Date(match.date);
-      matchDate.setHours(0, 0, 0, 0);
-      
-      if (matchDate < today) {
-        // 已完成的比赛
-        if (match.score && match.score.ft) {
-          recent.push(match);
-        }
-      } else {
-        // 即将进行的比赛
-        upcoming.push(match);
-      }
-    });
-    
-    // 最近比赛按日期倒序（最新的在前）
-    recent.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    // 即将比赛按日期正序（最近的在前）
-    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    return {
-      recent: recent.slice(0, 20), // 最近20场
-      upcoming: upcoming.slice(0, 20) // 未来20场
-    };
-  },
-
-  // 格式化日期
-  formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${month}月${day}日`;
+  // 获取冠军球队
+  getChampion() {
+    if (this.data.standings.length > 0) {
+      return this.data.standings[0].team;
+    }
+    return '';
   },
 
   // 刷新数据

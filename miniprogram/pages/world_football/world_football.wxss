@@ -1,51 +1,57 @@
-/* pages/world_football/world_football.wxss */
+/* pages/world_football/world_football.wxss - 历史赛季查询版本 */
+
+/* 全局容器 */
+.container {
+  min-height: 100vh;
+  position: relative;
+}
+
 .main-container {
   padding: 20rpx;
-  min-height: 100vh;
+  padding-bottom: 100rpx;
+  position: relative;
+  z-index: 1;
 }
 
 /* 页面标题 */
 .page-header {
   text-align: center;
-  padding: 40rpx 0 30rpx;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(139, 92, 246, 0.15));
-  border-radius: 20rpx;
   margin-bottom: 30rpx;
-  backdrop-filter: blur(10px);
+  padding: 30rpx 0;
 }
 
 .page-title {
-  display: block;
-  font-size: 48rpx;
+  font-size: 52rpx;
   font-weight: bold;
   color: #fff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  margin-bottom: 10rpx;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 15rpx;
 }
 
 .page-subtitle {
-  display: block;
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* 联赛标签 */
 .league-tabs {
   display: flex;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15rpx;
+  gap: 10rpx;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border-radius: 20rpx;
   padding: 10rpx;
-  margin-bottom: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .league-tab {
   flex: 1;
   text-align: center;
-  padding: 20rpx 10rpx;
-  border-radius: 10rpx;
-  transition: all 0.3s;
+  padding: 22rpx 10rpx;
+  border-radius: 15rpx;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .league-tab.active {
@@ -62,6 +68,76 @@
 .league-tab.active .league-name {
   color: #fff;
   font-weight: bold;
+}
+
+/* ===== 赛季选择器（新增） ===== */
+.season-selector {
+  margin-bottom: 25rpx;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15rpx);
+  border-radius: 16rpx;
+  padding: 15rpx 10rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
+}
+
+.season-scroll {
+  white-space: nowrap;
+}
+
+.season-item {
+  display: inline-block;
+  padding: 18rpx 35rpx;
+  margin: 0 8rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12rpx;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2rpx solid transparent;
+}
+
+.season-item.active {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 6rpx 20rpx rgba(245, 87, 108, 0.45);
+  transform: translateY(-3rpx);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.season-text {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.season-item.active .season-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== 赛季信息栏（新增） ===== */
+.season-info-bar {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(168, 85, 247, 0.28) 100%);
+  backdrop-filter: blur(25rpx);
+  border-radius: 18rpx;
+  padding: 28rpx 35rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.18);
+  border: 2rpx solid rgba(255, 255, 255, 0.25);
+}
+
+.season-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.25);
+}
+
+.champion-info {
+  display: block;
+  font-size: 29rpx;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 500;
+  text-shadow: 0 1rpx 5rpx rgba(0, 0, 0, 0.2);
 }
 
 /* 加载状态 */
@@ -120,134 +196,118 @@
   font-size: 28rpx;
 }
 
-/* 功能标签页 */
-.function-tabs {
-  display: flex;
-  justify-content: space-around;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15rpx;
-  padding: 10rpx;
-  margin-bottom: 30rpx;
-}
-
-.function-tab {
-  flex: 1;
-  text-align: center;
-  padding: 20rpx 10rpx;
-  border-radius: 10rpx;
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.7);
-  transition: all 0.3s;
-}
-
-.function-tab.active {
-  background: linear-gradient(135deg, #f093fb, #f5576c);
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-}
-
-/* 积分榜 */
+/* 积分榜容器 */
 .standings-container {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15rpx;
-  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 20rpx;
+  padding: 25rpx;
   margin-bottom: 30rpx;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: bold;
   color: #fff;
-  text-align: center;
-  margin-bottom: 30rpx;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20rpx;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* 积分榜表头 */
 .standings-header {
   display: flex;
   align-items: center;
-  padding: 15rpx 10rpx;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10rpx;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
+  padding: 18rpx 15rpx;
+  border-radius: 12rpx;
   margin-bottom: 15rpx;
-  font-size: 24rpx;
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.standings-list {
-  max-height: 1000rpx;
-  overflow-y: auto;
-}
-
-.standing-item {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 10rpx;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10rpx;
-  margin-bottom: 10rpx;
+  color: #fff;
   font-size: 24rpx;
-  transition: all 0.3s;
-  border-left: 4rpx solid transparent;
-}
-
-.standing-item:active {
-  transform: scale(0.98);
-  background: rgba(255, 255, 255, 0.12);
-}
-
-/* 特殊排名颜色 */
-.standing-item.champions-league {
-  border-left-color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
-}
-
-.standing-item.europa-league {
-  border-left-color: #fb923c;
-  background: rgba(251, 146, 60, 0.1);
-}
-
-.standing-item.relegation {
-  border-left-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
 }
 
 .col-rank {
   width: 80rpx;
   text-align: center;
-  flex-shrink: 0;
-}
-
-.rank-badge {
-  display: inline-block;
-  width: 50rpx;
-  height: 50rpx;
-  line-height: 50rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  color: #fff;
-  font-weight: bold;
 }
 
 .col-team {
   flex: 1;
-  padding: 0 15rpx;
-  color: #fff;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: left;
+  padding-left: 10rpx;
 }
 
 .col-stat {
-  width: 50rpx;
+  width: 55rpx;
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-  flex-shrink: 0;
+}
+
+.col-pts {
+  width: 70rpx;
+  text-align: center;
+}
+
+/* 积分榜数据行 */
+.standings-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.standing-item {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 15rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.standing-item:last-child {
+  border-bottom: none;
+}
+
+.standing-item:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 欧冠区 */
+.standing-item.champions-league {
+  background: linear-gradient(90deg, rgba(67, 97, 238, 0.15), transparent);
+  border-left: 4rpx solid #4361ee;
+}
+
+/* 欧联区 */
+.standing-item.europa-league {
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), transparent);
+  border-left: 4rpx solid #f97316;
+}
+
+/* 降级区 */
+.standing-item.relegation {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), transparent);
+  border-left: 4rpx solid #ef4444;
+}
+
+.rank-badge {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.team-name {
+  font-size: 26rpx;
+  color: #fff;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.standing-item .col-stat {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .stat-won {
@@ -263,46 +323,37 @@
 }
 
 .positive {
-  color: #4ade80 !important;
-  font-weight: bold;
+  color: #4ade80;
+  font-weight: 600;
 }
 
 .negative {
-  color: #f87171 !important;
-  font-weight: bold;
-}
-
-.col-pts {
-  width: 80rpx;
-  text-align: center;
-  flex-shrink: 0;
+  color: #f87171;
+  font-weight: 600;
 }
 
 .points-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  padding: 8rpx 16rpx;
-  border-radius: 10rpx;
+  font-size: 28rpx;
   font-weight: bold;
-  font-size: 26rpx;
+  color: #fbbf24;
 }
 
 /* 图例 */
 .legend {
   display: flex;
-  justify-content: space-around;
-  margin-top: 30rpx;
+  justify-content: center;
+  gap: 30rpx;
+  margin-top: 25rpx;
   padding-top: 20rpx;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.15);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 10rpx;
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .legend-color {
@@ -312,165 +363,45 @@
 }
 
 .champions-league-color {
-  background: #4ade80;
+  background: #4361ee;
 }
 
 .europa-league-color {
-  background: #fb923c;
+  background: #f97316;
 }
 
 .relegation-color {
   background: #ef4444;
 }
 
-/* 比赛列表 */
-.matches-container,
-.upcoming-container {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.matches-list {
-  max-height: 1200rpx;
-  overflow-y: auto;
-}
-
-.match-item {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15rpx;
-  padding: 25rpx;
-  margin-bottom: 20rpx;
-  transition: all 0.3s;
-}
-
-.match-item:active {
-  transform: scale(0.98);
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-  padding-bottom: 15rpx;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.match-round {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-}
-
-.match-date {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.match-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.match-team {
-  flex: 1;
-  text-align: center;
-}
-
-.home-team {
-  text-align: right;
-}
-
-.away-team {
-  text-align: left;
-}
-
-.team-name {
-  font-size: 28rpx;
-  color: #fff;
-  font-weight: 500;
-  display: block;
-}
-
-.match-score {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 15rpx;
-  padding: 0 40rpx;
-}
-
-.score-num {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  min-width: 60rpx;
-  text-align: center;
-}
-
-.score-separator {
-  font-size: 32rpx;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.vs-badge {
-  flex-shrink: 0;
-  padding: 0 40rpx;
-}
-
-.vs-text {
-  display: inline-block;
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #fff;
-  background: linear-gradient(135deg, #f093fb, #f5576c);
-  padding: 15rpx 30rpx;
-  border-radius: 10rpx;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.upcoming-item {
-  border: 2px solid rgba(245, 87, 108, 0.3);
-}
-
 /* 空状态 */
 .empty-state {
   text-align: center;
-  padding: 100rpx 40rpx;
+  padding: 80rpx 40rpx;
 }
 
 .empty-icon {
   font-size: 100rpx;
   display: block;
   margin-bottom: 20rpx;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .empty-text {
-  display: block;
-  color: rgba(255, 255, 255, 0.6);
   font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-/* 底部信息 */
+/* 页脚信息 */
 .footer-info {
   text-align: center;
   padding: 30rpx 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 30rpx;
+  margin-top: 40rpx;
 }
 
 .info-text {
   display: block;
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 5rpx 0;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.8;
 }
