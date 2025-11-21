@@ -79,6 +79,15 @@ Page({
   },
 
   /**
+   * 跳转到调试页
+   */
+  goToDebug() {
+    wx.navigateTo({
+      url: '/pages/novel/debug/debug'
+    });
+  },
+
+  /**
    * 跳转到阅读页
    */
   goToReader(e) {

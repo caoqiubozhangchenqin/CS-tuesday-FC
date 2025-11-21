@@ -26,6 +26,27 @@
   gap: 16rpx;
 }
 
+.debug-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  box-shadow: 0 4rpx 12rpx rgba(168, 237, 234, 0.3);
+  transition: all 0.3s;
+}
+
+.debug-btn:active {
+  transform: scale(0.9);
+}
+
+.debug-btn .btn-icon {
+  font-size: 32rpx;
+  margin-bottom: 0;
+}
+
 .recommend-btn,
 .search-btn {
   display: flex;

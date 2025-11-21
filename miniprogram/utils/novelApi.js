@@ -37,39 +37,68 @@ const searchNovel = (keyword) => {
       return reject(new Error('搜索关键词不能为空'));
     }
 
-    console.log('🔍 搜索小说:', keyword);
+    console.log('🔍 [追书神器] 搜索小说:', keyword);
+    const apiUrl = `${getApiBase()}/book/fuzzy-search?query=${encodeURIComponent(keyword.trim())}`;
+    console.log('🌐 请求URL:', apiUrl);
 
     // 使用模糊搜索接口
     wx.request({
-      url: `${getApiBase()}/book/fuzzy-search`,
-      data: {
-        query: keyword.trim()
-      },
+      url: apiUrl,
       method: 'GET',
+      timeout: 10000,
+      header: {
+        'content-type': 'application/json'
+      },
       success: (res) => {
         try {
-          console.log('✅ 搜索响应:', res.statusCode);
+          console.log('✅ 搜索响应状态:', res.statusCode);
+          console.log('📦 响应数据:', res.data);
           
           if (res.statusCode !== 200) {
-            // 尝试切换API地址
+            console.warn('⚠️ API返回非200状态，尝试切换API地址');
             switchApiBase();
             return resolve([]);
           }
 
-          const books = (res.data.books || []).map(book => ({
-            id: book._id,
-            name: book.title,
-            author: book.author,
-            intro: book.shortIntro || book.longIntro || '暂无简介',
-            url: book._id, // 使用bookId作为url
-            cover: book.cover ? book.cover.replace('/agent/', '') : '',
-            lastChapter: book.lastChapter || '',
-            tags: book.tags || [],
-            wordCount: book.wordCount || 0,
-            retentionRatio: book.retentionRatio || 0
-          }));
+          if (!res.data || !res.data.books) {
+            console.warn('⚠️ 响应数据格式异常:', res.data);
+            return resolve([]);
+          }
 
-          console.log(`✅ 搜索到 ${books.length} 本书`);
+          const books = (res.data.books || []).map(book => {
+            // 处理封面地址
+            let coverUrl = book.cover || '';
+            if (coverUrl) {
+              // 移除可能的代理路径
+              coverUrl = coverUrl.replace('/agent/', '/');
+              // 确保使用https
+              if (coverUrl.startsWith('http://')) {
+                coverUrl = coverUrl.replace('http://', 'https://');
+              }
+              // 如果是相对路径，添加完整域名
+              if (coverUrl.startsWith('/')) {
+                coverUrl = `https://statics.zhuishushenqi.com${coverUrl}`;
+              }
+            }
+
+            return {
+              id: book._id,
+              name: book.title,
+              author: book.author,
+              intro: book.shortIntro || book.longIntro || '暂无简介',
+              url: book._id, // 使用bookId作为url
+              cover: coverUrl,
+              lastChapter: book.lastChapter || '',
+              tags: book.tags || [],
+              wordCount: book.wordCount || 0,
+              retentionRatio: book.retentionRatio || 0
+            };
+          });
+
+          console.log(`✅ 成功搜索到 ${books.length} 本书`);
+          if (books.length > 0) {
+            console.log('📚 第一本书:', books[0].name, 'by', books[0].author);
+          }
           resolve(books);
         } catch (error) {
           console.error('❌ 解析搜索结果失败:', error);
@@ -78,9 +107,10 @@ const searchNovel = (keyword) => {
       },
       fail: (err) => {
         console.error('❌ 搜索请求失败:', err);
+        console.error('错误详情:', JSON.stringify(err));
         // 尝试切换API地址
         switchApiBase();
-        reject(new Error('网络请求失败'));
+        reject(new Error('网络请求失败，请检查：\n1. 是否勾选了「不校验合法域名」\n2. 网络连接是否正常\n3. API服务是否可用'));
       }
     });
   });

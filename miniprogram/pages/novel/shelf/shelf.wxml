@@ -3,6 +3,9 @@
   <view class="header">
     <text class="title">📚 我的书架</text>
     <view class="header-actions">
+      <view class="debug-btn" bindtap="goToDebug">
+        <text class="btn-icon">🔧</text>
+      </view>
       <view class="recommend-btn" bindtap="goToRecommend">
         <text class="btn-icon">🔥</text>
         <text class="btn-text">推荐</text>
