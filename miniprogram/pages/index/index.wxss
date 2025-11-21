@@ -534,7 +534,7 @@
   top: 280rpx;
   right: -500rpx;
   width: 450rpx;
-  max-height: 500rpx;
+  max-height: 700rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 40rpx 0 0 40rpx;
   box-shadow: -8rpx 0 30rpx rgba(0, 0, 0, 0.3);
