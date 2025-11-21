@@ -153,7 +153,8 @@ Page({
       scrollTop: 0
     });
 
-    novelApi.getChapterContent(chapter.url)
+    // 传递完整章节对象
+    novelApi.getChapterContent(chapter)
       .then(result => {
         this.setData({
           chapterTitle: result.title || chapter.title,
