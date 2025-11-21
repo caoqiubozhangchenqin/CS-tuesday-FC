@@ -80,15 +80,10 @@
   </view>
   <view wx:if="{{weatherData && weatherData.length > 0}}" class="weather-drawer-content">
     <view wx:for="{{weatherData}}" wx:key="date" class="weather-drawer-item">
-      <view class="weather-left">
-        <text class="weather-drawer-date">{{item.dateShort}}</text>
-        <text class="weather-drawer-weekday">{{item.weekday}}</text>
-      </view>
+      <text class="weather-drawer-date">{{item.dateShort}}</text>
+      <text class="weather-drawer-weekday">{{item.weekday}}</text>
       <text class="weather-drawer-emoji">{{item.weatherEmoji}}</text>
-      <view class="weather-temp-box">
-        <text class="weather-drawer-temp-high">{{item.temp_day}}°</text>
-        <text class="weather-drawer-temp-low">{{item.temp_night}}°</text>
-      </view>
+      <text class="weather-drawer-temp">{{item.temp_night}}° ~ {{item.temp_day}}°</text>
     </view>
   </view>
   <view wx:else class="weather-drawer-content">
