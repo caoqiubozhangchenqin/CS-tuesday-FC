@@ -71,6 +71,11 @@
   <text class="daily-article-trigger-icon">📖</text>
 </view>
 
+<!-- 小说阅读按钮 -->
+<view class="novel-trigger" bindtap="goToNovelShelf">
+  <text class="novel-trigger-icon">📚</text>
+</view>
+
 <!-- 天气预报侧边弹窗 -->
 <view class="weather-mask {{showWeather ? 'show' : ''}}" bindtap="closeWeather"></view>
 <view class="weather-drawer {{showWeather ? 'show' : ''}}">

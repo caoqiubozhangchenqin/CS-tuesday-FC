@@ -1,0 +1,39 @@
+<!-- pages/novel/shelf/shelf.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="title">📚 我的书架</text>
+    <view class="search-btn" bindtap="goToSearch">
+      <text class="search-icon">🔍</text>
+      <text class="search-text">搜索小说</text>
+    </view>
+  </view>
+
+  <!-- 书架列表 -->
+  <view wx:if="{{bookList && bookList.length > 0}}" class="book-list">
+    <view wx:for="{{bookList}}" wx:key="id" class="book-item" bindtap="goToReader" data-book="{{item}}">
+      <view class="book-cover">
+        <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill"></image>
+        <view wx:else class="no-cover">📖</view>
+      </view>
+      <view class="book-info">
+        <text class="book-name">{{item.name}}</text>
+        <text class="book-author">作者：{{item.author}}</text>
+        <text class="book-progress">
+          {{item.currentChapter ? '已读至：第' + item.currentChapter + '章' : '未开始阅读'}}
+        </text>
+      </view>
+      <view class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
+        <text>✕</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty-state">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">书架空空如也</text>
+    <view class="empty-btn" bindtap="goToSearch">
+      <text>去添加小说</text>
+    </view>
+  </view>
+</view>

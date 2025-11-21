@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "阅读",
+  "navigationStyle": "custom",
+  "backgroundColor": "#ffffff",
+  "enablePullDownRefresh": false
+}

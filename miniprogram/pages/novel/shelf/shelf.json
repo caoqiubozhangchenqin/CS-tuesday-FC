@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "我的书架",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#ffecd2",
+  "enablePullDownRefresh": true
+}

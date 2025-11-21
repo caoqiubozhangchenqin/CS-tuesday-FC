@@ -498,5 +498,12 @@ Page({
     this.setData({
       showDailyArticle: false
     });
+  },
+  
+  // 跳转到小说书架
+  goToNovelShelf: function() {
+    wx.navigateTo({
+      url: '/pages/novel/shelf/shelf'
+    });
   }
 });

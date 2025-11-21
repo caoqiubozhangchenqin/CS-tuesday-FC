@@ -14,7 +14,10 @@
     "pages/league_records/league_records",
     "pages/european_standings/european_standings",
     "pages/european_schedule/european_schedule",
-    "pages/world_football/world_football"
+    "pages/world_football/world_football",
+    "pages/novel/shelf/shelf",
+    "pages/novel/search/search",
+    "pages/novel/reader/reader"
   ],
   "window": {
     "backgroundTextStyle": "light",

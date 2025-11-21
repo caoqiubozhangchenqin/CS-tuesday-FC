@@ -1,0 +1,89 @@
+<!-- pages/novel/search/search.wxml -->
+<view class="container">
+  <view class="search-header">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input 
+        class="search-input" 
+        type="text" 
+        placeholder="搜索小说名或作者..." 
+        value="{{keyword}}"
+        bindinput="onInputChange"
+        bindconfirm="onSearch"
+        focus="{{true}}"
+      />
+      <text wx:if="{{keyword}}" class="clear-icon" bindtap="clearInput">✕</text>
+    </view>
+    <view class="search-btn" bindtap="onSearch">
+      <text>搜索</text>
+    </view>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view wx:if="{{!searchResult.length && searchHistory.length > 0 && !isSearching}}" class="history-section">
+    <view class="history-header">
+      <text class="history-title">🕒 搜索历史</text>
+      <text class="clear-history" bindtap="clearHistory">清空</text>
+    </view>
+    <view class="history-list">
+      <view 
+        wx:for="{{searchHistory}}" 
+        wx:key="index" 
+        class="history-item"
+        bindtap="onHistoryClick"
+        data-keyword="{{item}}"
+      >
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{isSearching}}" class="loading-state">
+    <view class="loading-icon">📖</view>
+    <text class="loading-text">搜索中...</text>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view wx:if="{{!isSearching && searchResult.length > 0}}" class="result-list">
+    <text class="result-count">找到 {{searchResult.length}} 本小说</text>
+    
+    <view 
+      wx:for="{{searchResult}}" 
+      wx:key="id" 
+      class="book-card"
+    >
+      <view class="book-cover">
+        <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill"></image>
+        <view wx:else class="no-cover">📚</view>
+      </view>
+      
+      <view class="book-info">
+        <text class="book-name">{{item.name}}</text>
+        <text class="book-author">作者：{{item.author}}</text>
+        <text class="book-intro">{{item.intro}}</text>
+      </view>
+      
+      <view 
+        class="add-btn {{item.inShelf ? 'in-shelf' : ''}}" 
+        bindtap="{{item.inShelf ? 'goToReader' : 'addToShelf'}}"
+        data-book="{{item}}"
+      >
+        <text>{{item.inShelf ? '继续阅读' : '加入书架'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{!isSearching && hasSearched && searchResult.length === 0}}" class="empty-state">
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">没有找到相关小说</text>
+    <text class="empty-hint">换个关键词试试吧</text>
+  </view>
+
+  <!-- 初始提示 -->
+  <view wx:if="{{!hasSearched && !searchHistory.length}}" class="initial-state">
+    <text class="initial-icon">🔍</text>
+    <text class="initial-text">输入小说名或作者进行搜索</text>
+  </view>
+</view>

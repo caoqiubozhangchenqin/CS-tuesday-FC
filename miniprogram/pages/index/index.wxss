@@ -688,6 +688,32 @@
   font-size: 40rpx;
 }
 
+/* ==================== 小说阅读样式 ==================== */
+/* 小说阅读按钮 */
+.novel-trigger {
+  position: fixed;
+  top: 480rpx;
+  right: 0;
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  border-radius: 40rpx 0 0 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -4rpx 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.novel-trigger:active {
+  transform: scale(0.95);
+}
+
+.novel-trigger-icon {
+  font-size: 40rpx;
+}
+
 /* 每日一文遮罩 */
 .daily-article-mask {
   position: fixed;

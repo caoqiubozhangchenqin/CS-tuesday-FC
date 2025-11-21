@@ -1,0 +1,127 @@
+<!-- pages/novel/reader/reader.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 顶部标题栏 -->
+  <view class="header" wx:if="{{showHeader}}">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="header-center">
+      <text class="book-title">{{bookName}}</text>
+    </view>
+    <view class="header-right" bindtap="toggleMenu">
+      <text class="menu-icon">☰</text>
+    </view>
+  </view>
+
+  <!-- 章节内容 -->
+  <scroll-view 
+    class="content-scroll" 
+    scroll-y="{{true}}"
+    bindtap="toggleHeader"
+    scroll-top="{{scrollTop}}"
+    bindscroll="onScroll"
+  >
+    <view class="content-container" style="font-size: {{fontSize}}px;">
+      <!-- 章节标题 -->
+      <view class="chapter-title">{{chapterTitle}}</view>
+      
+      <!-- 加载状态 -->
+      <view wx:if="{{isLoading}}" class="loading-state">
+        <text class="loading-icon">📖</text>
+        <text class="loading-text">加载中...</text>
+      </view>
+
+      <!-- 章节内容 -->
+      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content">
+        <text>{{chapterContent}}</text>
+      </view>
+
+      <!-- 加载失败 -->
+      <view wx:if="{{!isLoading && !chapterContent}}" class="error-state">
+        <text class="error-icon">😔</text>
+        <text class="error-text">加载失败</text>
+        <view class="retry-btn" bindtap="retryLoad">
+          <text>重试</text>
+        </view>
+      </view>
+
+      <!-- 章节导航 -->
+      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-nav">
+        <view 
+          class="nav-btn {{currentChapterIndex === 0 ? 'disabled' : ''}}" 
+          bindtap="previousChapter"
+        >
+          <text>← 上一章</text>
+        </view>
+        <view 
+          class="nav-btn {{currentChapterIndex >= totalChapters - 1 ? 'disabled' : ''}}" 
+          bindtap="nextChapter"
+        >
+          <text>下一章 →</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部菜单 -->
+  <view class="bottom-menu {{showMenu ? 'show' : ''}}">
+    <!-- 进度条 -->
+    <view class="progress-section">
+      <text class="progress-text">{{currentChapterIndex + 1}} / {{totalChapters}}</text>
+      <slider 
+        class="progress-slider"
+        value="{{currentChapterIndex}}"
+        min="0"
+        max="{{totalChapters - 1}}"
+        step="1"
+        bindchange="onChapterChange"
+        activeColor="#667eea"
+        backgroundColor="#e0e0e0"
+      />
+    </view>
+
+    <!-- 功能按钮 -->
+    <view class="menu-actions">
+      <view class="action-item" bindtap="showChapterList">
+        <text class="action-icon">📑</text>
+        <text class="action-label">目录</text>
+      </view>
+      <view class="action-item" bindtap="decreaseFontSize">
+        <text class="action-icon">A-</text>
+        <text class="action-label">缩小</text>
+      </view>
+      <view class="action-item" bindtap="increaseFontSize">
+        <text class="action-icon">A+</text>
+        <text class="action-label">放大</text>
+      </view>
+      <view class="action-item" bindtap="toggleTheme">
+        <text class="action-icon">🎨</text>
+        <text class="action-label">主题</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 章节列表抽屉 -->
+  <view class="drawer-mask {{showChapterDrawer ? 'show' : ''}}" bindtap="closeChapterList"></view>
+  <view class="chapter-drawer {{showChapterDrawer ? 'show' : ''}}">
+    <view class="drawer-header">
+      <text class="drawer-title">📑 章节目录</text>
+      <view class="close-btn" bindtap="closeChapterList">
+        <text>✕</text>
+      </view>
+    </view>
+    <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
+      <view 
+        wx:for="{{chapters}}" 
+        wx:key="id"
+        id="chapter-{{index}}"
+        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
+        bindtap="selectChapter"
+        data-index="{{index}}"
+      >
+        <text class="chapter-number">{{index + 1}}</text>
+        <text class="chapter-name">{{item.title}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
