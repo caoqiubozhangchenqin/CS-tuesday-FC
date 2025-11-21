@@ -99,7 +99,7 @@
     <text class="zhihu-drawer-close" bindtap="closeZhihu">✕</text>
   </view>
   <view wx:if="{{zhihuData && zhihuData.length > 0}}" class="zhihu-drawer-content">
-    <view wx:for="{{zhihuData}}" wx:key="id" class="zhihu-item">
+    <view wx:for="{{zhihuData}}" wx:key="id" class="zhihu-item" bindtap="openZhihuArticle" data-url="{{item.url}}">
       <view class="zhihu-index">{{index + 1}}</view>
       <text class="zhihu-title">{{item.title}}</text>
     </view>

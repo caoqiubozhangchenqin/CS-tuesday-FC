@@ -517,5 +517,23 @@ Page({
     this.setData({
       showZhihu: false
     });
+  },
+  
+  // 打开知乎日报文章
+  openZhihuArticle: function(e) {
+    const url = e.currentTarget.dataset.url;
+    if (url) {
+      // 复制链接到剪贴板并提示用户
+      wx.setClipboardData({
+        data: url,
+        success: () => {
+          wx.showToast({
+            title: '链接已复制，请在浏览器打开',
+            icon: 'none',
+            duration: 2000
+          });
+        }
+      });
+    }
   }
 });
