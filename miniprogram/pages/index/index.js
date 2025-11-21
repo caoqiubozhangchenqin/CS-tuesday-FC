@@ -18,8 +18,8 @@ Page({
     selectedTeamName: '',
     weatherData: [], // 天气数据
     showWeather: false, // 控制天气弹窗显示
-    zhihuData: [], // 知乎早报数据
-    showZhihu: false // 控制知乎早报弹窗显示
+    dailyArticle: null, // 每日一文数据
+    showDailyArticle: false // 控制每日一文弹窗显示
   },
   onLoad: function () {
     const app = getApp();
@@ -33,7 +33,7 @@ Page({
     this.checkUserStatus();
     this.fetchUserInfo();
     this.fetchWeatherData(); // 获取天气数据
-    this.fetchZhihuData(); // 获取知乎早报数据
+    this.fetchDailyArticle(); // 获取每日一文数据
     this.musicStatusListener = (isPlaying) => {
       if (this.data.isMusicPlaying !== isPlaying) {
         this.setData({ isMusicPlaying: isPlaying });
@@ -431,56 +431,37 @@ Page({
     return '🌤️'; // 默认
   },
   
-  // 获取知乎早报数据
-  fetchZhihuData: function() {
-    console.log('开始请求知乎日报...');
+  // 获取每日一文数据
+  fetchDailyArticle: function() {
+    console.log('开始请求每日一文...');
     wx.request({
-      url: 'https://v3.alapi.cn/api/zhihu',
+      url: 'https://v3.alapi.cn/api/mryw',
       data: {
         token: config.alapiToken
       },
       success: (res) => {
-        console.log('知乎日报API完整响应:', JSON.stringify(res));
-        console.log('知乎日报API响应数据:', res.data);
-        console.log('知乎日报API响应code:', res.data ? res.data.code : 'undefined');
+        console.log('每日一文API完整响应:', JSON.stringify(res));
+        console.log('每日一文API响应数据:', res.data);
         
-        if (res.data && res.data.code === 200) {
-          console.log('知乎日报data字段:', res.data.data);
-          
-          // ALAPI知乎日报接口返回的数据结构是 data.stories
-          let zhihuList = [];
-          if (res.data.data && res.data.data.stories && Array.isArray(res.data.data.stories)) {
-            zhihuList = res.data.data.stories;
-          }
-          
-          console.log('解析后的知乎日报列表:', zhihuList);
-          console.log('知乎日报列表长度:', zhihuList.length);
-          
-          if (zhihuList.length > 0) {
-            console.log('第一条知乎数据:', JSON.stringify(zhihuList[0]));
-            this.setData({
-              zhihuData: zhihuList
-            }, () => {
-              console.log('setData完成，当前zhihuData长度:', this.data.zhihuData.length);
-            });
-          } else {
-            console.warn('知乎日报列表为空');
-            wx.showToast({
-              title: '知乎日报暂无数据',
-              icon: 'none'
-            });
-          }
+        if (res.data && res.data.code === 200 && res.data.data) {
+          const article = res.data.data;
+          console.log('每日一文数据:', article);
+          this.setData({
+            dailyArticle: article
+          }, () => {
+            console.log('setData完成，当前dailyArticle:', this.data.dailyArticle.title);
+          });
         } else {
-          console.error('获取知乎日报失败，响应码:', res.data ? res.data.code : 'undefined');
+          console.error('获取每日一文失败，响应码:', res.data ? res.data.code : 'undefined');
           console.error('错误信息:', res.data ? res.data.msg || res.data.message : 'undefined');
           wx.showToast({
-            title: res.data && (res.data.msg || res.data.message) ? (res.data.msg || res.data.message) : '获取知乎日报失败',
+            title: res.data && (res.data.msg || res.data.message) ? (res.data.msg || res.data.message) : '获取每日一文失败',
             icon: 'none'
           });
         }
       },
       fail: (err) => {
-        console.error('知乎日报请求失败:', JSON.stringify(err));
+        console.error('每日一文请求失败:', JSON.stringify(err));
         wx.showToast({
           title: '网络请求失败',
           icon: 'none'
@@ -493,7 +474,7 @@ Page({
   toggleWeather: function() {
     this.setData({
       showWeather: !this.data.showWeather,
-      showZhihu: false // 关闭知乎弹窗
+      showDailyArticle: false // 关闭每日一文弹窗
     });
   },
   
@@ -504,36 +485,18 @@ Page({
     });
   },
   
-  // 切换知乎早报弹窗显示/隐藏
-  toggleZhihu: function() {
+  // 切换每日一文弹窗显示/隐藏
+  toggleDailyArticle: function() {
     this.setData({
-      showZhihu: !this.data.showZhihu,
+      showDailyArticle: !this.data.showDailyArticle,
       showWeather: false // 关闭天气弹窗
     });
   },
   
-  // 关闭知乎早报弹窗
-  closeZhihu: function() {
+  // 关闭每日一文弹窗
+  closeDailyArticle: function() {
     this.setData({
-      showZhihu: false
+      showDailyArticle: false
     });
-  },
-  
-  // 打开知乎日报文章
-  openZhihuArticle: function(e) {
-    const url = e.currentTarget.dataset.url;
-    if (url) {
-      // 复制链接到剪贴板并提示用户
-      wx.setClipboardData({
-        data: url,
-        success: () => {
-          wx.showToast({
-            title: '链接已复制，请在浏览器打开',
-            icon: 'none',
-            duration: 2000
-          });
-        }
-      });
-    }
   }
 });

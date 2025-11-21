@@ -66,9 +66,9 @@
   <text class="weather-trigger-icon">🌤️</text>
 </view>
 
-<!-- 知乎早报按钮 -->
-<view class="zhihu-trigger" bindtap="toggleZhihu">
-  <text class="zhihu-trigger-icon">📰</text>
+<!-- 每日一文按钮 -->
+<view class="daily-article-trigger" bindtap="toggleDailyArticle">
+  <text class="daily-article-trigger-icon">�</text>
 </view>
 
 <!-- 天气预报侧边弹窗 -->
@@ -91,21 +91,20 @@
   </view>
 </view>
 
-<!-- 知乎早报侧边弹窗 -->
-<view class="zhihu-mask {{showZhihu ? 'show' : ''}}" bindtap="closeZhihu"></view>
-<view class="zhihu-drawer {{showZhihu ? 'show' : ''}}">
-  <view class="zhihu-drawer-header">
-    <text class="zhihu-drawer-title">📰 知乎日报</text>
-    <text class="zhihu-drawer-close" bindtap="closeZhihu">✕</text>
+<!-- 每日一文侧边弹窗 -->
+<view class="daily-article-mask {{showDailyArticle ? 'show' : ''}}" bindtap="closeDailyArticle"></view>
+<view class="daily-article-drawer {{showDailyArticle ? 'show' : ''}}">
+  <view class="daily-article-drawer-header">
+    <text class="daily-article-drawer-title">� 每日一文</text>
+    <text class="daily-article-drawer-close" bindtap="closeDailyArticle">✕</text>
   </view>
-  <view wx:if="{{zhihuData && zhihuData.length > 0}}" class="zhihu-drawer-content">
-    <view wx:for="{{zhihuData}}" wx:key="id" class="zhihu-item" bindtap="openZhihuArticle" data-url="{{item.url}}">
-      <view class="zhihu-index">{{index + 1}}</view>
-      <text class="zhihu-title">{{item.title}}</text>
-    </view>
+  <view wx:if="{{dailyArticle}}" class="daily-article-drawer-content">
+    <view class="article-title">{{dailyArticle.title}}</view>
+    <view class="article-meta">{{dailyArticle.author}}</view>
+    <view class="article-content">{{dailyArticle.content}}</view>
   </view>
-  <view wx:else class="zhihu-drawer-content">
-    <text class="zhihu-drawer-loading">加载中...</text>
+  <view wx:else class="daily-article-drawer-content">
+    <text class="daily-article-drawer-loading">加载中...</text>
   </view>
 </view>
 
