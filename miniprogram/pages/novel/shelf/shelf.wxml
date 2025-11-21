@@ -9,16 +9,10 @@
   </view>
 
   <view class="header">
-    <view class="header-content">
-      <text class="title">📚 我的书架</text>
-      <text class="subtitle">共 {{bookList.length}} 本小说</text>
-    </view>
-    <view class="header-actions">
-      <!-- 上传按钮 - 仅管理员可见 -->
-      <view wx:if="{{isAdmin}}" class="upload-btn" bindtap="goToUpload">
-        <text class="btn-icon">📤</text>
-        <text class="btn-text">上传</text>
-      </view>
+    <text class="title">📚 我的书架</text>
+    <!-- 上传按钮 - 仅管理员可见，缩小并放在右侧 -->
+    <view wx:if="{{isAdmin}}" class="upload-btn" bindtap="goToUpload">
+      <text class="btn-icon">📤</text>
     </view>
   </view>
 
@@ -38,15 +32,6 @@
       <view class="book-info">
         <text class="book-name">{{item.name}}</text>
         <text class="book-meta">{{item.uploadTime}}</text>
-      </view>
-      <view class="book-actions">
-        <view class="action-read">
-          <text class="action-text">阅读</text>
-          <text class="action-arrow">→</text>
-        </view>
-        <view wx:if="{{isAdmin}}" class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
-          <text class="delete-icon">🗑️</text>
-        </view>
       </view>
     </view>
   </view>
