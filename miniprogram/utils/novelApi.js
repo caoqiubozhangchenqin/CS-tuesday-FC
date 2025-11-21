@@ -30,7 +30,7 @@ const stripHtml = (html) => {
 };
 
 /**
- * 搜索小说 - 使用免费聚合API
+ * 搜索小说 - 使用笔趣阁
  * @param {string} keyword - 搜索关键词
  * @returns {Promise<Array>} 小说列表
  */
@@ -42,85 +42,125 @@ const searchNovel = (keyword) => {
 
     console.log('开始搜索:', keyword);
 
-    // 使用免费的书源API（支持跨域）
+    // 使用笔趣阁搜索
     wx.request({
-      url: 'https://api.xiaoshuoworld.com/search',
+      url: `${config.novelApiBase}/modules/article/search.php`,
       data: {
-        keyword: keyword.trim(),
-        page: 1,
-        limit: 20
+        searchkey: keyword.trim()
       },
       method: 'GET',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       success: (res) => {
         try {
-          console.log('搜索API响应:', res);
+          console.log('笔趣阁搜索响应状态:', res.statusCode);
+          console.log('响应数据类型:', typeof res.data);
           
           if (res.statusCode !== 200) {
             console.error('API返回错误状态:', res.statusCode);
-            // 降级到备用方案
-            return searchNovelFromBaidu(keyword).then(resolve).catch(reject);
+            return resolve([]);
           }
           
-          if (!res.data || !res.data.list) {
-            console.log('无搜索结果，尝试备用方案');
-            return searchNovelFromBaidu(keyword).then(resolve).catch(reject);
+          if (typeof res.data !== 'string') {
+            console.error('返回数据不是HTML字符串');
+            return resolve([]);
           }
           
-          const books = res.data.list.map((book, index) => ({
-            id: book.id || `book_${Date.now()}_${index}`,
-            name: book.name || book.title || '未知书名',
-            author: book.author || '未知作者',
-            intro: (book.intro || book.desc || '暂无简介').substring(0, 100),
-            url: book.url || book.link || '',
-            cover: book.cover || book.image || '',
-            lastChapter: book.lastChapter || ''
-          }));
+          const html = res.data;
+          const books = [];
           
-          console.log('解析后的书籍列表:', books);
+          console.log('开始解析HTML，长度:', html.length);
+          
+          // 策略1: 搜索结果表格行
+          const listItemRegex = /<tr[^>]*>[\s\S]*?<td[^>]*class="(?:odd|even)"[^>]*>[\s\S]*?<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<\/tr>/gi;
+          let match;
+          
+          while ((match = listItemRegex.exec(html)) !== null && books.length < 20) {
+            const url = match[1];
+            const name = stripHtml(match[2]).trim();
+            const author = stripHtml(match[3]).trim();
+            const lastChapter = stripHtml(match[4]).trim();
+            
+            if (name && name.length > 1) {
+              books.push({
+                id: `book_${Date.now()}_${books.length}`,
+                name: name,
+                author: author || '未知作者',
+                intro: lastChapter ? `最新章节: ${lastChapter}` : '暂无简介',
+                url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                cover: '',
+                lastChapter: lastChapter
+              });
+            }
+          }
+          
+          console.log('策略1解析结果数量:', books.length);
+          
+          // 策略2: 如果策略1没结果，尝试更通用的链接匹配
+          if (books.length === 0) {
+            const linkRegex = /<a[^>]*href=["']([^"']*\/\d+_\d+\/[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+            const bookSet = new Set();
+            
+            while ((match = linkRegex.exec(html)) !== null && books.length < 20) {
+              const url = match[1];
+              const name = stripHtml(match[2]).trim();
+              
+              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+                bookSet.add(name);
+                books.push({
+                  id: `book_${Date.now()}_${books.length}`,
+                  name: name,
+                  author: '未知作者',
+                  intro: '点击查看详情',
+                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                  cover: ''
+                });
+              }
+            }
+            
+            console.log('策略2解析结果数量:', books.length);
+          }
+          
+          // 策略3: 最宽松的匹配
+          if (books.length === 0) {
+            const anyLinkRegex = /<a[^>]*href=["']([^"']*book[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+            const bookSet = new Set();
+            
+            while ((match = anyLinkRegex.exec(html)) !== null && books.length < 15) {
+              const url = match[1];
+              const name = stripHtml(match[2]).trim();
+              
+              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+                bookSet.add(name);
+                books.push({
+                  id: `book_${Date.now()}_${books.length}`,
+                  name: name,
+                  author: '未知作者',
+                  intro: '点击查看详情',
+                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                  cover: ''
+                });
+              }
+            }
+            
+            console.log('策略3解析结果数量:', books.length);
+          }
+          
+          console.log('最终解析到的书籍数量:', books.length);
+          console.log('书籍列表:', books);
+          
           resolve(books);
         } catch (error) {
           console.error('解析搜索结果失败:', error);
-          // 降级到备用方案
-          searchNovelFromBaidu(keyword).then(resolve).catch(reject);
+          reject(new Error('解析搜索结果失败: ' + error.message));
         }
       },
       fail: (err) => {
         console.error('搜索请求失败:', err);
-        // 降级到备用方案
-        searchNovelFromBaidu(keyword).then(resolve).catch(reject);
+        reject(new Error('网络请求失败，请检查网络连接'));
       }
     });
-  });
-};
-
-/**
- * 备用方案：使用百度搜索笔趣阁
- */
-const searchNovelFromBaidu = (keyword) => {
-  return new Promise((resolve, reject) => {
-    console.log('使用百度搜索备用方案');
-    
-    // 返回模拟数据供演示
-    const mockBooks = [
-      {
-        id: 'mock_1',
-        name: keyword,
-        author: '示例作者',
-        intro: '这是一个示例书籍。真实环境需要配置可用的小说API。请在env.js中配置可访问的笔趣阁域名。',
-        url: 'https://www.example.com/book/1',
-        cover: '',
-        lastChapter: '第一章'
-      }
-    ];
-    
-    console.log('返回示例数据（请配置真实API）');
-    wx.showModal({
-      title: '提示',
-      content: '当前使用演示数据。\n\n要使用真实小说数据，请：\n1. 找一个可访问的笔趣阁网站\n2. 在浏览器测试能否打开\n3. 配置到 config/env.js\n4. 添加到小程序合法域名',
-      showCancel: false
-    });
-    
-    resolve(mockBooks);
   });
 };
 
