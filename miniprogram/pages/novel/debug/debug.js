@@ -11,7 +11,9 @@ Page({
     isLoadingChapters: false,
     searchResult: '',
     chapterResult: '',
-    networkResult: ''
+    networkResult: '',
+    cloudStorageInfo: '', // 云存储信息
+    cloudBooksCount: 0 // 云端书籍数量
   },
 
   onLoad() {
@@ -232,5 +234,73 @@ Page({
         });
       }
     });
+  },
+
+  /**
+   * 查询云端书籍
+   */
+  async queryCloudBooks() {
+    console.log('\n========== 查询云端书籍 ==========');
+    
+    try {
+      wx.showLoading({ title: '查询中...' });
+
+      const db = wx.cloud.database();
+      const result = await db.collection('novels')
+        .orderBy('uploadTime', 'desc')
+        .get();
+
+      console.log('✅ 查询成功:', result);
+
+      let infoText = `✅ 查询成功\n\n`;
+      infoText += `云端书籍数量：${result.data.length} 本\n\n`;
+
+      if (result.data.length > 0) {
+        infoText += `最近上传的 3 本：\n\n`;
+        result.data.slice(0, 3).forEach((book, index) => {
+          infoText += `${index + 1}. ${book.name}\n`;
+          infoText += `   作者：${book.author}\n`;
+          infoText += `   格式：${book.format}\n`;
+          infoText += `   大小：${book.sizeText}\n`;
+          infoText += `   文件ID：${book.fileID.substring(0, 30)}...\n\n`;
+        });
+
+        // 计算总存储大小
+        const totalSize = result.data.reduce((sum, book) => sum + (book.size || 0), 0);
+        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+        infoText += `总存储大小：${totalSizeMB} MB\n`;
+      } else {
+        infoText += `还没有上传任何书籍\n\n`;
+        infoText += `提示：\n`;
+        infoText += `1. 点击书架的"上传"按钮\n`;
+        infoText += `2. 选择 TXT 或 EPUB 文件\n`;
+        infoText += `3. 填写书籍信息后上传`;
+      }
+
+      this.setData({
+        cloudStorageInfo: infoText,
+        cloudBooksCount: result.data.length
+      });
+
+      wx.hideLoading();
+      wx.showToast({
+        title: `找到${result.data.length}本书`,
+        icon: 'success'
+      });
+
+    } catch (error) {
+      wx.hideLoading();
+      console.error('❌ 查询失败:', error);
+      
+      this.setData({
+        cloudStorageInfo: `❌ 查询失败\n\n错误信息：${error.message}\n\n请检查：\n1. 是否创建了 novels 集合\n2. 数据库权限是否正确\n3. 云开发环境是否初始化`
+      });
+
+      wx.showModal({
+        title: '查询失败',
+        content: error.message,
+        showCancel: false
+      });
+    }
   }
 });

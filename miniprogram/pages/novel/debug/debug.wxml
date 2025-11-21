@@ -68,6 +68,19 @@
     </view>
   </view>
 
+  <!-- 云存储查询 -->
+  <view class="debug-section">
+    <view class="section-title">☁️ 云存储查询</view>
+    <button class="test-btn primary" bindtap="queryCloudBooks">
+      查询云端书籍 {{cloudBooksCount > 0 ? '(' + cloudBooksCount + ')' : ''}}
+    </button>
+    
+    <view wx:if="{{cloudStorageInfo}}" class="result-box">
+      <view class="result-title">云存储信息：</view>
+      <text class="result-text">{{cloudStorageInfo}}</text>
+    </view>
+  </view>
+
   <!-- 控制台日志提示 -->
   <view class="debug-section">
     <view class="section-title">📝 调试提示</view>
@@ -76,6 +89,7 @@
       <text class="tip-text">2. 检查「不校验合法域名」是否勾选</text>
       <text class="tip-text">3. 确认网络连接正常</text>
       <text class="tip-text">4. 查看API响应状态码和数据</text>
+      <text class="tip-text">5. 云开发环境需要正确初始化</text>
     </view>
   </view>
 </view>
