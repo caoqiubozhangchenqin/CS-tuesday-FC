@@ -8,20 +8,18 @@
 ### request 合法域名
 在微信小程序后台 `开发 > 开发管理 > 开发设置 > 服务器域名` 中添加以下域名：
 
-**主要API（追书神器 - 推荐）**：
+**推荐配置（笔趣阁稳定镜像）**：
 ```
-http://api.zhuishushenqi.com
-http://chapter2.zhuishushenqi.com
-```
-
-**备用API（笔趣阁 - HTTP）**：
-```
-https://www.xbiquge.com
-https://www.ibiquge.net
-https://www.biquge.com.cn
+https://www.biquge5200.com
+https://www.qu.la
+https://www.xbiquge.so
+https://www.biquge.info
 ```
 
-⚠️ **注意**：追书神器API使用HTTP协议，小程序后台可能无法添加。开发阶段请在开发者工具勾选"不校验合法域名"。
+⚠️ **重要**：
+- 笔趣阁类网站域名经常变化
+- 建议配置多个备用域名
+- 如域名失效，可在代码中切换 `novelApiBase`
 
 ## ⚙️ 配置步骤
 
