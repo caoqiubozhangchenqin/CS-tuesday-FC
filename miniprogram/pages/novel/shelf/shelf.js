@@ -1,7 +1,8 @@
 // pages/novel/shelf/shelf.js
 Page({
   data: {
-    bookList: []
+    bookList: [],
+    readingCount: 0
   },
 
   onLoad() {
@@ -19,7 +20,37 @@ Page({
   loadBookList() {
     try {
       const bookList = wx.getStorageSync('novel_shelf') || [];
-      this.setData({ bookList });
+      
+      // 格式化添加时间
+      const formattedList = bookList.map(book => {
+        if (book.addTime && typeof book.addTime === 'number') {
+          const date = new Date(book.addTime);
+          const now = new Date();
+          const diff = now - date;
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          
+          if (days === 0) {
+            book.addTime = '今天加入';
+          } else if (days === 1) {
+            book.addTime = '昨天加入';
+          } else if (days < 7) {
+            book.addTime = `${days}天前`;
+          } else {
+            book.addTime = `${date.getMonth() + 1}月${date.getDate()}日`;
+          }
+        } else {
+          book.addTime = '最近';
+        }
+        return book;
+      });
+      
+      // 统计阅读中的书籍数量
+      const readingCount = formattedList.filter(book => book.currentChapter).length;
+      
+      this.setData({ 
+        bookList: formattedList,
+        readingCount 
+      });
     } catch (error) {
       console.error('加载书架失败:', error);
       wx.showToast({
@@ -27,6 +58,15 @@ Page({
         icon: 'none'
       });
     }
+  },
+
+  /**
+   * 跳转到推荐页
+   */
+  goToRecommend() {
+    wx.navigateTo({
+      url: '/pages/novel/recommend/recommend'
+    });
   },
 
   /**
@@ -79,7 +119,7 @@ Page({
       const newList = bookList.filter(book => book.id !== bookId);
       
       wx.setStorageSync('novel_shelf', newList);
-      this.setData({ bookList: newList });
+      this.loadBookList(); // 重新加载以更新统计数据
       
       // 同时删除该书的阅读进度
       const progressKey = `novel_progress_${bookId}`;

@@ -10,9 +10,19 @@ Page({
     hasSearched: false
   },
 
-  onLoad() {
+  onLoad(options) {
     this.loadSearchHistory();
     this.loadShelfBooks();
+    
+    // 如果从推荐页传入了关键词，自动搜索
+    if (options.keyword) {
+      const keyword = decodeURIComponent(options.keyword);
+      this.setData({ keyword });
+      // 延迟一下让页面渲染完成
+      setTimeout(() => {
+        this.onSearch();
+      }, 300);
+    }
   },
 
   /**

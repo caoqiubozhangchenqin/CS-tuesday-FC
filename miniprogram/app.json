@@ -17,7 +17,8 @@
     "pages/world_football/world_football",
     "pages/novel/shelf/shelf",
     "pages/novel/search/search",
-    "pages/novel/reader/reader"
+    "pages/novel/reader/reader",
+    "pages/novel/recommend/recommend"
   ],
   "window": {
     "backgroundTextStyle": "light",

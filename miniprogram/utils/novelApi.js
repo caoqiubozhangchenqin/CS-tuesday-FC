@@ -42,126 +42,189 @@ const searchNovel = (keyword) => {
 
     console.log('开始搜索:', keyword);
 
-    // 使用笔趣阁搜索
-    wx.request({
-      url: `${config.novelApiBase}/modules/article/search.php`,
-      data: {
-        searchkey: keyword.trim()
-      },
-      method: 'GET',
-      header: {
-        'content-type': 'application/x-www-form-urlencoded'
-      },
-      success: (res) => {
-        try {
-          console.log('笔趣阁搜索响应状态:', res.statusCode);
-          console.log('响应数据类型:', typeof res.data);
-          
-          if (res.statusCode !== 200) {
-            console.error('API返回错误状态:', res.statusCode);
-            return resolve([]);
-          }
-          
-          if (typeof res.data !== 'string') {
-            console.error('返回数据不是HTML字符串');
-            return resolve([]);
-          }
-          
-          const html = res.data;
-          const books = [];
-          
-          console.log('开始解析HTML，长度:', html.length);
-          
-          // 策略1: 搜索结果表格行
-          const listItemRegex = /<tr[^>]*>[\s\S]*?<td[^>]*class="(?:odd|even)"[^>]*>[\s\S]*?<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<\/tr>/gi;
-          let match;
-          
-          while ((match = listItemRegex.exec(html)) !== null && books.length < 20) {
-            const url = match[1];
-            const name = stripHtml(match[2]).trim();
-            const author = stripHtml(match[3]).trim();
-            const lastChapter = stripHtml(match[4]).trim();
-            
-            if (name && name.length > 1) {
-              books.push({
-                id: `book_${Date.now()}_${books.length}`,
-                name: name,
-                author: author || '未知作者',
-                intro: lastChapter ? `最新章节: ${lastChapter}` : '暂无简介',
-                url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
-                cover: '',
-                lastChapter: lastChapter
-              });
-            }
-          }
-          
-          console.log('策略1解析结果数量:', books.length);
-          
-          // 策略2: 如果策略1没结果，尝试更通用的链接匹配
-          if (books.length === 0) {
-            const linkRegex = /<a[^>]*href=["']([^"']*\/\d+_\d+\/[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
-            const bookSet = new Set();
-            
-            while ((match = linkRegex.exec(html)) !== null && books.length < 20) {
-              const url = match[1];
-              const name = stripHtml(match[2]).trim();
-              
-              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
-                bookSet.add(name);
-                books.push({
-                  id: `book_${Date.now()}_${books.length}`,
-                  name: name,
-                  author: '未知作者',
-                  intro: '点击查看详情',
-                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
-                  cover: ''
-                });
-              }
-            }
-            
-            console.log('策略2解析结果数量:', books.length);
-          }
-          
-          // 策略3: 最宽松的匹配
-          if (books.length === 0) {
-            const anyLinkRegex = /<a[^>]*href=["']([^"']*book[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
-            const bookSet = new Set();
-            
-            while ((match = anyLinkRegex.exec(html)) !== null && books.length < 15) {
-              const url = match[1];
-              const name = stripHtml(match[2]).trim();
-              
-              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
-                bookSet.add(name);
-                books.push({
-                  id: `book_${Date.now()}_${books.length}`,
-                  name: name,
-                  author: '未知作者',
-                  intro: '点击查看详情',
-                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
-                  cover: ''
-                });
-              }
-            }
-            
-            console.log('策略3解析结果数量:', books.length);
-          }
-          
-          console.log('最终解析到的书籍数量:', books.length);
-          console.log('书籍列表:', books);
-          
-          resolve(books);
-        } catch (error) {
-          console.error('解析搜索结果失败:', error);
-          reject(new Error('解析搜索结果失败: ' + error.message));
-        }
-      },
-      fail: (err) => {
-        console.error('搜索请求失败:', err);
-        reject(new Error('网络请求失败，请检查网络连接'));
-      }
-    });
+    // 尝试多种可能的搜索路径
+    const searchUrls = [
+      `${config.novelApiBase}/s.php?s=1&q=${encodeURIComponent(keyword.trim())}`,
+      `${config.novelApiBase}/search.php?q=${encodeURIComponent(keyword.trim())}`,
+      `${config.novelApiBase}/modules/article/search.php?searchkey=${encodeURIComponent(keyword.trim())}`,
+      `${config.novelApiBase}/e/search/index.php?searchget=1&tbname=bookname&keyboard=${encodeURIComponent(keyword.trim())}`
+    ];
+
+    // 递归尝试每个URL
+    trySearchUrls(searchUrls, 0, resolve, reject);
   });
+};
+
+/**
+ * 递归尝试多个搜索URL
+ */
+const trySearchUrls = (urls, index, resolve, reject) => {
+  if (index >= urls.length) {
+    console.error('所有搜索路径都失败了');
+    return reject(new Error('无法找到可用的搜索接口'));
+  }
+
+  const url = urls[index];
+  console.log(`尝试搜索路径 ${index + 1}:`, url);
+
+  wx.request({
+    url: url,
+    method: 'GET',
+    header: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    success: (res) => {
+      try {
+        console.log(`路径 ${index + 1} 响应状态:`, res.statusCode);
+        
+        if (res.statusCode !== 200) {
+          console.log(`路径 ${index + 1} 失败，尝试下一个`);
+          return trySearchUrls(urls, index + 1, resolve, reject);
+        }
+        
+        if (typeof res.data !== 'string') {
+          console.error('返回数据不是HTML字符串');
+          return trySearchUrls(urls, index + 1, resolve, reject);
+        }
+        
+        const html = res.data;
+        console.log(`路径 ${index + 1} HTML长度:`, html.length);
+        
+        // 如果HTML太短，可能是错误页面
+        if (html.length < 500) {
+          console.log(`路径 ${index + 1} HTML内容太短，可能是错误页面`);
+          return trySearchUrls(urls, index + 1, resolve, reject);
+        }
+        
+        const books = parseSearchResults(html);
+        
+        if (books.length === 0) {
+          console.log(`路径 ${index + 1} 解析不到结果，尝试下一个`);
+          return trySearchUrls(urls, index + 1, resolve, reject);
+        }
+        
+        console.log(`路径 ${index + 1} 成功！解析到 ${books.length} 本书`);
+        console.log('书籍列表:', books);
+        resolve(books);
+      } catch (error) {
+        console.error(`路径 ${index + 1} 解析失败:`, error);
+        trySearchUrls(urls, index + 1, resolve, reject);
+      }
+    },
+    fail: (err) => {
+      console.error(`路径 ${index + 1} 请求失败:`, err);
+      trySearchUrls(urls, index + 1, resolve, reject);
+    }
+  });
+};
+
+/**
+ * 解析搜索结果HTML
+ */
+const parseSearchResults = (html) => {
+  const books = [];
+  
+  // 策略1: 搜索结果表格行（最常见）
+  const tableRowRegex = /<tr[^>]*>[\s\S]*?<td[^>]*>[\s\S]*?<a[^>]*href=["']([^"']*)["'][^>]*>([^<]+)<\/a>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<\/tr>/gi;
+  let match;
+  
+  while ((match = tableRowRegex.exec(html)) !== null && books.length < 20) {
+    const url = match[1];
+    const name = stripHtml(match[2]).trim();
+    const author = stripHtml(match[3]).trim();
+    const lastChapter = stripHtml(match[4]).trim();
+    
+    if (name && name.length > 1 && name.length < 50) {
+      books.push({
+        id: `book_${Date.now()}_${books.length}`,
+        name: name,
+        author: author || '未知作者',
+        intro: lastChapter ? `最新: ${lastChapter}` : '暂无简介',
+        url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+        cover: '',
+        lastChapter: lastChapter
+      });
+    }
+  }
+  
+  console.log('策略1(表格)解析结果:', books.length);
+  
+  // 策略2: 列表项（li标签）
+  if (books.length === 0) {
+    const listItemRegex = /<li[^>]*>[\s\S]*?<a[^>]*href=["']([^"']*)["'][^>]*>([^<]+)<\/a>[\s\S]*?<\/li>/gi;
+    const bookSet = new Set();
+    
+    while ((match = listItemRegex.exec(html)) !== null && books.length < 20) {
+      const url = match[1];
+      const name = stripHtml(match[2]).trim();
+      
+      if (name.length > 2 && name.length < 50 && !bookSet.has(name) && url.includes('book')) {
+        bookSet.add(name);
+        books.push({
+          id: `book_${Date.now()}_${books.length}`,
+          name: name,
+          author: '未知作者',
+          intro: '点击查看详情',
+          url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+          cover: ''
+        });
+      }
+    }
+    
+    console.log('策略2(列表)解析结果:', books.length);
+  }
+  
+  // 策略3: div容器
+  if (books.length === 0) {
+    const divRegex = /<div[^>]*class=["'][^"']*(?:book|item|result)[^"']*["'][^>]*>[\s\S]*?<a[^>]*href=["']([^"']*)["'][^>]*>([^<]+)<\/a>[\s\S]*?<\/div>/gi;
+    const bookSet = new Set();
+    
+    while ((match = divRegex.exec(html)) !== null && books.length < 20) {
+      const url = match[1];
+      const name = stripHtml(match[2]).trim();
+      
+      if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+        bookSet.add(name);
+        books.push({
+          id: `book_${Date.now()}_${books.length}`,
+          name: name,
+          author: '未知作者',
+          intro: '点击查看详情',
+          url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+          cover: ''
+        });
+      }
+    }
+    
+    console.log('策略3(div)解析结果:', books.length);
+  }
+  
+  // 策略4: 任何包含book的链接
+  if (books.length === 0) {
+    const anyLinkRegex = /<a[^>]*href=["']([^"']*book[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+    const bookSet = new Set();
+    
+    while ((match = anyLinkRegex.exec(html)) !== null && books.length < 15) {
+      const url = match[1];
+      const name = stripHtml(match[2]).trim();
+      
+      if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+        bookSet.add(name);
+        books.push({
+          id: `book_${Date.now()}_${books.length}`,
+          name: name,
+          author: '未知作者',
+          intro: '点击查看详情',
+          url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+          cover: ''
+        });
+      }
+    }
+    
+    console.log('策略4(通用链接)解析结果:', books.length);
+  }
+  
+  return books;
 };
 
 /**

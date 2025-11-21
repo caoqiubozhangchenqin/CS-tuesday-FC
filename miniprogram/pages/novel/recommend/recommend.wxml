@@ -1,0 +1,54 @@
+<!-- pages/novel/recommend/recommend.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="title">🔥 小说推荐</text>
+    <text class="subtitle">精选热门好书</text>
+  </view>
+
+  <!-- 推荐分类 -->
+  <view class="category-tabs">
+    <view 
+      wx:for="{{categories}}" 
+      wx:key="index" 
+      class="tab-item {{currentCategory === item.id ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-id="{{item.id}}"
+    >
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 推荐列表 -->
+  <view class="recommend-list">
+    <view 
+      wx:for="{{currentBooks}}" 
+      wx:key="id" 
+      class="book-card"
+      bindtap="goToSearch"
+      data-keyword="{{item.name}}"
+    >
+      <view class="book-rank">{{index + 1}}</view>
+      <view class="book-cover">
+        <text class="cover-icon">{{item.icon}}</text>
+      </view>
+      <view class="book-info">
+        <text class="book-name">{{item.name}}</text>
+        <text class="book-author">{{item.author}}</text>
+        <text class="book-intro">{{item.intro}}</text>
+        <view class="book-tags">
+          <text wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag" class="tag">{{tag}}</text>
+        </view>
+      </view>
+      <view class="book-action">
+        <text class="action-text">搜索</text>
+        <text class="action-icon">→</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="footer-tip">
+    <text>💡 点击书籍可直接搜索添加到书架</text>
+  </view>
+</view>

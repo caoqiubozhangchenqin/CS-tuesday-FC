@@ -2,9 +2,30 @@
 <view class="container">
   <view class="header">
     <text class="title">📚 我的书架</text>
-    <view class="search-btn" bindtap="goToSearch">
-      <text class="search-icon">🔍</text>
-      <text class="search-text">搜索小说</text>
+    <view class="header-actions">
+      <view class="recommend-btn" bindtap="goToRecommend">
+        <text class="btn-icon">🔥</text>
+        <text class="btn-text">推荐</text>
+      </view>
+      <view class="search-btn" bindtap="goToSearch">
+        <text class="btn-icon">🔍</text>
+        <text class="btn-text">搜索</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view wx:if="{{bookList && bookList.length > 0}}" class="stats-bar">
+    <view class="stat-item">
+      <text class="stat-icon">📚</text>
+      <text class="stat-value">{{bookList.length}}</text>
+      <text class="stat-label">本藏书</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-icon">📖</text>
+      <text class="stat-value">{{readingCount}}</text>
+      <text class="stat-label">在读</text>
     </view>
   </view>
 
@@ -14,16 +35,25 @@
       <view class="book-cover">
         <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill"></image>
         <view wx:else class="no-cover">📖</view>
+        <!-- 阅读进度标识 -->
+        <view wx:if="{{item.currentChapter}}" class="reading-badge">阅读中</view>
       </view>
       <view class="book-info">
         <text class="book-name">{{item.name}}</text>
-        <text class="book-author">作者：{{item.author}}</text>
+        <text class="book-author">👤 {{item.author}}</text>
         <text class="book-progress">
-          {{item.currentChapter ? '已读至：第' + item.currentChapter + '章' : '未开始阅读'}}
+          {{item.currentChapter ? '📍 第' + item.currentChapter + '章' : '🆕 未开始'}}
         </text>
+        <text class="book-time">🕐 {{item.addTime}}</text>
       </view>
-      <view class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
-        <text>✕</text>
+      <view class="book-actions">
+        <view class="action-read">
+          <text class="action-icon">📖</text>
+          <text class="action-label">阅读</text>
+        </view>
+        <view class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
+          <text class="delete-icon">🗑️</text>
+        </view>
       </view>
     </view>
   </view>
