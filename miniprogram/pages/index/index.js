@@ -17,7 +17,9 @@ Page({
     showSurveyButton: true,
     selectedTeamName: '',
     weatherData: [], // 天气数据
-    showWeather: false // 控制天气弹窗显示
+    showWeather: false, // 控制天气弹窗显示
+    zhihuData: [], // 知乎早报数据
+    showZhihu: false // 控制知乎早报弹窗显示
   },
   onLoad: function () {
     const app = getApp();
@@ -31,6 +33,7 @@ Page({
     this.checkUserStatus();
     this.fetchUserInfo();
     this.fetchWeatherData(); // 获取天气数据
+    this.fetchZhihuData(); // 获取知乎早报数据
     this.musicStatusListener = (isPlaying) => {
       if (this.data.isMusicPlaying !== isPlaying) {
         this.setData({ isMusicPlaying: isPlaying });
@@ -348,6 +351,7 @@ Page({
             return {
               ...item,
               dateShort: this.formatDate(item.date),
+              weekday: this.getWeekday(item.date),
               weatherEmoji: this.getWeatherEmoji(item.wea_day, item.wea_night)
             };
           });
@@ -386,6 +390,26 @@ Page({
     }
     return dateStr;
   },
+
+  // 返回指定日期的中文星期 (例：周一)
+  getWeekday: function(dateStr) {
+    if (!dateStr) return '';
+    // 处理常见日期格式 YYYY-MM-DD
+    const parts = dateStr.split('-');
+    let d;
+    if (parts.length === 3) {
+      // 注意：月份从0开始
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      d = new Date(year, month, day);
+    } else {
+      d = new Date(dateStr);
+    }
+    if (isNaN(d.getTime())) return '';
+    const map = ['周日','周一','周二','周三','周四','周五','周六'];
+    return map[d.getDay()];
+  },
   
   // 根据天气描述返回对应的 emoji
   getWeatherEmoji: function(weaDay, weaNight) {
@@ -407,10 +431,44 @@ Page({
     return '🌤️'; // 默认
   },
   
+  // 获取知乎早报数据
+  fetchZhihuData: function() {
+    wx.request({
+      url: 'https://v3.alapi.cn/api/zhihu',
+      data: {
+        token: config.alapiToken
+      },
+      success: (res) => {
+        console.log('知乎早报API响应:', res.data);
+        if (res.data && res.data.code === 200 && res.data.data) {
+          const zhihuList = res.data.data.list || [];
+          console.log('知乎早报数据:', zhihuList);
+          this.setData({
+            zhihuData: zhihuList
+          });
+        } else {
+          console.error('获取知乎早报失败:', res.data);
+          wx.showToast({
+            title: '获取知乎早报失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('知乎早报请求失败:', err);
+        wx.showToast({
+          title: '网络请求失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+  
   // 切换天气弹窗显示/隐藏
   toggleWeather: function() {
     this.setData({
-      showWeather: !this.data.showWeather
+      showWeather: !this.data.showWeather,
+      showZhihu: false // 关闭知乎弹窗
     });
   },
   
@@ -418,6 +476,21 @@ Page({
   closeWeather: function() {
     this.setData({
       showWeather: false
+    });
+  },
+  
+  // 切换知乎早报弹窗显示/隐藏
+  toggleZhihu: function() {
+    this.setData({
+      showZhihu: !this.data.showZhihu,
+      showWeather: false // 关闭天气弹窗
+    });
+  },
+  
+  // 关闭知乎早报弹窗
+  closeZhihu: function() {
+    this.setData({
+      showZhihu: false
     });
   }
 });

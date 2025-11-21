@@ -66,6 +66,11 @@
   <text class="weather-trigger-icon">🌤️</text>
 </view>
 
+<!-- 知乎早报按钮 -->
+<view class="zhihu-trigger" bindtap="toggleZhihu">
+  <text class="zhihu-trigger-icon">📰</text>
+</view>
+
 <!-- 天气预报侧边弹窗 -->
 <view class="weather-mask {{showWeather ? 'show' : ''}}" bindtap="closeWeather"></view>
 <view class="weather-drawer {{showWeather ? 'show' : ''}}">
@@ -75,13 +80,34 @@
   </view>
   <view wx:if="{{weatherData && weatherData.length > 0}}" class="weather-drawer-content">
     <view wx:for="{{weatherData}}" wx:key="date" class="weather-drawer-item">
-      <text class="weather-drawer-date">{{item.dateShort}}</text>
+      <view class="weather-left">
+        <text class="weather-drawer-date">{{item.dateShort}}</text>
+        <text class="weather-drawer-weekday">{{item.weekday}}</text>
+      </view>
       <text class="weather-drawer-emoji">{{item.weatherEmoji}}</text>
       <text class="weather-drawer-temp">{{item.temp_night}}°C ~ {{item.temp_day}}°C</text>
     </view>
   </view>
   <view wx:else class="weather-drawer-content">
     <text class="weather-drawer-loading">加载天气中...</text>
+  </view>
+</view>
+
+<!-- 知乎早报侧边弹窗 -->
+<view class="zhihu-mask {{showZhihu ? 'show' : ''}}" bindtap="closeZhihu"></view>
+<view class="zhihu-drawer {{showZhihu ? 'show' : ''}}">
+  <view class="zhihu-drawer-header">
+    <text class="zhihu-drawer-title">📰 知乎热榜</text>
+    <text class="zhihu-drawer-close" bindtap="closeZhihu">✕</text>
+  </view>
+  <view wx:if="{{zhihuData && zhihuData.length > 0}}" class="zhihu-drawer-content">
+    <view wx:for="{{zhihuData}}" wx:key="index" class="zhihu-item">
+      <view class="zhihu-index">{{index + 1}}</view>
+      <text class="zhihu-title">{{item.title}}</text>
+    </view>
+  </view>
+  <view wx:else class="zhihu-drawer-content">
+    <text class="zhihu-drawer-loading">加载中...</text>
   </view>
 </view>
 
