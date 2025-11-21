@@ -1,0 +1,12 @@
+{
+  "name": "parseNovel",
+  "version": "1.0.0",
+  "description": "解析小说文件（TXT/EPUB）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "adm-zip": "^0.5.10",
+    "xml2js": "^0.6.2",
+    "iconv-lite": "^0.6.3"
+  }
+}

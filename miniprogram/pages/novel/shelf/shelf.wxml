@@ -3,6 +3,10 @@
   <view class="header">
     <text class="title">📚 我的书架</text>
     <view class="header-actions">
+      <view class="upload-btn" bindtap="goToUpload">
+        <text class="btn-icon">📤</text>
+        <text class="btn-text">上传</text>
+      </view>
       <view class="debug-btn" bindtap="goToDebug">
         <text class="btn-icon">🔧</text>
       </view>

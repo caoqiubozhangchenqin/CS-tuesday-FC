@@ -19,7 +19,8 @@
     "pages/novel/search/search",
     "pages/novel/reader/reader",
     "pages/novel/recommend/recommend",
-    "pages/novel/debug/debug"
+    "pages/novel/debug/debug",
+    "pages/novel/upload/upload"
   ],
   "window": {
     "backgroundTextStyle": "light",

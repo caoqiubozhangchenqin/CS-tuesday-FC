@@ -61,6 +61,15 @@ Page({
   },
 
   /**
+   * 跳转到上传页
+   */
+  goToUpload() {
+    wx.navigateTo({
+      url: '/pages/novel/upload/upload'
+    });
+  },
+
+  /**
    * 跳转到推荐页
    */
   goToRecommend() {

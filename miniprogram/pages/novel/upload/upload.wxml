@@ -1,0 +1,140 @@
+<!--pages/novel/upload/upload.wxml-->
+<view class="upload-container">
+  <view class="upload-header">
+    <text class="header-title">📤 上传小说</text>
+    <text class="header-desc">支持 TXT、EPUB 格式</text>
+  </view>
+
+  <!-- 上传区域 -->
+  <view class="upload-section">
+    <button class="upload-btn" bindtap="chooseFile">
+      <text class="upload-icon">📁</text>
+      <text class="upload-text">选择文件</text>
+    </button>
+    
+    <view wx:if="{{selectedFile}}" class="file-info">
+      <view class="file-item">
+        <text class="file-icon">📄</text>
+        <view class="file-details">
+          <text class="file-name">{{selectedFile.name}}</text>
+          <text class="file-size">{{selectedFile.sizeText}}</text>
+        </view>
+        <text class="file-close" bindtap="removeFile">✕</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 书籍信息 -->
+  <view wx:if="{{selectedFile}}" class="book-info-section">
+    <view class="form-item">
+      <text class="form-label">书名</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入书名" 
+        value="{{bookName}}"
+        bindinput="onBookNameInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">作者</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入作者" 
+        value="{{author}}"
+        bindinput="onAuthorInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">简介</text>
+      <textarea 
+        class="form-textarea" 
+        placeholder="请输入小说简介" 
+        value="{{intro}}"
+        bindinput="onIntroInput"
+        maxlength="500"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">分类</text>
+      <picker 
+        mode="selector" 
+        range="{{categories}}" 
+        value="{{categoryIndex}}"
+        bindchange="onCategoryChange"
+      >
+        <view class="picker-view">
+          <text>{{categories[categoryIndex] || '请选择分类'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <button 
+      class="submit-btn" 
+      bindtap="uploadBook" 
+      loading="{{isUploading}}"
+      disabled="{{isUploading || !bookName || !author}}"
+    >
+      {{isUploading ? '上传中...' : '上传到云端'}}
+    </button>
+  </view>
+
+  <!-- 上传进度 -->
+  <view wx:if="{{uploadProgress > 0 && uploadProgress < 100}}" class="progress-section">
+    <text class="progress-text">上传进度：{{uploadProgress}}%</text>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{uploadProgress}}%"></view>
+    </view>
+  </view>
+
+  <!-- 我的云端书籍 -->
+  <view class="cloud-books-section">
+    <view class="section-header">
+      <text class="section-title">☁️ 云端书籍</text>
+      <text class="section-count">{{cloudBooks.length}} 本</text>
+    </view>
+
+    <view wx:if="{{cloudBooks.length === 0}}" class="empty-state">
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">还没有上传书籍</text>
+    </view>
+
+    <view wx:else class="book-list">
+      <view 
+        wx:for="{{cloudBooks}}" 
+        wx:key="id" 
+        class="book-item"
+        bindtap="viewBook"
+        data-book="{{item}}"
+      >
+        <view class="book-left">
+          <text class="book-format">{{item.format}}</text>
+          <view class="book-info">
+            <text class="book-name">{{item.name}}</text>
+            <text class="book-author">{{item.author}}</text>
+            <text class="book-size">{{item.sizeText}}</text>
+          </view>
+        </view>
+        <view class="book-actions">
+          <text class="action-btn" catchtap="downloadBook" data-book="{{item}}">📥</text>
+          <text class="action-btn delete" catchtap="deleteBook" data-id="{{item.id}}">🗑️</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="tips-section">
+    <view class="tips-title">💡 使用说明</view>
+    <view class="tips-list">
+      <text class="tip-item">• 支持 TXT 和 EPUB 格式</text>
+      <text class="tip-item">• 单个文件不超过 10MB</text>
+      <text class="tip-item">• EPUB 会自动解析章节</text>
+      <text class="tip-item">• TXT 按空行自动分章</text>
+      <text class="tip-item">• 上传后可在书架中阅读</text>
+    </view>
+  </view>
+</view>
