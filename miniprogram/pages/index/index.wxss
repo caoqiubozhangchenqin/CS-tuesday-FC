@@ -9,7 +9,7 @@
   min-height: 100vh;
   padding: 40rpx 60rpx;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #FFF5F5 0%, #FFE4E1 100%);
+  background: transparent !important;
   color: #333;
 }
 

@@ -6,6 +6,7 @@ Page({
     bookId: '',
     bookName: '',
     bookUrl: '',
+    isCloud: false,  // 是否从云端读取
     chapters: [],
     totalChapters: 0,
     currentChapterIndex: 0,
@@ -15,13 +16,16 @@ Page({
     showHeader: true,
     showMenu: false,
     showChapterDrawer: false,
+    showJumpModal: false,  // 跳转弹窗
+    jumpChapterNumber: '',  // 跳转章节号
     fontSize: 18,
     themeClass: 'theme-white',
-    scrollTop: 0
+    scrollTop: 0,
+    lastScrollTop: 0  // 记录滚动位置
   },
 
   onLoad(options) {
-    const { bookId, bookName } = options;
+    const { bookId, bookName, isCloud } = options;
     
     if (!bookId || !bookName) {
       wx.showModal({
@@ -37,14 +41,19 @@ Page({
 
     this.setData({
       bookId,
-      bookName: decodeURIComponent(bookName)
+      bookName: decodeURIComponent(bookName),
+      isCloud: isCloud === 'true'  // 标记是否从云端读取
     });
 
-    // 加载书籍信息
-    this.loadBookInfo();
-    
     // 加载阅读设置
     this.loadReadSettings();
+    
+    // 根据来源加载书籍
+    if (this.data.isCloud) {
+      this.loadCloudBook();  // 从云数据库加载
+    } else {
+      this.loadBookInfo();   // 从本地加载
+    }
   },
 
   onUnload() {
@@ -84,6 +93,120 @@ Page({
         icon: 'none'
       });
     }
+  },
+
+  /**
+   * 从云数据库加载书籍
+   */
+  async loadCloudBook() {
+    wx.showLoading({ title: '加载章节...' });
+
+    try {
+      const db = wx.cloud.database();
+      const _ = db.command;
+
+      // 查询该书的所有章节（分批获取）
+      const MAX_LIMIT = 100;
+      let allChapters = [];
+      let hasMore = true;
+      let skip = 0;
+
+      while (hasMore) {
+        const result = await db.collection('novel_chapters')
+          .where({
+            novelId: this.data.bookId
+          })
+          .orderBy('chapterId', 'asc')
+          .skip(skip)
+          .limit(MAX_LIMIT)
+          .get();
+
+        allChapters = allChapters.concat(result.data);
+        
+        if (result.data.length < MAX_LIMIT) {
+          hasMore = false;
+        } else {
+          skip += MAX_LIMIT;
+        }
+      }
+
+      wx.hideLoading();
+
+      if (allChapters.length === 0) {
+        wx.showModal({
+          title: '提示',
+          content: '该书籍章节数据缺失',
+          showCancel: false
+        });
+        return;
+      }
+
+      // 保存章节列表
+      this.setData({
+        chapters: allChapters,
+        totalChapters: allChapters.length,
+        isLoading: false
+      });
+
+      // 加载云端阅读进度
+      const progress = await this.loadProgress();
+      const startIndex = progress ? progress.chapterIndex : 0;
+      const lastScrollTop = progress ? progress.scrollTop : 0;
+
+      this.setData({ 
+        currentChapterIndex: startIndex,
+        scrollTop: lastScrollTop
+      });
+
+      // 显示当前章节
+      this.loadChapter(startIndex);
+
+      // 提示用户
+      if (progress) {
+        wx.showToast({
+          title: `继续阅读第${startIndex + 1}章`,
+          icon: 'none',
+          duration: 2000
+        });
+      }
+
+    } catch (error) {
+      wx.hideLoading();
+      console.error('加载云端章节失败:', error);
+      wx.showModal({
+        title: '加载失败',
+        content: error.errMsg || '无法加载章节数据',
+        showCancel: false
+      });
+    }
+  },
+
+  /**
+   * 加载指定章节（云端）
+   */
+  loadChapter(index) {
+    const chapters = this.data.chapters;
+    
+    if (!chapters || !chapters[index]) {
+      wx.showToast({
+        title: '章节不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const chapter = chapters[index];
+    
+    this.setData({
+      currentChapterIndex: index,
+      chapterTitle: chapter.title,
+      chapterContent: chapter.content,
+      isLoading: false,
+      scrollTop: 0
+    });
+
+    // 保存阅读进度
+    this.saveProgress();
   },
 
   /**
@@ -201,7 +324,12 @@ Page({
       currentChapterIndex: this.data.currentChapterIndex - 1
     });
 
-    this.loadCurrentChapter();
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(this.data.currentChapterIndex);
+    } else {
+      this.loadCurrentChapter();
+    }
   },
 
   /**
@@ -220,7 +348,12 @@ Page({
       currentChapterIndex: this.data.currentChapterIndex + 1
     });
 
-    this.loadCurrentChapter();
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(this.data.currentChapterIndex);
+    } else {
+      this.loadCurrentChapter();
+    }
   },
 
   /**
@@ -231,7 +364,13 @@ Page({
     this.setData({
       currentChapterIndex: index
     });
-    this.loadCurrentChapter();
+    
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(index);
+    } else {
+      this.loadCurrentChapter();
+    }
   },
 
   /**
@@ -243,7 +382,13 @@ Page({
       currentChapterIndex: index,
       showChapterDrawer: false
     });
-    this.loadCurrentChapter();
+    
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(index);
+    } else {
+      this.loadCurrentChapter();
+    }
   },
 
   /**
@@ -364,19 +509,97 @@ Page({
   },
 
   /**
-   * 保存阅读进度
+   * 保存阅读进度（云端）
    */
-  saveProgress() {
+  async saveProgress() {
     try {
-      const shelf = wx.getStorageSync('novel_shelf') || [];
-      const bookIndex = shelf.findIndex(b => b.id === this.data.bookId);
-      
-      if (bookIndex !== -1) {
-        shelf[bookIndex].currentChapter = this.data.currentChapterIndex;
-        wx.setStorageSync('novel_shelf', shelf);
+      if (!this.data.isCloud) {
+        // 本地书籍使用原有方式
+        const shelf = wx.getStorageSync('novel_shelf') || [];
+        const bookIndex = shelf.findIndex(b => b.id === this.data.bookId);
+        
+        if (bookIndex !== -1) {
+          shelf[bookIndex].currentChapter = this.data.currentChapterIndex;
+          wx.setStorageSync('novel_shelf', shelf);
+        }
+        return;
       }
+
+      // 云端书籍保存到数据库
+      const db = wx.cloud.database();
+      const _ = db.command;
+      
+      // 获取用户 openid
+      const openid = wx.getStorageSync('userOpenid');
+      if (!openid) {
+        const res = await wx.cloud.callFunction({ name: 'login' });
+        wx.setStorageSync('userOpenid', res.result.openid);
+      }
+
+      // 保存或更新阅读进度
+      const progressData = {
+        novelId: this.data.bookId,
+        chapterIndex: this.data.currentChapterIndex,
+        scrollTop: this.data.lastScrollTop,
+        updateTime: db.serverDate()
+      };
+
+      // 查询是否已有记录
+      const existResult = await db.collection('reading_progress')
+        .where({
+          novelId: this.data.bookId,
+          _openid: openid
+        })
+        .get();
+
+      if (existResult.data.length > 0) {
+        // 更新记录
+        await db.collection('reading_progress')
+          .doc(existResult.data[0]._id)
+          .update({
+            data: progressData
+          });
+      } else {
+        // 新增记录
+        await db.collection('reading_progress')
+          .add({
+            data: progressData
+          });
+      }
+
+      console.log('阅读进度已保存到云端');
     } catch (error) {
       console.error('保存阅读进度失败:', error);
+    }
+  },
+
+  /**
+   * 加载阅读进度（云端）
+   */
+  async loadProgress() {
+    try {
+      if (!this.data.isCloud) return null;
+
+      const db = wx.cloud.database();
+      const openid = wx.getStorageSync('userOpenid');
+      if (!openid) return null;
+
+      const result = await db.collection('reading_progress')
+        .where({
+          novelId: this.data.bookId,
+          _openid: openid
+        })
+        .orderBy('updateTime', 'desc')
+        .limit(1)
+        .get();
+
+      if (result.data.length > 0) {
+        return result.data[0];
+      }
+      return null;
+    } catch (error) {
+      console.error('加载阅读进度失败:', error);
+      return null;
     }
   },
 
@@ -384,7 +607,136 @@ Page({
    * 滚动监听
    */
   onScroll(e) {
-    // 可以在这里添加滚动相关逻辑
+    this.setData({
+      lastScrollTop: e.detail.scrollTop
+    });
+  },
+
+  /**
+   * 滚动到顶部（加载上一章）
+   */
+  onScrollToUpper() {
+    console.log('滚动到顶部');
+    
+    // 如果不是第一章，自动加载上一章
+    if (this.data.currentChapterIndex > 0 && !this.data.isLoading) {
+      wx.showToast({
+        title: '加载上一章...',
+        icon: 'loading',
+        duration: 1000
+      });
+
+      setTimeout(() => {
+        this.previousChapter();
+      }, 500);
+    }
+  },
+
+  /**
+   * 滚动到底部（自动加载下一章）
+   */
+  onScrollToLower() {
+    console.log('滚动到底部');
+    
+    // 如果不是最后一章，自动加载下一章
+    if (this.data.currentChapterIndex < this.data.totalChapters - 1 && !this.data.isLoading) {
+      wx.showToast({
+        title: '加载下一章...',
+        icon: 'loading',
+        duration: 1000
+      });
+
+      setTimeout(() => {
+        this.nextChapter();
+      }, 500);
+    }
+  },
+
+  /**
+   * 显示跳转弹窗
+   */
+  showJumpToPage() {
+    this.setData({
+      showJumpModal: true,
+      jumpChapterNumber: (this.data.currentChapterIndex + 1).toString(),
+      showMenu: false
+    });
+  },
+
+  /**
+   * 关闭跳转弹窗
+   */
+  closeJumpModal() {
+    this.setData({
+      showJumpModal: false,
+      jumpChapterNumber: ''
+    });
+  },
+
+  /**
+   * 输入章节号
+   */
+  onJumpInputChange(e) {
+    this.setData({
+      jumpChapterNumber: e.detail.value
+    });
+  },
+
+  /**
+   * 确认跳转
+   */
+  confirmJump() {
+    const chapterNum = parseInt(this.data.jumpChapterNumber);
+    
+    if (isNaN(chapterNum)) {
+      wx.showToast({
+        title: '请输入有效数字',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (chapterNum < 1 || chapterNum > this.data.totalChapters) {
+      wx.showToast({
+        title: `请输入1-${this.data.totalChapters}之间的数字`,
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 跳转到指定章节
+    const targetIndex = chapterNum - 1;
+    this.setData({
+      currentChapterIndex: targetIndex,
+      showJumpModal: false,
+      jumpChapterNumber: '',
+      scrollTop: 0
+    });
+
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(targetIndex);
+    } else {
+      this.loadCurrentChapter();
+    }
+
+    wx.showToast({
+      title: `已跳转到第${chapterNum}章`,
+      icon: 'success'
+    });
+  },
+
+  /**
+   * 返回书架
+   */
+  backToShelf() {
+    // 保存进度
+    this.saveProgress();
+    
+    // 返回到书架页面
+    wx.reLaunch({
+      url: '/pages/novel/shelf/shelf'
+    });
   },
 
   /**

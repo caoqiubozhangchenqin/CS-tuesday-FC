@@ -1,5 +1,5 @@
 <!-- pages/index/index.wxml -->
-<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/sunderland-official-2026.png" overlayOpacity="0.4" blur="0" sizeMode="cover" repeat="false" />
+<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/足球.png" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container main-container">
 
 <!-- 桑德兰队庆祝标题 -->

@@ -32,8 +32,9 @@ Page({
     } catch (e) {}
     this.checkUserStatus();
     this.fetchUserInfo();
-    this.fetchWeatherData(); // 获取天气数据
-    this.fetchDailyArticle(); // 获取每日一文数据
+    // 移除自动调用，改为点击按钮时调用
+    // this.fetchWeatherData(); 
+    // this.fetchDailyArticle();
     this.musicStatusListener = (isPlaying) => {
       if (this.data.isMusicPlaying !== isPlaying) {
         this.setData({ isMusicPlaying: isPlaying });
@@ -472,6 +473,10 @@ Page({
   
   // 切换天气弹窗显示/隐藏
   toggleWeather: function() {
+    // 如果还没有数据，先获取
+    if (!this.data.weatherData || this.data.weatherData.length === 0) {
+      this.fetchWeatherData();
+    }
     this.setData({
       showWeather: !this.data.showWeather,
       showDailyArticle: false // 关闭每日一文弹窗
@@ -487,6 +492,10 @@ Page({
   
   // 切换每日一文弹窗显示/隐藏
   toggleDailyArticle: function() {
+    // 如果还没有数据，先获取
+    if (!this.data.dailyArticle) {
+      this.fetchDailyArticle();
+    }
     this.setData({
       showDailyArticle: !this.data.showDailyArticle,
       showWeather: false // 关闭天气弹窗

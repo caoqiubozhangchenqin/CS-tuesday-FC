@@ -1,65 +1,99 @@
 // pages/novel/upload/upload.js
+const config = require('../../../config/env.js');
+
 Page({
   data: {
-    selectedFile: null,
-    bookName: '',
-    author: '',
-    intro: '',
+    selectedFiles: [],       // 改为数组支持多文件
     categories: ['玄幻', '武侠', '仙侠', '都市', '科幻', '言情', '其他'],
     categoryIndex: 0,
     isUploading: false,
     uploadProgress: 0,
-    cloudBooks: []
+    currentFile: 0,          // 当前上传第几个
+    totalFiles: 0,           // 总文件数
+    cloudBooks: [],
+    isAdmin: false
   },
 
   onLoad() {
-    this.loadCloudBooks();
+    this.checkAdminStatus();
   },
 
   onShow() {
-    this.loadCloudBooks();
+    if (this.data.isAdmin) {
+      this.loadCloudBooks();
+    }
   },
 
   /**
-   * 选择文件
+   * 检查管理员权限
    */
-  chooseFile() {
+  checkAdminStatus() {
+    const app = getApp();
+    const userOpenid = app.globalData.openid;
+    const adminOpenid = config.adminOpenId;
+
+    console.log('检查权限 - 用户:', userOpenid, '管理员:', adminOpenid);
+
+    if (userOpenid === adminOpenid) {
+      this.setData({ isAdmin: true });
+      this.loadCloudBooks();
+    } else {
+      this.setData({ isAdmin: false });
+      // 非管理员，显示提示并返回
+      wx.showModal({
+        title: '权限不足',
+        content: '上传书籍功能仅限管理员使用',
+        showCancel: false,
+        confirmText: '返回书架',
+        success: () => {
+          wx.navigateBack();
+        }
+      });
+    }
+  },
+
+  /**
+   * 批量选择文件
+   */
+  chooseFiles() {
     wx.chooseMessageFile({
-      count: 1,
+      count: 10, // 最多选择10个文件
       type: 'file',
       extension: ['txt', 'epub'],
       success: (res) => {
-        const file = res.tempFiles[0];
-        
-        // 检查文件大小（限制10MB）
+        const files = res.tempFiles;
         const maxSize = 10 * 1024 * 1024;
-        if (file.size > maxSize) {
-          wx.showToast({
-            title: '文件超过10MB',
-            icon: 'none'
-          });
-          return;
-        }
+        const validFiles = [];
 
-        // 获取文件扩展名
-        const fileName = file.name;
-        const format = fileName.split('.').pop().toUpperCase();
+        // 检查文件大小
+        for (let file of files) {
+          if (file.size > maxSize) {
+            wx.showToast({
+              title: `${file.name} 超过10MB`,
+              icon: 'none'
+            });
+            continue;
+          }
 
-        // 自动提取书名（去掉扩展名）
-        const bookName = fileName.replace(/\.(txt|epub)$/i, '');
+          const fileName = file.name;
+          const format = fileName.split('.').pop().toUpperCase();
+          const bookName = fileName.replace(/\.(txt|epub)$/i, '');
 
-        this.setData({
-          selectedFile: {
+          validFiles.push({
             path: file.path,
             name: fileName,
+            bookName: bookName,
             size: file.size,
             sizeText: this.formatFileSize(file.size),
             format: format
-          },
-          bookName: bookName
+          });
+        }
+
+        this.setData({
+          selectedFiles: validFiles
         });
 
-        console.log('选择文件:', file);
+        console.log('选择文件:', validFiles);
       },
       fail: (err) => {
         console.error('选择文件失败:', err);
@@ -72,136 +106,110 @@ Page({
   },
 
   /**
-   * 移除文件
+   * 移除单个文件
    */
-  removeFile() {
+  removeFile(e) {
+    const index = e.currentTarget.dataset.index;
+    const files = this.data.selectedFiles;
+    files.splice(index, 1);
     this.setData({
-      selectedFile: null,
-      bookName: '',
-      author: '',
-      intro: ''
+      selectedFiles: files
     });
   },
 
   /**
-   * 输入书名
+   * 批量上传书籍
    */
-  onBookNameInput(e) {
-    this.setData({
-      bookName: e.detail.value
-    });
-  },
+  async uploadBooks() {
+    const { selectedFiles } = this.data;
 
-  /**
-   * 输入作者
-   */
-  onAuthorInput(e) {
-    this.setData({
-      author: e.detail.value
-    });
-  },
-
-  /**
-   * 输入简介
-   */
-  onIntroInput(e) {
-    this.setData({
-      intro: e.detail.value
-    });
-  },
-
-  /**
-   * 选择分类
-   */
-  onCategoryChange(e) {
-    this.setData({
-      categoryIndex: e.detail.value
-    });
-  },
-
-  /**
-   * 上传书籍
-   */
-  async uploadBook() {
-    const { selectedFile, bookName, author, intro, categories, categoryIndex } = this.data;
-
-    if (!selectedFile || !bookName || !author) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       wx.showToast({
-        title: '请填写完整信息',
+        title: '请先选择文件',
         icon: 'none'
       });
       return;
     }
 
-    this.setData({ isUploading: true, uploadProgress: 0 });
+    this.setData({ 
+      isUploading: true, 
+      uploadProgress: 0,
+      totalFiles: selectedFiles.length,
+      currentFile: 0
+    });
+
+    const db = wx.cloud.database();
+    let successCount = 0;
 
     try {
-      // 生成云存储路径
-      const timestamp = Date.now();
-      const cloudPath = `novels/${timestamp}_${selectedFile.name}`;
+      // 逐个上传文件
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        this.setData({ currentFile: i + 1 });
 
-      console.log('开始上传到云存储:', cloudPath);
+        try {
+          // 生成云存储路径
+          const timestamp = Date.now();
+          const cloudPath = `小说/${timestamp}_${file.name}`;
 
-      // 上传到云存储
-      const uploadTask = wx.cloud.uploadFile({
-        cloudPath: cloudPath,
-        filePath: selectedFile.path
-      });
+          console.log(`上传文件 ${i + 1}/${selectedFiles.length}:`, cloudPath);
 
-      // 监听上传进度
-      uploadTask.onProgressUpdate((res) => {
-        console.log('上传进度:', res.progress);
-        this.setData({
-          uploadProgress: res.progress
-        });
-      });
+          // 上传到云存储
+          const uploadResult = await wx.cloud.uploadFile({
+            cloudPath: cloudPath,
+            filePath: file.path
+          });
 
-      // 等待上传完成
-      const uploadResult = await uploadTask;
-      console.log('上传成功:', uploadResult);
+          // 保存到数据库
+          await db.collection('novels').add({
+            data: {
+              name: file.bookName,
+              author: '未知作者',
+              intro: '暂无简介',
+              category: '其他',
+              format: file.format,
+              fileID: uploadResult.fileID,
+              cloudPath: cloudPath,
+              size: file.size,
+              sizeText: file.sizeText,
+              uploadTime: db.serverDate()
+            }
+          });
 
-      // 保存书籍信息到数据库
-      const db = wx.cloud.database();
-      await db.collection('novels').add({
-        data: {
-          name: bookName,
-          author: author,
-          intro: intro || '暂无简介',
-          category: categories[categoryIndex],
-          format: selectedFile.format,
-          fileID: uploadResult.fileID,
-          cloudPath: cloudPath,
-          size: selectedFile.size,
-          sizeText: selectedFile.sizeText,
-          uploadTime: db.serverDate(),
-          _openid: '{openid}' // 云函数会自动填充
+          successCount++;
+          
+          // 更新进度
+          const progress = Math.round(((i + 1) / selectedFiles.length) * 100);
+          this.setData({ uploadProgress: progress });
+
+        } catch (error) {
+          console.error(`上传失败 ${file.name}:`, error);
         }
-      });
+      }
 
-      wx.showToast({
-        title: '上传成功',
-        icon: 'success'
+      // 全部完成
+      wx.showModal({
+        title: '上传完成',
+        content: `成功上传 ${successCount}/${selectedFiles.length} 个文件`,
+        showCancel: false
       });
 
       // 重置表单
       this.setData({
-        selectedFile: null,
-        bookName: '',
-        author: '',
-        intro: '',
-        categoryIndex: 0,
+        selectedFiles: [],
         isUploading: false,
-        uploadProgress: 100
+        uploadProgress: 0,
+        currentFile: 0,
+        totalFiles: 0
       });
 
       // 刷新列表
       setTimeout(() => {
-        this.setData({ uploadProgress: 0 });
         this.loadCloudBooks();
       }, 1000);
 
     } catch (error) {
-      console.error('上传失败:', error);
+      console.error('批量上传失败:', error);
       wx.showModal({
         title: '上传失败',
         content: error.message || '请检查网络连接',
@@ -215,16 +223,18 @@ Page({
   },
 
   /**
-   * 加载云端书籍列表
+   * 加载云端书籍列表（全局共享，所有用户可见）
    */
   async loadCloudBooks() {
     try {
       const db = wx.cloud.database();
+      // 移除 openid 过滤，让所有用户都能看到所有书籍
       const result = await db.collection('novels')
         .orderBy('uploadTime', 'desc')
+        .limit(100) // 限制最多返回100本书
         .get();
 
-      console.log('云端书籍:', result.data);
+      console.log('云端书籍（全局共享）:', result.data);
 
       this.setData({
         cloudBooks: result.data.map(book => ({
@@ -242,6 +252,12 @@ Page({
       });
     } catch (error) {
       console.error('加载云端书籍失败:', error);
+      
+      // 处理数据库集合不存在的情况
+      if (error.errCode === -502005) {
+        console.warn('数据库集合 novels 不存在');
+        this.setData({ cloudBooks: [] });
+      }
     }
   },
 
@@ -420,6 +436,15 @@ Page({
           }
         }
       }
+    });
+  },
+
+  /**
+   * 返回书架
+   */
+  goBack() {
+    wx.navigateBack({
+      delta: 1
     });
   },
 

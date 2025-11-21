@@ -1,7 +1,7 @@
 /* pages/novel/upload/upload.wxss */
 .upload-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* 使用全局背景，移除自定义渐变 */
   padding: 30rpx;
 }
 
@@ -12,6 +12,7 @@
   margin-bottom: 30rpx;
   text-align: center;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .header-title {
@@ -25,6 +26,70 @@
 .header-desc {
   font-size: 26rpx;
   color: #999;
+}
+
+/* 管理员徽章 */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 20rpx;
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.3);
+}
+
+.badge-icon {
+  font-size: 28rpx;
+}
+
+.badge-text {
+  font-size: 24rpx;
+  color: #8b6914;
+  font-weight: bold;
+}
+
+/* 权限不足提示 */
+.permission-denied {
+  background: white;
+  border-radius: 20rpx;
+  padding: 80rpx 40rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.denied-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.denied-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.denied-desc {
+  font-size: 28rpx;
+  color: #999;
+  line-height: 1.6;
+  margin-bottom: 40rpx;
+}
+
+.back-btn {
+  width: 400rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 44rpx;
+  color: white;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 上传区域 */
@@ -60,6 +125,9 @@
 /* 文件信息 */
 .file-info {
   margin-top: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
 }
 
 .file-item {
@@ -105,6 +173,28 @@
   border-radius: 20rpx;
   padding: 40rpx;
   margin-bottom: 30rpx;
+}
+
+/* 批量信息 */
+.batch-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 30rpx;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 16rpx;
+  margin-bottom: 30rpx;
+}
+
+.batch-icon {
+  font-size: 48rpx;
+}
+
+.batch-text {
+  font-size: 32rpx;
+  color: #667eea;
+  font-weight: bold;
 }
 
 .form-item {

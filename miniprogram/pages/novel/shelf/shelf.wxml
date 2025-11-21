@@ -1,64 +1,50 @@
 <!-- pages/novel/shelf/shelf.wxml -->
+<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/足球.png" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <view class="bg-circle bg-circle-1"></view>
+    <view class="bg-circle bg-circle-2"></view>
+    <view class="bg-circle bg-circle-3"></view>
+  </view>
+
   <view class="header">
-    <text class="title">📚 我的书架</text>
+    <view class="header-content">
+      <text class="title">📚 我的书架</text>
+      <text class="subtitle">共 {{bookList.length}} 本小说</text>
+    </view>
     <view class="header-actions">
-      <view class="upload-btn" bindtap="goToUpload">
+      <!-- 上传按钮 - 仅管理员可见 -->
+      <view wx:if="{{isAdmin}}" class="upload-btn" bindtap="goToUpload">
         <text class="btn-icon">📤</text>
         <text class="btn-text">上传</text>
       </view>
-      <view class="debug-btn" bindtap="goToDebug">
-        <text class="btn-icon">🔧</text>
-      </view>
-      <view class="recommend-btn" bindtap="goToRecommend">
-        <text class="btn-icon">🔥</text>
-        <text class="btn-text">推荐</text>
-      </view>
-      <view class="search-btn" bindtap="goToSearch">
-        <text class="btn-icon">🔍</text>
-        <text class="btn-text">搜索</text>
-      </view>
     </view>
   </view>
 
-  <!-- 统计信息 -->
-  <view wx:if="{{bookList && bookList.length > 0}}" class="stats-bar">
-    <view class="stat-item">
-      <text class="stat-icon">📚</text>
-      <text class="stat-value">{{bookList.length}}</text>
-      <text class="stat-label">本藏书</text>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <text class="stat-icon">📖</text>
-      <text class="stat-value">{{readingCount}}</text>
-      <text class="stat-label">在读</text>
-    </view>
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <text class="loading-icon">⏳</text>
+    <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 书架列表 -->
-  <view wx:if="{{bookList && bookList.length > 0}}" class="book-list">
-    <view wx:for="{{bookList}}" wx:key="id" class="book-item" bindtap="goToReader" data-book="{{item}}">
+  <!-- 书籍列表 -->
+  <view wx:elif="{{bookList && bookList.length > 0}}" class="book-list">
+    <view wx:for="{{bookList}}" wx:key="id" class="book-card" bindtap="goToReader" data-book="{{item}}">
       <view class="book-cover">
-        <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill"></image>
-        <view wx:else class="no-cover">📖</view>
-        <!-- 阅读进度标识 -->
-        <view wx:if="{{item.currentChapter}}" class="reading-badge">阅读中</view>
+        <text class="cover-icon">📖</text>
+        <view class="book-badge">{{item.format}}</view>
       </view>
       <view class="book-info">
         <text class="book-name">{{item.name}}</text>
-        <text class="book-author">👤 {{item.author}}</text>
-        <text class="book-progress">
-          {{item.currentChapter ? '📍 第' + item.currentChapter + '章' : '🆕 未开始'}}
-        </text>
-        <text class="book-time">🕐 {{item.addTime}}</text>
+        <text class="book-meta">{{item.uploadTime}}</text>
       </view>
       <view class="book-actions">
         <view class="action-read">
-          <text class="action-icon">📖</text>
-          <text class="action-label">阅读</text>
+          <text class="action-text">阅读</text>
+          <text class="action-arrow">→</text>
         </view>
-        <view class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
+        <view wx:if="{{isAdmin}}" class="book-delete" catchtap="deleteBook" data-id="{{item.id}}">
           <text class="delete-icon">🗑️</text>
         </view>
       </view>
@@ -69,8 +55,9 @@
   <view wx:else class="empty-state">
     <text class="empty-icon">📚</text>
     <text class="empty-text">书架空空如也</text>
-    <view class="empty-btn" bindtap="goToSearch">
-      <text>去添加小说</text>
+    <text class="empty-hint">{{isAdmin ? '快去上传你喜欢的小说吧' : '等待管理员上传精彩书籍'}}</text>
+    <view wx:if="{{isAdmin}}" class="empty-btn" bindtap="goToUpload">
+      <text>📤 立即上传</text>
     </view>
   </view>
 </view>

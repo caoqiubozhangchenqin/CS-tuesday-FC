@@ -3,88 +3,59 @@
   <view class="upload-header">
     <text class="header-title">📤 上传小说</text>
     <text class="header-desc">支持 TXT、EPUB 格式</text>
+    <view wx:if="{{isAdmin}}" class="admin-badge">
+      <text class="badge-icon">👑</text>
+      <text class="badge-text">管理员</text>
+    </view>
   </view>
 
-  <!-- 上传区域 -->
-  <view class="upload-section">
-    <button class="upload-btn" bindtap="chooseFile">
+  <!-- 权限提示 - 非管理员 -->
+  <view wx:if="{{!isAdmin}}" class="permission-denied">
+    <text class="denied-icon">🔒</text>
+    <text class="denied-title">权限不足</text>
+    <text class="denied-desc">上传书籍功能仅限管理员使用</text>
+    <button class="back-btn" bindtap="goBack">返回书架</button>
+  </view>
+
+  <!-- 上传区域 - 仅管理员可见 -->
+  <view wx:if="{{isAdmin}}" class="upload-section">
+    <button class="upload-btn" bindtap="chooseFiles">
       <text class="upload-icon">📁</text>
-      <text class="upload-text">选择文件</text>
+      <text class="upload-text">批量选择文件</text>
     </button>
     
-    <view wx:if="{{selectedFile}}" class="file-info">
-      <view class="file-item">
+    <view wx:if="{{selectedFiles && selectedFiles.length > 0}}" class="file-info">
+      <view wx:for="{{selectedFiles}}" wx:key="index" class="file-item">
         <text class="file-icon">📄</text>
         <view class="file-details">
-          <text class="file-name">{{selectedFile.name}}</text>
-          <text class="file-size">{{selectedFile.sizeText}}</text>
+          <text class="file-name">{{item.name}}</text>
+          <text class="file-size">{{item.sizeText}}</text>
         </view>
-        <text class="file-close" bindtap="removeFile">✕</text>
+        <text class="file-close" bindtap="removeFile" data-index="{{index}}">✕</text>
       </view>
     </view>
   </view>
 
   <!-- 书籍信息 -->
-  <view wx:if="{{selectedFile}}" class="book-info-section">
-    <view class="form-item">
-      <text class="form-label">书名</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入书名" 
-        value="{{bookName}}"
-        bindinput="onBookNameInput"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">作者</text>
-      <input 
-        class="form-input" 
-        placeholder="请输入作者" 
-        value="{{author}}"
-        bindinput="onAuthorInput"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">简介</text>
-      <textarea 
-        class="form-textarea" 
-        placeholder="请输入小说简介" 
-        value="{{intro}}"
-        bindinput="onIntroInput"
-        maxlength="500"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">分类</text>
-      <picker 
-        mode="selector" 
-        range="{{categories}}" 
-        value="{{categoryIndex}}"
-        bindchange="onCategoryChange"
-      >
-        <view class="picker-view">
-          <text>{{categories[categoryIndex] || '请选择分类'}}</text>
-          <text class="picker-arrow">›</text>
-        </view>
-      </picker>
+  <view wx:if="{{selectedFiles && selectedFiles.length > 0}}" class="book-info-section">
+    <view class="batch-info">
+      <text class="batch-icon">📚</text>
+      <text class="batch-text">已选择 {{selectedFiles.length}} 个文件</text>
     </view>
 
     <button 
       class="submit-btn" 
-      bindtap="uploadBook" 
+      bindtap="uploadBooks" 
       loading="{{isUploading}}"
-      disabled="{{isUploading || !bookName || !author}}"
+      disabled="{{isUploading}}"
     >
-      {{isUploading ? '上传中...' : '上传到云端'}}
+      {{isUploading ? '上传中...' : '批量上传到云端'}}
     </button>
   </view>
 
   <!-- 上传进度 -->
   <view wx:if="{{uploadProgress > 0 && uploadProgress < 100}}" class="progress-section">
-    <text class="progress-text">上传进度：{{uploadProgress}}%</text>
+    <text class="progress-text">上传进度：{{currentFile}}/{{totalFiles}} ({{uploadProgress}}%)</text>
     <view class="progress-bar">
       <view class="progress-fill" style="width: {{uploadProgress}}%"></view>
     </view>

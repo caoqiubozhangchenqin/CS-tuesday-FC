@@ -1,5 +1,10 @@
 <!-- pages/novel/reader/reader.wxml -->
 <view class="container {{themeClass}}">
+  <!-- 左侧返回书架按钮（半透明，隐藏）-->
+  <view class="back-to-shelf-btn" bindtap="backToShelf">
+    <text class="back-icon">📚</text>
+  </view>
+
   <!-- 顶部标题栏 -->
   <view class="header" wx:if="{{showHeader}}">
     <view class="header-left" bindtap="goBack">
@@ -13,15 +18,29 @@
     </view>
   </view>
 
-  <!-- 章节内容 -->
+  <!-- 章节内容（滚动模式）-->
   <scroll-view 
     class="content-scroll" 
     scroll-y="{{true}}"
     bindtap="toggleHeader"
     scroll-top="{{scrollTop}}"
     bindscroll="onScroll"
+    lower-threshold="100"
+    upper-threshold="50"
+    bindscrolltolower="onScrollToLower"
+    bindscrolltoupper="onScrollToUpper"
   >
     <view class="content-container" style="font-size: {{fontSize}}px;">
+      <!-- 向上滚动提示（加载上一章）-->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex > 0}}" class="prev-chapter-hint">
+        <text>👆 继续向上滚动阅读上一章</text>
+      </view>
+
+      <!-- 第一章提示 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">
+        <text>📖 这是第一章</text>
+      </view>
+
       <!-- 章节标题 -->
       <view class="chapter-title">{{chapterTitle}}</view>
       
@@ -33,7 +52,7 @@
 
       <!-- 章节内容 -->
       <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content">
-        <text>{{chapterContent}}</text>
+        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
       </view>
 
       <!-- 加载失败 -->
@@ -45,39 +64,26 @@
         </view>
       </view>
 
-      <!-- 章节导航 -->
-      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-nav">
-        <view 
-          class="nav-btn {{currentChapterIndex === 0 ? 'disabled' : ''}}" 
-          bindtap="previousChapter"
-        >
-          <text>← 上一章</text>
-        </view>
-        <view 
-          class="nav-btn {{currentChapterIndex >= totalChapters - 1 ? 'disabled' : ''}}" 
-          bindtap="nextChapter"
-        >
-          <text>下一章 →</text>
-        </view>
+      <!-- 滚动到底部提示（自动加载下一章）-->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="next-chapter-hint">
+        <text>👇 继续滚动阅读下一章</text>
+      </view>
+
+      <!-- 最后一章提示 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">
+        <text>🎉 全书完</text>
       </view>
     </view>
   </scroll-view>
 
   <!-- 底部菜单 -->
   <view class="bottom-menu {{showMenu ? 'show' : ''}}">
-    <!-- 进度条 -->
+    <!-- 阅读进度 -->
     <view class="progress-section">
-      <text class="progress-text">{{currentChapterIndex + 1}} / {{totalChapters}}</text>
-      <slider 
-        class="progress-slider"
-        value="{{currentChapterIndex}}"
-        min="0"
-        max="{{totalChapters - 1}}"
-        step="1"
-        bindchange="onChapterChange"
-        activeColor="#667eea"
-        backgroundColor="#e0e0e0"
-      />
+      <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{(currentChapterIndex + 1) / totalChapters * 100}}%"></view>
+      </view>
     </view>
 
     <!-- 功能按钮 -->
@@ -85,6 +91,10 @@
       <view class="action-item" bindtap="showChapterList">
         <text class="action-icon">📑</text>
         <text class="action-label">目录</text>
+      </view>
+      <view class="action-item" bindtap="showJumpToPage">
+        <text class="action-icon">�</text>
+        <text class="action-label">跳转</text>
       </view>
       <view class="action-item" bindtap="decreaseFontSize">
         <text class="action-icon">A-</text>
@@ -123,5 +133,30 @@
         <text class="chapter-name">{{item.title}}</text>
       </view>
     </scroll-view>
+  </view>
+
+  <!-- 跳转页码弹窗 -->
+  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">
+    <view class="modal-mask" bindtap="closeJumpModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">跳转到指定章节</text>
+        <view class="modal-close" bindtap="closeJumpModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>
+        <input 
+          class="chapter-input"
+          type="number"
+          value="{{jumpChapterNumber}}"
+          placeholder="请输入章节号"
+          bindinput="onJumpInputChange"
+        />
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closeJumpModal">取消</view>
+        <view class="modal-btn confirm" bindtap="confirmJump">跳转</view>
+      </view>
+    </view>
   </view>
 </view>

@@ -1,7 +1,7 @@
 /* pages/novel/search/search.wxss */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  /* 使用全局背景 */
   padding: 30rpx;
 }
 
