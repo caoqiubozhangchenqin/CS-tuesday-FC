@@ -1,4 +1,13 @@
 // 小说API工具类 - 追书神器API
+// ⚠️ 注意：追书神器API已失效（返回 invalid id），暂时使用本地演示模式
+// 如需恢复API模式，请取消下面的注释
+
+// 临时使用本地演示模式
+const localApi = require('./novelApi-local.js');
+module.exports = localApi;
+
+/* ============ 以下为追书神器API代码（已失效） ============
+
 const config = require('../config/env.js');
 
 // 追书神器API基础地址（多个备用）
@@ -251,3 +260,5 @@ module.exports = {
   getChapterList,
   getChapterContent
 };
+
+// ============ 结束注释块 ============ */
