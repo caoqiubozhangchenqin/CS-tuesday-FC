@@ -1,11 +1,5 @@
 <!-- pages/index/index.wxml -->
-<bg src="cloud://cloud1-3ge5gomsffe<!-- 每日一文按钮 -->
-<view class="d  <view class="daily-article-drawer-header">
-    <text class="daily-article-drawer-title">📖 每日一文</text>
-    <text class="daily-article-drawer-close" bindtap="closeDailyArticle">✕</text>
-  </view>-article-trigger" bindtap="toggleDailyArticle">
-  <text class="daily-article-trigger-icon">📖</text>
-</view>7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/sunderland-official-2026.png" overlayOpacity="0.4" blur="0" sizeMode="cover" repeat="false" />
+<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/sunderland-official-2026.png" overlayOpacity="0.4" blur="0" sizeMode="cover" repeat="false" />
 <view class="container main-container">
 
 <!-- 桑德兰队庆祝标题 -->
@@ -74,7 +68,7 @@
 
 <!-- 每日一文按钮 -->
 <view class="daily-article-trigger" bindtap="toggleDailyArticle">
-  <text class="daily-article-trigger-icon">�</text>
+  <text class="daily-article-trigger-icon">📖</text>
 </view>
 
 <!-- 天气预报侧边弹窗 -->
@@ -101,7 +95,7 @@
 <view class="daily-article-mask {{showDailyArticle ? 'show' : ''}}" bindtap="closeDailyArticle"></view>
 <view class="daily-article-drawer {{showDailyArticle ? 'show' : ''}}">
   <view class="daily-article-drawer-header">
-    <text class="daily-article-drawer-title">� 每日一文</text>
+    <text class="daily-article-drawer-title">📖 每日一文</text>
     <text class="daily-article-drawer-close" bindtap="closeDailyArticle">✕</text>
   </view>
   <view wx:if="{{dailyArticle}}" class="daily-article-drawer-content">
