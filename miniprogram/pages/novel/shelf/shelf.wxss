@@ -72,16 +72,26 @@ page {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40rpx;
-  padding: 20rpx 10rpx;
+  padding: 35rpx 30rpx;
   position: relative;
   z-index: 1;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.9));
+  border-radius: 30rpx 15rpx 30rpx 15rpx;
+  box-shadow: 
+    0 12px 24px rgba(102, 126, 234, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10rpx);
 }
 
 .title {
   font-size: 56rpx;
   font-weight: bold;
   color: #fff;
-  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  text-shadow: 
+    0 4rpx 12rpx rgba(0, 0, 0, 0.3),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
   letter-spacing: 2rpx;
   flex: 1;
 }
@@ -93,17 +103,17 @@ page {
   width: 60rpx;
   height: 60rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10rpx);
-  border: 2rpx solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
   transition: all 0.3s;
   flex-shrink: 0;
 }
 
 .upload-btn:active {
   transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .btn-icon {
