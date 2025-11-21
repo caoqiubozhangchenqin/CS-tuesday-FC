@@ -8,13 +8,15 @@
 
 1. 登录 [微信公众平台](https://mp.weixin.qq.com)
 2. 进入：**开发 → 开发管理 → 开发设置 → 服务器域名**
-3. 在 **request合法域名** 中添加：
+3. 在 **request合法域名** 中添加（必须带https://）：
 
 ```
 https://api.zhuishushenqi.com
 https://api05iye5.zhuishushenqi.com
 https://chapterup.zhuishushenqi.com
 ```
+
+> ⚠️ 注意：域名格式必须是 `https://域名`，不能只写域名部分
 
 ### 💡 开发阶段临时方案
 
