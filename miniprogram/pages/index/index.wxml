@@ -85,7 +85,10 @@
         <text class="weather-drawer-weekday">{{item.weekday}}</text>
       </view>
       <text class="weather-drawer-emoji">{{item.weatherEmoji}}</text>
-      <text class="weather-drawer-temp">{{item.temp_night}}°C ~ {{item.temp_day}}°C</text>
+      <view class="weather-temp-box">
+        <text class="weather-drawer-temp-high">{{item.temp_day}}°</text>
+        <text class="weather-drawer-temp-low">{{item.temp_night}}°</text>
+      </view>
     </view>
   </view>
   <view wx:else class="weather-drawer-content">

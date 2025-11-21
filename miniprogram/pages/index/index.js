@@ -433,29 +433,58 @@ Page({
   
   // 获取知乎早报数据
   fetchZhihuData: function() {
+    console.log('开始请求知乎早报...');
     wx.request({
       url: 'https://v3.alapi.cn/api/zhihu',
       data: {
         token: config.alapiToken
       },
       success: (res) => {
-        console.log('知乎早报API响应:', res.data);
-        if (res.data && res.data.code === 200 && res.data.data) {
-          const zhihuList = res.data.data.list || [];
-          console.log('知乎早报数据:', zhihuList);
-          this.setData({
-            zhihuData: zhihuList
-          });
+        console.log('知乎早报API完整响应:', JSON.stringify(res));
+        console.log('知乎早报API响应数据:', res.data);
+        console.log('知乎早报API响应code:', res.data ? res.data.code : 'undefined');
+        
+        if (res.data && res.data.code === 200) {
+          console.log('知乎早报data字段:', res.data.data);
+          
+          // 尝试多种可能的数据结构
+          let zhihuList = [];
+          if (res.data.data) {
+            if (Array.isArray(res.data.data.list)) {
+              zhihuList = res.data.data.list;
+            } else if (Array.isArray(res.data.data)) {
+              zhihuList = res.data.data;
+            }
+          }
+          
+          console.log('解析后的知乎早报列表:', zhihuList);
+          console.log('知乎早报列表长度:', zhihuList.length);
+          
+          if (zhihuList.length > 0) {
+            console.log('第一条知乎数据:', JSON.stringify(zhihuList[0]));
+            this.setData({
+              zhihuData: zhihuList
+            }, () => {
+              console.log('setData完成，当前zhihuData长度:', this.data.zhihuData.length);
+            });
+          } else {
+            console.warn('知乎早报列表为空');
+            wx.showToast({
+              title: '知乎早报暂无数据',
+              icon: 'none'
+            });
+          }
         } else {
-          console.error('获取知乎早报失败:', res.data);
+          console.error('获取知乎早报失败，响应码:', res.data ? res.data.code : 'undefined');
+          console.error('错误信息:', res.data ? res.data.msg : 'undefined');
           wx.showToast({
-            title: '获取知乎早报失败',
+            title: res.data && res.data.msg ? res.data.msg : '获取知乎早报失败',
             icon: 'none'
           });
         }
       },
       fail: (err) => {
-        console.error('知乎早报请求失败:', err);
+        console.error('知乎早报请求失败:', JSON.stringify(err));
         wx.showToast({
           title: '网络请求失败',
           icon: 'none'

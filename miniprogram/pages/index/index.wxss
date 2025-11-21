@@ -641,6 +641,27 @@
   margin: 2rpx 0;
 }
 
+.weather-temp-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.weather-drawer-temp-high {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.2);
+}
+
+.weather-drawer-temp-low {
+  font-size: 18rpx;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.2);
+}
+
 .weather-drawer-temp {
   font-size: 18rpx;
   font-weight: 600;
