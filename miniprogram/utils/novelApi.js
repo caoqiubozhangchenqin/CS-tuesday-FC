@@ -30,7 +30,7 @@ const stripHtml = (html) => {
 };
 
 /**
- * 搜索小说 - 使用追书神器API（更稳定）
+ * 搜索小说 - 直接使用笔趣阁（更可靠）
  * @param {string} keyword - 搜索关键词
  * @returns {Promise<Array>} 小说列表
  */
@@ -40,32 +40,112 @@ const searchNovel = (keyword) => {
       return reject(new Error('搜索关键词不能为空'));
     }
 
-    // 使用追书神器API
+    console.log('开始搜索:', keyword);
+
+    // 直接使用笔趣阁搜索（追书神器API已失效）
     wx.request({
-      url: 'http://api.zhuishushenqi.com/book/fuzzy-search',
+      url: `${config.novelApiBase}/modules/article/search.php`,
       data: {
-        query: keyword.trim()
+        searchkey: keyword.trim()
       },
       method: 'GET',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       success: (res) => {
         try {
-          console.log('搜索API响应:', res);
+          console.log('笔趣阁搜索响应状态:', res.statusCode);
+          console.log('响应数据类型:', typeof res.data);
           
-          if (!res.data || !res.data.books) {
+          if (typeof res.data !== 'string') {
+            console.error('返回数据不是HTML字符串');
             return resolve([]);
           }
           
-          const books = res.data.books.map((book, index) => ({
-            id: book._id || `book_${Date.now()}_${index}`,
-            name: book.title || book.name || '未知书名',
-            author: book.author || '未知作者',
-            intro: (book.shortIntro || book.intro || '暂无简介').substring(0, 100),
-            url: book._id, // 存储bookId，后续用于获取章节
-            cover: book.cover || '',
-            lastChapter: book.lastChapter || ''
-          }));
+          const html = res.data;
+          const books = [];
           
-          console.log('解析后的书籍列表:', books);
+          // 笔趣阁搜索结果多种解析策略
+          console.log('开始解析HTML，长度:', html.length);
+          
+          // 策略1: 搜索结果列表项
+          const listItemRegex = /<tr[^>]*>[\s\S]*?<td[^>]*class="odd"[^>]*>[\s\S]*?<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<\/tr>/gi;
+          let match;
+          
+          while ((match = listItemRegex.exec(html)) !== null && books.length < 20) {
+            const url = match[1];
+            const name = stripHtml(match[2]).trim();
+            const author = stripHtml(match[3]).trim();
+            const lastChapter = stripHtml(match[4]).trim();
+            
+            if (name && name.length > 1) {
+              books.push({
+                id: `book_${Date.now()}_${books.length}`,
+                name: name,
+                author: author || '未知作者',
+                intro: lastChapter ? `最新章节: ${lastChapter}` : '暂无简介',
+                url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                cover: '',
+                lastChapter: lastChapter
+              });
+            }
+          }
+          
+          console.log('策略1解析结果数量:', books.length);
+          
+          // 策略2: 如果策略1没结果，尝试更通用的链接匹配
+          if (books.length === 0) {
+            const linkRegex = /<a[^>]*href=["']([^"']*\/\d+_\d+\/[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+            const bookSet = new Set();
+            
+            while ((match = linkRegex.exec(html)) !== null && books.length < 20) {
+              const url = match[1];
+              const name = stripHtml(match[2]).trim();
+              
+              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+                bookSet.add(name);
+                books.push({
+                  id: `book_${Date.now()}_${books.length}`,
+                  name: name,
+                  author: '未知作者',
+                  intro: '点击查看详情',
+                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                  cover: ''
+                });
+              }
+            }
+            
+            console.log('策略2解析结果数量:', books.length);
+          }
+          
+          // 策略3: 最宽松的匹配
+          if (books.length === 0) {
+            const anyLinkRegex = /<a[^>]*href=["']([^"']*book[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+            const bookSet = new Set();
+            
+            while ((match = anyLinkRegex.exec(html)) !== null && books.length < 15) {
+              const url = match[1];
+              const name = stripHtml(match[2]).trim();
+              
+              if (name.length > 2 && name.length < 50 && !bookSet.has(name)) {
+                bookSet.add(name);
+                books.push({
+                  id: `book_${Date.now()}_${books.length}`,
+                  name: name,
+                  author: '未知作者',
+                  intro: '点击查看详情',
+                  url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
+                  cover: ''
+                });
+              }
+            }
+            
+            console.log('策略3解析结果数量:', books.length);
+          }
+          
+          console.log('最终解析到的书籍数量:', books.length);
+          console.log('书籍列表:', books);
+          
           resolve(books);
         } catch (error) {
           console.error('解析搜索结果失败:', error);
@@ -74,65 +154,6 @@ const searchNovel = (keyword) => {
       },
       fail: (err) => {
         console.error('搜索请求失败:', err);
-        // 如果追书神器API失败，降级使用笔趣阁
-        searchNovelFromBiquge(keyword).then(resolve).catch(reject);
-      }
-    });
-  });
-};
-
-/**
- * 备用方案：笔趣阁搜索（简化版）
- */
-const searchNovelFromBiquge = (keyword) => {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${config.novelApiBase}/s.php`,
-      data: {
-        s: 1,
-        q: keyword.trim()
-      },
-      method: 'GET',
-      success: (res) => {
-        try {
-          console.log('笔趣阁搜索响应:', res);
-          const html = res.data;
-          const books = [];
-          
-          // 更通用的匹配规则
-          // 匹配所有包含书籍链接的a标签
-          const linkRegex = /<a[^>]*href=["']([^"']*(?:book|read)[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
-          let match;
-          const bookSet = new Set(); // 去重
-          
-          while ((match = linkRegex.exec(html)) !== null && books.length < 20) {
-            const url = match[1];
-            const name = stripHtml(match[2]);
-            
-            // 过滤掉太短或明显不是书名的内容
-            if (name.length < 2 || name.length > 50) continue;
-            if (bookSet.has(name)) continue;
-            
-            bookSet.add(name);
-            books.push({
-              id: `book_${Date.now()}_${books.length}`,
-              name: name,
-              author: '未知作者',
-              intro: '点击查看详情',
-              url: url.startsWith('http') ? url : `${config.novelApiBase}${url}`,
-              cover: ''
-            });
-          }
-          
-          console.log('笔趣阁解析结果:', books);
-          resolve(books);
-        } catch (error) {
-          console.error('笔趣阁解析失败:', error);
-          reject(new Error('解析失败: ' + error.message));
-        }
-      },
-      fail: (err) => {
-        console.error('笔趣阁请求失败:', err);
         reject(new Error('网络请求失败，请检查网络连接'));
       }
     });
@@ -141,82 +162,15 @@ const searchNovelFromBiquge = (keyword) => {
 
 /**
  * 获取小说章节列表
- * @param {string} bookIdOrUrl - 书籍ID（追书神器）或URL（笔趣阁）
+ * @param {string} bookUrl - 小说详情页URL
  * @returns {Promise<Object>} { bookInfo, chapters }
  */
-const getChapterList = (bookIdOrUrl) => {
+const getChapterList = (bookUrl) => {
   return new Promise((resolve, reject) => {
-    // 判断是bookId还是URL
-    const isUrl = bookIdOrUrl.startsWith('http');
+    console.log('获取章节列表:', bookUrl);
     
-    if (!isUrl) {
-      // 使用追书神器API获取章节
-      getChapterListFromZhuishu(bookIdOrUrl).then(resolve).catch(() => {
-        // 降级到笔趣阁
-        reject(new Error('无法获取章节列表，请尝试其他书籍'));
-      });
-    } else {
-      // 使用笔趣阁HTML解析
-      getChapterListFromBiquge(bookIdOrUrl).then(resolve).catch(reject);
-    }
-  });
-};
-
-/**
- * 从追书神器获取章节列表
- */
-const getChapterListFromZhuishu = (bookId) => {
-  return new Promise((resolve, reject) => {
-    // 先获取书源
-    wx.request({
-      url: `http://api.zhuishushenqi.com/atoc`,
-      data: {
-        view: 'summary',
-        book: bookId
-      },
-      method: 'GET',
-      success: (res) => {
-        console.log('书源响应:', res);
-        
-        if (!res.data || res.data.length === 0) {
-          return reject(new Error('未找到书源'));
-        }
-        
-        // 使用第一个书源
-        const source = res.data[0];
-        
-        // 获取章节列表
-        wx.request({
-          url: `http://api.zhuishushenqi.com/atoc/${source._id}`,
-          data: { view: 'chapters' },
-          method: 'GET',
-          success: (chapterRes) => {
-            console.log('章节列表响应:', chapterRes);
-            
-            if (!chapterRes.data || !chapterRes.data.chapters) {
-              return reject(new Error('章节列表为空'));
-            }
-            
-            const chapters = chapterRes.data.chapters.map((chapter, index) => ({
-              id: index,
-              title: chapter.title,
-              link: chapter.link, // 章节链接（用于获取内容）
-              chapterId: chapter.id || chapter._id
-            }));
-            
-            resolve({
-              bookInfo: {
-                name: chapterRes.data.name || '未知书名',
-                author: chapterRes.data.author || '未知作者'
-              },
-              chapters
-            });
-          },
-          fail: () => reject(new Error('获取章节列表失败'))
-        });
-      },
-      fail: () => reject(new Error('获取书源失败'))
-    });
+    // 直接使用笔趣阁HTML解析（追书神器已失效）
+    getChapterListFromBiquge(bookUrl).then(resolve).catch(reject);
   });
 };
 
@@ -292,41 +246,17 @@ const getChapterListFromBiquge = (bookUrl) => {
 
 /**
  * 获取章节内容
- * @param {Object} chapter - 章节对象（包含url或link）
+ * @param {Object} chapter - 章节对象（包含url）
  * @returns {Promise<Object>} { title, content }
  */
 const getChapterContent = (chapter) => {
   return new Promise((resolve, reject) => {
-    // 判断是追书神器还是笔趣阁
-    const url = chapter.link || chapter.url;
-    const isZhuishu = chapter.link && chapter.chapterId;
+    const url = chapter.url;
     
-    if (isZhuishu) {
-      // 使用追书神器章节API
-      wx.request({
-        url: `http://chapter2.zhuishushenqi.com/chapter/${encodeURIComponent(chapter.link)}`,
-        method: 'GET',
-        success: (res) => {
-          console.log('追书神器章节内容响应:', res);
-          
-          if (res.data && res.data.chapter) {
-            const content = res.data.chapter.body || res.data.chapter.cpContent || '';
-            resolve({
-              title: res.data.chapter.title || chapter.title,
-              content: content.replace(/\n/g, '\n\n').trim()
-            });
-          } else {
-            reject(new Error('章节内容为空'));
-          }
-        },
-        fail: () => {
-          reject(new Error('获取章节内容失败'));
-        }
-      });
-    } else {
-      // 使用笔趣阁HTML解析
-      getChapterContentFromBiquge(url).then(resolve).catch(reject);
-    }
+    console.log('获取章节内容:', url);
+    
+    // 直接使用笔趣阁HTML解析（追书神器已失效）
+    getChapterContentFromBiquge(url).then(resolve).catch(reject);
   });
 };
 
