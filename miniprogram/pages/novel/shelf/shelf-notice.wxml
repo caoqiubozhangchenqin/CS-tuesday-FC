@@ -1,0 +1,8 @@
+<!-- 可选：在书架页顶部添加演示模式提示 -->
+<view class="demo-notice">
+  <view class="notice-icon">💡</view>
+  <view class="notice-content">
+    <text class="notice-title">演示模式</text>
+    <text class="notice-text">当前为本地演示版本，书籍内容为示例数据</text>
+  </view>
+</view>
