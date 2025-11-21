@@ -100,11 +100,11 @@
 <view class="zhihu-mask {{showZhihu ? 'show' : ''}}" bindtap="closeZhihu"></view>
 <view class="zhihu-drawer {{showZhihu ? 'show' : ''}}">
   <view class="zhihu-drawer-header">
-    <text class="zhihu-drawer-title">📰 知乎热榜</text>
+    <text class="zhihu-drawer-title">📰 知乎日报</text>
     <text class="zhihu-drawer-close" bindtap="closeZhihu">✕</text>
   </view>
   <view wx:if="{{zhihuData && zhihuData.length > 0}}" class="zhihu-drawer-content">
-    <view wx:for="{{zhihuData}}" wx:key="index" class="zhihu-item">
+    <view wx:for="{{zhihuData}}" wx:key="id" class="zhihu-item">
       <view class="zhihu-index">{{index + 1}}</view>
       <text class="zhihu-title">{{item.title}}</text>
     </view>
