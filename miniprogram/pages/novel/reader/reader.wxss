@@ -73,7 +73,7 @@
 
 /* 夜间主题 - 黑色 */
 .theme-night {
-  background-color: #1a1a1a;
+  background-color: #000000;
   color: #b0b0b0;
 }
 

@@ -106,6 +106,15 @@ Page({
       const db = wx.cloud.database();
       const _ = db.command;
 
+      // 先查询总章节数
+      const countResult = await db.collection('novel_chapters')
+        .where({
+          novelId: this.data.bookId
+        })
+        .count();
+      
+      console.log(`📚 数据库中共有 ${countResult.total} 章节`);
+
       // 查询该书的所有章节（分批获取）
       const MAX_LIMIT = 100;
       let allChapters = [];
@@ -122,6 +131,7 @@ Page({
           .limit(MAX_LIMIT)
           .get();
 
+        console.log(`📖 分批加载章节 skip=${skip}, 获取到 ${result.data.length} 章`);
         allChapters = allChapters.concat(result.data);
         
         if (result.data.length < MAX_LIMIT) {
@@ -131,6 +141,7 @@ Page({
         }
       }
 
+      console.log(`✅ 总共加载了 ${allChapters.length} 章节`);
       wx.hideLoading();
 
       if (allChapters.length === 0) {
