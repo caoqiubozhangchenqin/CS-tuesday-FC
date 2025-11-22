@@ -1,9 +1,9 @@
 /* pages/novel/reader/reader.wxss */
 
-/* 右侧悬浮菜单按钮 - 半透明隐藏在侧面 */
+/* 左侧悬浮菜单按钮 - 半透明白底，隐藏在侧面 */
 .floating-menu-btn {
   position: fixed;
-  right: -40rpx;  /* 隐藏大部分在右侧 */
+  left: -40rpx;  /* 隐藏大部分在左侧 */
   top: 50%;
   transform: translateY(-50%);
   width: 80rpx;
@@ -11,24 +11,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(102, 126, 234, 0.3);  /* 半透明 */
+  background: rgba(255, 255, 255, 0.4);  /* 半透明白底 */
   backdrop-filter: blur(10rpx);
-  border-radius: 20rpx 0 0 20rpx;  /* 只左侧有圆角 */
+  border-radius: 0 20rpx 20rpx 0;  /* 只右侧有圆角 */
   z-index: 99;
-  box-shadow: -2rpx 0 10rpx rgba(102, 126, 234, 0.2);
+  box-shadow: 2rpx 0 10rpx rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
 }
 
 .floating-menu-btn:active {
-  right: 0rpx;  /* 点击时滑出 */
-  background: rgba(102, 126, 234, 0.7);  /* 更明显 */
+  left: 0rpx;  /* 点击时滑出 */
+  background: rgba(255, 255, 255, 0.7);  /* 更明显 */
 }
 
 .floating-menu-btn .menu-icon {
   font-size: 36rpx;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(102, 126, 234, 0.8);
   font-weight: bold;
-  margin-left: -10rpx;  /* 微调位置 */
+  margin-right: -10rpx;  /* 微调位置 */
+}
+
+/* 夜间模式下的菜单按钮 */
+.theme-night .floating-menu-btn {
+  background: rgba(50, 50, 50, 0.4);
+}
+
+.theme-night .floating-menu-btn:active {
+  background: rgba(50, 50, 50, 0.7);
+}
+
+.theme-night .floating-menu-btn .menu-icon {
+  color: rgba(176, 176, 176, 0.8);
 }
 
 /* 主题配置 */
@@ -408,18 +421,39 @@
   font-weight: 600;
 }
 
-/* 滚动提示 */
-.next-chapter-hint {
+/* 章节末尾提示（手动切换）*/
+.chapter-end-hint {
   text-align: center;
-  padding: 80rpx 0 40rpx;
-  font-size: 28rpx;
-  color: #999;
-  animation: float 2s ease-in-out infinite;
+  padding: 100rpx 40rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30rpx;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10rpx); }
+.hint-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.hint-actions {
+  display: flex;
+  gap: 30rpx;
+}
+
+.hint-btn {
+  padding: 20rpx 60rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+  transition: all 0.2s;
+}
+
+.hint-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
 }
 
 .end-hint {
@@ -578,20 +612,6 @@
   white-space: pre-wrap;   /* 保留换行和空格 */
   word-wrap: break-word;   /* 自动换行 */
   word-break: break-all;   /* 英文单词换行 */
-}
-
-/* 向上滚动提示（加载上一章）*/
-.prev-chapter-hint {
-  text-align: center;
-  padding: 40rpx 0 20rpx;
-  font-size: 28rpx;
-  color: #999;
-  animation: floatUp 2s ease-in-out infinite;
-}
-
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(10rpx); }
 }
 
 /* 第一章提示 */

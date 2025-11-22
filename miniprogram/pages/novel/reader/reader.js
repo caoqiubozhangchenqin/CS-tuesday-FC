@@ -10,8 +10,8 @@ Page({
     chapters: [],
     totalChapters: 0,
     currentChapterIndex: 0,
-    chapterTitle: '',
-    chapterContent: '',
+    chapterTitle: '正在加载...',
+    chapterContent: ' ',  // 设置一个空格，避免显示失败页面
     isLoading: true,
     showHeader: true,
     showMenu: false,
@@ -21,7 +21,8 @@ Page({
     fontSize: 18,
     themeClass: 'theme-white',
     scrollTop: 0,
-    lastScrollTop: 0  // 记录滚动位置
+    lastScrollTop: 0,  // 记录滚动位置
+    pullDownRefreshing: false  // 下拉刷新状态
   },
 
   onLoad(options) {
@@ -631,43 +632,60 @@ Page({
   },
 
   /**
-   * 滚动到顶部（加载上一章）
+   * 滚动到顶部（下拉加载上一章）
    */
   onScrollToUpper() {
     console.log('滚动到顶部');
     
-    // 如果不是第一章，自动加载上一章
-    if (this.data.currentChapterIndex > 0 && !this.data.isLoading) {
-      wx.showToast({
-        title: '加载上一章...',
-        icon: 'loading',
-        duration: 1000
-      });
-
-      setTimeout(() => {
-        this.previousChapter();
-      }, 500);
-    }
+    // 禁用自动加载，改为需要用户主动触发
+    // 不再自动加载上一章
   },
 
   /**
-   * 滚动到底部（自动加载下一章）
+   * 滚动到底部（不自动加载下一章）
    */
   onScrollToLower() {
     console.log('滚动到底部');
     
-    // 如果不是最后一章，自动加载下一章
-    if (this.data.currentChapterIndex < this.data.totalChapters - 1 && !this.data.isLoading) {
-      wx.showToast({
-        title: '加载下一章...',
-        icon: 'loading',
-        duration: 1000
-      });
+    // 禁用自动加载，用户需要手动下拉刷新才能切换
+    // 不再自动加载下一章
+  },
 
-      setTimeout(() => {
-        this.nextChapter();
-      }, 500);
+  /**
+   * 下拉刷新加载上一章
+   */
+  onPullDownRefresh() {
+    if (this.data.pullDownRefreshing) {
+      return; // 防止重复触发
     }
+
+    if (this.data.currentChapterIndex <= 0) {
+      wx.showToast({
+        title: '已是第一章',
+        icon: 'none'
+      });
+      return;
+    }
+
+    this.setData({ pullDownRefreshing: true });
+    
+    wx.showToast({
+      title: '加载上一章...',
+      icon: 'loading',
+      duration: 1000
+    });
+
+    setTimeout(() => {
+      this.previousChapter();
+      this.setData({ pullDownRefreshing: false });
+    }, 500);
+  },
+
+  /**
+   * 上拉加载下一章
+   */
+  onReachBottom() {
+    // 预留方法，可用于上拉加载下一章
   },
 
   /**

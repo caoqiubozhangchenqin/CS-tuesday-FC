@@ -1,6 +1,6 @@
 <!-- pages/novel/reader/reader.wxml -->
 <view class="container {{themeClass}}">
-  <!-- 右侧悬浮菜单按钮 -->
+  <!-- 左侧悬浮菜单按钮 -->
   <view class="floating-menu-btn" bindtap="toggleMenu">
     <text class="menu-icon">☰</text>
   </view>
@@ -19,17 +19,12 @@
     bindtap="toggleHeader"
     scroll-top="{{scrollTop}}"
     bindscroll="onScroll"
-    lower-threshold="250"
-    upper-threshold="100"
-    bindscrolltolower="onScrollToLower"
-    bindscrolltoupper="onScrollToUpper"
+    refresher-enabled="{{true}}"
+    refresher-threshold="80"
+    refresher-triggered="{{pullDownRefreshing}}"
+    bindrefresherrefresh="onPullDownRefresh"
   >
     <view class="content-container">
-      <!-- 向上滚动提示（加载上一章）-->
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex > 0}}" class="prev-chapter-hint">
-        <text>👆 继续向上滚动阅读上一章</text>
-      </view>
-
       <!-- 第一章提示 -->
       <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">
         <text>📖 这是第一章</text>
@@ -58,9 +53,14 @@
         </view>
       </view>
 
-      <!-- 滚动到底部提示（自动加载下一章）-->
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="next-chapter-hint">
-        <text>👇 继续滚动阅读下一章</text>
+      <!-- 章节底部提示 - 使用菜单切换章节 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">
+        <text class="hint-text">已到本章末尾</text>
+        <view class="hint-actions">
+          <view class="hint-btn" bindtap="nextChapter">
+            <text>� 下一章</text>
+          </view>
+        </view>
       </view>
 
       <!-- 最后一章提示 -->
