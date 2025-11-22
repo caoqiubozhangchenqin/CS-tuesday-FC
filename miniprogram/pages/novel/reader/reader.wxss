@@ -124,11 +124,13 @@
 .content-scroll {
   flex: 1;
   height: 100%;
+  background: transparent;  /* 透明背景，显示容器颜色 */
 }
 
 .content-container {
   padding: 60rpx 40rpx 120rpx;
   min-height: 100%;
+  background: transparent;  /* 透明背景，显示容器颜色 */
 }
 
 .chapter-title {
@@ -461,36 +463,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30rpx;
-}
-
-.hint-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
-.theme-night .hint-text {
-  color: #888;
-}
-
-.hint-actions {
-  display: flex;
-  gap: 30rpx;
 }
 
 .hint-btn {
   padding: 20rpx 60rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  background: transparent;  /* 无底色 */
+  color: #667eea;  /* 紫色文字 */
+  border: 2rpx solid rgba(102, 126, 234, 0.3);  /* 半透明边框 */
   border-radius: 50rpx;
   font-size: 28rpx;
-  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
   transition: all 0.2s;
 }
 
 .hint-btn:active {
+  background: rgba(102, 126, 234, 0.1);  /* 点击时轻微背景 */
+  border-color: rgba(102, 126, 234, 0.5);
   transform: scale(0.95);
-  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
+}
+
+.theme-night .hint-btn {
+  color: #8896e8;  /* 夜间模式浅紫色 */
+  border-color: rgba(136, 150, 232, 0.3);
+}
+
+.theme-night .hint-btn:active {
+  background: rgba(136, 150, 232, 0.1);
+  border-color: rgba(136, 150, 232, 0.5);
 }
 
 .end-hint {
