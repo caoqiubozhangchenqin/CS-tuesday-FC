@@ -19,12 +19,12 @@
     bindtap="toggleHeader"
     scroll-top="{{scrollTop}}"
     bindscroll="onScroll"
-    lower-threshold="100"
-    upper-threshold="50"
+    lower-threshold="250"
+    upper-threshold="100"
     bindscrolltolower="onScrollToLower"
     bindscrolltoupper="onScrollToUpper"
   >
-    <view class="content-container" style="font-size: {{fontSize}}px;">
+    <view class="content-container">
       <!-- 向上滚动提示（加载上一章）-->
       <view wx:if="{{!isLoading && chapterContent && currentChapterIndex > 0}}" class="prev-chapter-hint">
         <text>👆 继续向上滚动阅读上一章</text>
@@ -45,7 +45,7 @@
       </view>
 
       <!-- 章节内容 -->
-      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content">
+      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">
         <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
       </view>
 
@@ -80,7 +80,7 @@
       </view>
     </view>
 
-    <!-- 功能按钮（简化版：只保留常用功能）-->
+    <!-- 功能按钮（简化版：目录、字号调整、夜间模式）-->
     <view class="menu-actions">
       <view class="action-item" bindtap="showChapterList">
         <text class="action-icon">📑</text>
@@ -93,6 +93,10 @@
       <view class="action-item" bindtap="increaseFontSize">
         <text class="action-icon">A+</text>
         <text class="action-label">放大</text>
+      </view>
+      <view class="action-item" bindtap="toggleNightMode">
+        <text class="action-icon">{{themeClass === 'theme-night' ? '☀️' : '🌙'}}</text>
+        <text class="action-label">{{themeClass === 'theme-night' ? '日间' : '夜间'}}</text>
       </view>
     </view>
   </view>

@@ -463,7 +463,25 @@ Page({
   },
 
   /**
-   * 切换主题
+   * 切换夜间模式
+   */
+  toggleNightMode() {
+    const isNight = this.data.themeClass === 'theme-night';
+    this.setData({
+      themeClass: isNight ? 'theme-white' : 'theme-night'
+    });
+    
+    this.saveReadSettings();
+    
+    wx.showToast({
+      title: isNight ? '已切换到日间模式' : '已切换到夜间模式',
+      icon: 'none',
+      duration: 1500
+    });
+  },
+
+  /**
+   * 切换主题（保留旧方法以兼容）
    */
   toggleTheme() {
     const themes = ['theme-white', 'theme-green', 'theme-paper', 'theme-night'];
