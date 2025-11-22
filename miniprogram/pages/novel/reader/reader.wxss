@@ -364,10 +364,10 @@
 .chapter-drawer {
   position: fixed;
   right: 0;
-  top: 10%;  /* 从10%的位置开始 */
-  bottom: 10%;  /* 到90%的位置结束 */
-  max-height: 80vh;  /* 最大高度80% */
-  width: 600rpx;
+  top: 6%;
+  bottom: 6%;
+  max-height: 88vh;
+  width: 620rpx;
   background: #fff;
   box-shadow: -4rpx 0 20rpx rgba(0, 0, 0, 0.1);
   transform: translateX(100%);
@@ -511,40 +511,76 @@
 }
 
 /* 跳转弹窗 */
-.jump-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
+.chapter-list {
+  flex: 1;
+  height: 100%;
+  padding: 0 30rpx 40rpx;
 }
 
-.jump-modal.show {
+.drawer-count {
+  font-size: 24rpx;
+  color: #999;
+  padding: 10rpx 10rpx 20rpx;
+}
+
+.theme-night .drawer-count {
+  color: #b0b0b0;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.chapter-item {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 20rpx;
+  border: 1rpx solid #f0f0f0;
+  border-radius: 16rpx;
   display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  transition: all 0.2s;
 }
 
-.modal-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+.chapter-item:active {
+  transform: translateY(2rpx);
 }
 
-.modal-content {
-  position: relative;
-  width: 600rpx;
-  background: #fff;
-  border-radius: 20rpx;
+.theme-night .chapter-item {
+  border-color: #3a3a3a;
+}
+
+.chapter-item.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.chapter-number {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.theme-night .chapter-number {
+  color: #b0b0b0;
+}
+
+.chapter-name {
+  font-size: 26rpx;
+  line-height: 1.4;
   overflow: hidden;
-  animation: modalSlideUp 0.3s;
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
+.chapter-item.active .chapter-name {
+  color: #667eea;
+  font-weight: 600;
+}
 @keyframes modalSlideUp {
   from {
     transform: translateY(100rpx);

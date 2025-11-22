@@ -1,119 +1,226 @@
 // 云函数：解析小说文件（TXT/EPUB）
 const cloud = require('wx-server-sdk');
+const iconv = require('iconv-lite');
+
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
+
+const numberPattern = '[零〇一二三四五六七八九十百千万0-9]+';
+const suffixPattern = '(章|节|卷|回)';
+const separatorPattern = '[\\s、:：—·•　-]{1,3}';
+const leadingWhitespacePattern = '[\\s\t\u3000\u00A0\uFEFF]*';
+const buildPattern = (body, flags = 'g') => new RegExp(`(?:^|\n)${leadingWhitespacePattern}(${body})`, flags);
+
+const chapterPatterns = [
+  // 格式：第XXX卷 第XXX章/节/回 标题
+  buildPattern(`第${numberPattern}卷\\s*第${numberPattern}${suffixPattern}(?:${separatorPattern}.{0,50})?`),
+  // 格式：第XXX卷 标题
+  buildPattern(`第${numberPattern}卷(?:${separatorPattern}.{0,50})?`),
+  // 格式：第XXX章/节/回 标题
+  buildPattern(`第${numberPattern}${suffixPattern}(?:${separatorPattern}.{0,50})?`),
+  // 格式：第XXX：标题（无章/节字样）
+  buildPattern(`第${numberPattern}[：:].{0,50}`),
+  // 英文格式
+  buildPattern('Chapter\\s*\\d+[^\\n]{0,50}', 'gi'),
+  buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi')
+];
+
+const detectEncodingByBOM = buffer => {
+  if (buffer.length >= 2) {
+    const b0 = buffer[0];
+    const b1 = buffer[1];
+
+    if (b0 === 0xFE && b1 === 0xFF) {
+      return 'utf16be';
+    }
+
+    if (b0 === 0xFF && b1 === 0xFE) {
+      return 'utf16le';
+    }
+  }
+
+  if (buffer.length >= 3) {
+    if (buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
+      return 'utf8';
+    }
+  }
+
+  return null;
+};
+
+const sanitizeContent = buffer => {
+  const bomEncoding = detectEncodingByBOM(buffer);
+  let bestContent = '';
+
+  if (bomEncoding) {
+    try {
+      console.log(`检测到 BOM，按 ${bomEncoding} 解码`);
+      if (bomEncoding === 'utf8') {
+        bestContent = buffer.toString('utf8');
+      } else {
+        bestContent = iconv.decode(buffer, bomEncoding);
+      }
+    } catch (e) {
+      console.error(`BOM 指定编码 ${bomEncoding} 解码失败:`, e.message);
+      bestContent = '';
+    }
+  }
+
+  // 如果 BOM 未检出或解码失败，则尝试多种编码评分
+  if (!bestContent) {
+    const encodings = ['utf8', 'utf16le', 'utf16be', 'gb18030', 'gbk', 'gb2312', 'big5'];
+    let maxScore = -Infinity;
+
+    for (const encoding of encodings) {
+      try {
+        const content = encoding === 'utf8'
+          ? buffer.toString('utf8')
+          : iconv.decode(buffer, encoding);
+
+        const chineseChars = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
+        const invalidChars = (content.match(/�/g) || []).length;
+        const printable = (content.match(/[\u0020-\u007e\u3000-\u303f\u4e00-\u9fa5]/g) || []).length;
+        const score = chineseChars * 3 + printable - invalidChars * 12;
+
+        console.log(`尝试 ${encoding} 编码: 中文=${chineseChars}, 乱码=${invalidChars}, 可读字符=${printable}, 得分=${score}`);
+
+        if (score > maxScore) {
+          maxScore = score;
+          bestContent = content;
+          console.log(`✅ 当前最佳编码: ${encoding}`);
+        }
+      } catch (e) {
+        console.error(`${encoding} 解码失败:`, e.message);
+      }
+    }
+  }
+
+  if (!bestContent) {
+    console.error('所有编码尝试失败，使用 UTF-8 作为后备');
+    bestContent = buffer.toString('utf8');
+  }
+
+  return bestContent
+    .replace(/\uFEFF/g, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\t/g, '  ')
+    .replace(/[ ]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
 
 /**
  * 解析TXT文件
  */
 async function parseTXT(fileID) {
   try {
-    // 下载文件
-    const result = await cloud.downloadFile({
-      fileID: fileID
-    });
-
-    // 读取文件内容
-    const buffer = result.fileContent;
-    let content = buffer.toString('utf-8');
-
-    // 如果是乱码，尝试GBK编码
-    if (content.includes('�')) {
-      const iconv = require('iconv-lite');
-      content = iconv.decode(buffer, 'gbk');
+    const result = await cloud.downloadFile({ fileID });
+    if (!result || !result.fileContent) {
+      throw new Error('文件下载失败');
     }
 
-    // 按章节分割
-    const chapters = [];
-    
-    // 尝试多种章节分割方式（优先匹配更具体的格式）
-    // ⚠️ 使用(?:^|\n) 确保章节标记在行首，避免误匹配正文中的词语
-    // ⚠️ 不支持"回"格式，避免与"回合"等词混淆
-    const patterns = [
-      // 格式：第XXX卷 XXX章 标题（必须在行首）
-      /(?:^|\n)(第[零〇一二三四五六七八九十百千万0-9]+卷\s*第[零〇一二三四五六七八九十百千万0-9]+[章节][\s:：].{0,50})/g,
-      // 格式：第XXX卷 标题（必须在行首）
-      /(?:^|\n)(第[零〇一二三四五六七八九十百千万0-9]+卷[\s:：].{0,50})/g,
-      // 格式：第XXX章 标题 或 第XXX节 标题（必须在行首）
-      /(?:^|\n)(第[零〇一二三四五六七八九十百千万0-9]+[章节][\s:：].{0,50})/g,
-      // 格式：第XXX卷（必须在行首）
-      /(?:^|\n)(第[零〇一二三四五六七八九十百千万0-9]+卷)/g,
-      // 格式：第XXX章 或 第XXX节（必须在行首）
-      /(?:^|\n)(第[零〇一二三四五六七八九十百千万0-9]+[章节])/g,
-      // 格式：第XXX: 标题（有些书用半角冒号，必须在行首）
-      /(?:^|\n)(第[0-9]+[:：].{0,50})/g,
-      // 格式：纯数字章节（必须在行首）
-      /(?:^|\n)(第[0-9]+章)/g,
-      // 英文格式（必须在行首）
-      /(?:^|\n)(Chapter\s*[0-9]+)/gi,
-      /(?:^|\n)(Volume\s*[0-9]+)/gi
-    ];
+    const content = sanitizeContent(result.fileContent);
+    if (!content) {
+      throw new Error('文件内容为空');
+    }
 
+    const chapters = [];
     let chapterMatches = [];
-    for (const pattern of patterns) {
+
+    for (const pattern of chapterPatterns) {
       const matches = [...content.matchAll(pattern)];
-      if (matches.length > 0) {
-        // 过滤掉匹配结果，移除捕获组中的换行符
-        chapterMatches = matches.map(match => {
-          // match[1] 是实际的章节标题（不包含前面的\n）
+      if (!matches.length) {
+        continue;
+      }
+
+      const normalized = matches
+        .map(match => {
+          const matchedText = (match[1] || match[0] || '').trim();
+          const prefixLength = match[0].length - (match[1] ? match[1].length : 0);
+          const index = match.index + prefixLength;
           return {
-            ...match,
-            0: match[1] || match[0], // 使用捕获组的内容
-            index: match.index + (match[0].startsWith('\n') ? 1 : 0) // 调整索引，跳过换行符
+            index,
+            text: matchedText
           };
+        })
+        .filter(item => {
+          if (!item.text) {
+            return false;
+          }
+
+          if (item.text.includes('回')) {
+            const nextChar = content[item.index + item.text.length] || '';
+            if (nextChar === '合') {
+              return false;
+            }
+          }
+
+          return true;
         });
+
+      if (normalized.length) {
+        chapterMatches = normalized;
         break;
       }
     }
 
-    if (chapterMatches.length > 0) {
-      // 找到章节标记
+    if (chapterMatches.length) {
+      // 限制单章内容长度（避免写入超限）
+      const maxChapterContentLength = 80 * 1024; // 80KB
+      
       for (let i = 0; i < chapterMatches.length; i++) {
         const match = chapterMatches[i];
-        let title = match[0].trim();
-        
-        // 清理标题：去掉多余空格和标点
+        let title = match.text;
+
         title = title.replace(/\s+/g, ' ').trim();
-        
-        // 提取更完整的标题（向后查找到换行符或一定长度）
+
         const titleStartIndex = match.index;
-        const titleEndIndex = Math.min(
-          content.indexOf('\n', titleStartIndex),
-          titleStartIndex + 100
-        );
-        
+        const nextLineBreak = content.indexOf('\n', titleStartIndex);
+        const safeEnd = nextLineBreak === -1 ? content.length : nextLineBreak;
+        const titleEndIndex = Math.min(safeEnd, titleStartIndex + 100);
+
         if (titleEndIndex > titleStartIndex) {
           const fullTitle = content.substring(titleStartIndex, titleEndIndex).trim();
-          // 如果完整标题比匹配到的长，且不超过100字符，使用完整标题
           if (fullTitle.length > title.length && fullTitle.length <= 100) {
             title = fullTitle;
           }
         }
-        
-        const startIndex = match.index;
-        const endIndex = i < chapterMatches.length - 1 
-          ? chapterMatches[i + 1].index 
-          : content.length;
 
-        const chapterContent = content.substring(startIndex, endIndex).trim();
+        const startIndex = match.index;
+        const endIndex = i < chapterMatches.length - 1
+          ? chapterMatches[i + 1].index
+          : content.length;
+        let chapterContent = content.substring(startIndex, endIndex).trim();
+        
+        // 截断超长章节
+        if (chapterContent.length > maxChapterContentLength) {
+          chapterContent = chapterContent.substring(0, maxChapterContentLength) + '\n\n（本章内容过长，已截断）';
+        }
 
         chapters.push({
           id: i,
-          title: title,
+          title,
           content: chapterContent,
           link: `chapter_${i}`
         });
       }
     } else {
-      // 没有找到章节标记，按空行分段
+      // fallback 按段落分章（同样限制长度）
       const paragraphs = content.split(/\n\s*\n+/);
-      const chunkSize = Math.ceil(paragraphs.length / 100); // 分成约100章
+      const chunkSize = Math.ceil(paragraphs.length / 100) || 1;
+      const maxChapterContentLength = 80 * 1024; // 80KB
 
       for (let i = 0; i < Math.min(100, paragraphs.length); i++) {
         const start = i * chunkSize;
         const end = Math.min((i + 1) * chunkSize, paragraphs.length);
-        const chapterContent = paragraphs.slice(start, end).join('\n\n').trim();
+        let chapterContent = paragraphs.slice(start, end).join('\n\n').trim();
+        
+        // 截断超长章节
+        if (chapterContent.length > maxChapterContentLength) {
+          chapterContent = chapterContent.substring(0, maxChapterContentLength) + '\n\n（本章内容过长，已截断）';
+        }
 
         if (chapterContent.length > 0) {
           chapters.push({
@@ -128,10 +235,9 @@ async function parseTXT(fileID) {
 
     return {
       success: true,
-      chapters: chapters,
+      chapters,
       chapterCount: chapters.length
     };
-
   } catch (error) {
     console.error('解析TXT失败:', error);
     return {
@@ -306,21 +412,33 @@ exports.main = async (event, context) => {
 
     console.log(`开始保存章节到数据库，共 ${chaptersToSave.length} 章`);
 
-    // 批量保存到数据库（每次最多20条）
-    const batchSize = 20;
+    // 批量保存到数据库（每次最多10条，单章最大100KB）
+    const batchSize = 10;
+    const maxChapterSize = 100 * 1024; // 100KB
+    
     for (let i = 0; i < chaptersToSave.length; i += batchSize) {
       const batch = chaptersToSave.slice(i, i + batchSize);
       
       const promises = batch.map(chapter => {
+        // 限制单章内容长度
+        let content = chapter.content || '';
+        if (content.length > maxChapterSize) {
+          content = content.substring(0, maxChapterSize) + '\n\n（本章内容过长，已截断）';
+          console.log(`章节 ${chapter.id} 内容过长，已截断至 ${maxChapterSize} 字符`);
+        }
+        
         return db.collection('novel_chapters').add({
           data: {
             novelId: novelId,
             chapterId: chapter.id,
             title: chapter.title,
-            content: chapter.content,
+            content: content,
             link: chapter.link,
             createTime: db.serverDate()
           }
+        }).catch(err => {
+          console.error(`保存章节 ${chapter.id} 失败:`, err);
+          return { success: false, error: err };
         });
       });
 

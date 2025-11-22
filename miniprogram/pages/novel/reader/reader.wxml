@@ -108,16 +108,21 @@
       </view>
     </view>
     <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
-      <view 
-        wx:for="{{chapters}}" 
-        wx:key="id"
-        id="chapter-{{index}}"
-        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
-        bindtap="selectChapter"
-        data-index="{{index}}"
-      >
-        <text class="chapter-number">{{index + 1}}</text>
-        <text class="chapter-name">{{item.title}}</text>
+      <view class="drawer-count">
+        <text>共 {{totalChapters}} 章 · 单屏显示 20 章</text>
+      </view>
+      <view class="chapter-grid">
+        <view 
+          wx:for="{{chapters}}" 
+          wx:key="id"
+          id="chapter-{{index}}"
+          class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
+          bindtap="selectChapter"
+          data-index="{{index}}"
+        >
+          <text class="chapter-number">{{index + 1}}</text>
+          <text class="chapter-name">{{item.title}}</text>
+        </view>
       </view>
     </scroll-view>
   </view>
