@@ -468,27 +468,27 @@
 .hint-btn {
   padding: 20rpx 60rpx;
   background: transparent;  /* 无底色 */
-  color: #667eea;  /* 紫色文字 */
-  border: 2rpx solid rgba(102, 126, 234, 0.3);  /* 半透明边框 */
+  color: inherit;  /* 继承正文颜色 */
+  border: 2rpx solid rgba(0, 0, 0, 0.15);  /* 淡边框 */
   border-radius: 50rpx;
   font-size: 28rpx;
   transition: all 0.2s;
 }
 
 .hint-btn:active {
-  background: rgba(102, 126, 234, 0.1);  /* 点击时轻微背景 */
-  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(0, 0, 0, 0.05);  /* 点击时轻微背景 */
+  border-color: rgba(0, 0, 0, 0.25);
   transform: scale(0.95);
 }
 
 .theme-night .hint-btn {
-  color: #8896e8;  /* 夜间模式浅紫色 */
-  border-color: rgba(136, 150, 232, 0.3);
+  color: #b0b0b0;  /* 夜间模式与正文一致 */
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .theme-night .hint-btn:active {
-  background: rgba(136, 150, 232, 0.1);
-  border-color: rgba(136, 150, 232, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .end-hint {
@@ -651,6 +651,7 @@
   white-space: pre-wrap;   /* 保留换行和空格 */
   word-wrap: break-word;   /* 自动换行 */
   word-break: break-all;   /* 英文单词换行 */
+  color: inherit;  /* 继承父元素颜色 */
 }
 
 /* 第一章提示 */

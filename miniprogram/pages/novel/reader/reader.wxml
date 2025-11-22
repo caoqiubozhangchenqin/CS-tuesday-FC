@@ -56,7 +56,7 @@
       <!-- 章节底部按钮 -->
       <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">
         <view class="hint-btn" bindtap="nextChapter">
-          <text>👉 下一章</text>
+          <text>▶ 下一章</text>
         </view>
       </view>
 
