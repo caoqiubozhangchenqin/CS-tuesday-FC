@@ -130,10 +130,7 @@ Page({
           .field({
             chapterId: true,
             title: true,
-            _id: true,
-            novelId: true,
-            wordCount: true,
-            content: false
+            _id: true
           })
           .limit(MAX_LIMIT)
           .skip(skip)
