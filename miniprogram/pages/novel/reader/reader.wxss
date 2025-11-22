@@ -359,8 +359,9 @@
 .chapter-drawer {
   position: fixed;
   right: 0;
-  top: 0;
-  bottom: 0;
+  top: 10%;  /* 从10%的位置开始 */
+  bottom: 10%;  /* 到90%的位置结束 */
+  max-height: 80vh;  /* 最大高度80% */
   width: 600rpx;
   background: #fff;
   box-shadow: -4rpx 0 20rpx rgba(0, 0, 0, 0.1);
@@ -369,6 +370,7 @@
   z-index: 201;
   display: flex;
   flex-direction: column;
+  border-radius: 20rpx 0 0 20rpx;  /* 左侧圆角 */
 }
 
 .chapter-drawer.show {

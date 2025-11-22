@@ -40,8 +40,8 @@
       </view>
 
       <!-- 章节内容 -->
-      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">
-        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
+      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content">
+        <text class="content-text" style="font-size: {{fontSize}}px;" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
       </view>
 
       <!-- 加载失败 -->
