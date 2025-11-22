@@ -115,8 +115,8 @@ Page({
       
       console.log(`📚 数据库中共有 ${countResult.total} 章节`);
 
-      // 查询该书的所有章节（分批获取）
-      const MAX_LIMIT = 100;
+  // 查询该书的所有章节（分批获取）
+  const MAX_LIMIT = 20; // 云开发前端 get 接口单次最多 20 条
       let allChapters = [];
       let hasMore = true;
       let skip = 0;
