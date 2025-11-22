@@ -22,11 +22,18 @@ const chapterPatterns = [
   buildPattern(`^第${numberPattern}卷(?!\\s*第)`, 'gm'),
   // 带标题的章节
   buildPattern(`第${numberPattern}[章节回]${separatorPattern}.{1,50}`, 'gm'),
-  // 数字开头格式
-  buildPattern(`^\\s*${numberPattern}[.、]\\s*.{0,50}`, 'gm'),
+  // 纯数字章节（如：1、2、3 或 1. 2. 3.）
+  buildPattern(`^\\s*\\d+[.、]\\s*.{0,50}`, 'gm'),
+  // 中文数字章节（如：一、二、三）
+  buildPattern(`^[一二三四五六七八九十百千]+[、.]\\s*.{0,50}`, 'gm'),
+  // 序号+标题格式（如：1 疯狂年代、2 沉默的大多数）
+  buildPattern(`^\\d+\\s+[\\u4e00-\\u9fa5].{0,50}`, 'gm'),
   // 英文格式
   buildPattern('Chapter\\s*\\d+[^\\n]{0,50}', 'gi'),
-  buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi')
+  buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi'),
+  // 纯标题格式（用于《三体》等书籍，如：疯狂年代、沉默的大多数）
+  // 特征：单独一行，长度在2-30字之间，不包含常见非标题词
+  buildPattern(`^[\\u4e00-\\u9fa5]{2,30}(?![\\u4e00-\\u9fa5]{10,})`, 'gm')
 ];
 
 const detectEncodingByBOM = buffer => {
@@ -179,18 +186,29 @@ async function parseTXT(fileID) {
           }
 
           // 改进过滤逻辑：只过滤明显的非章节内容
-          // 过滤包含"回合"的情况
-          if (item.text.includes('回合')) {
+          // 过滤包含"回合"、"回复"、"回答"的情况
+          if (item.text.includes('回合') || item.text.includes('回复') || item.text.includes('回答')) {
             return false;
           }
 
-          // 过滤过短的匹配（可能是误匹配）
+          // 过滤过短的匹配（可能是误匹配）- 但保留中文短标题
           if (item.text.length < 2) {
             return false;
           }
 
-          // 过滤只包含数字的匹配（除非是纯数字章节号）
+          // 如果是纯中文且长度合理，可能是标题，保留
+          if (/^[\u4e00-\u9fa5]{2,30}$/.test(item.text)) {
+            return true;
+          }
+
+          // 过滤只包含数字且过长的匹配
           if (/^\d+$/.test(item.text) && item.text.length > 3) {
+            return false;
+          }
+
+          // 过滤明显的非章节内容（包含过多标点符号）
+          const punctuationRatio = (item.text.match(/[，。！？、；：""''（）《》【】]/g) || []).length / item.text.length;
+          if (punctuationRatio > 0.3) {
             return false;
           }
 
