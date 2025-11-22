@@ -159,48 +159,36 @@ Page({
         return;
       }
 
-      // 2. 数据库没有章节，需要解析并保存
-      console.log('首次打开，需要解析书籍');
-      wx.showLoading({ 
-        title: '首次打开需解析\n请稍候...',
-        mask: true 
-      });
-
-      // 调用云函数解析并保存到数据库
-      const result = await wx.cloud.callFunction({
-        name: 'parseNovel',
-        data: {
-          fileID: book.fileID,
-          format: book.format,
-          novelId: book.id  // 传入小说ID
-        },
-        config: {
-          timeout: 60000  // 60秒超时（解析+保存需要更长时间）
-        }
-      });
+      // 检查是否有解析记录（避免重复解析）
+      const parseRecord = wx.getStorageSync(`parse_record_${book.id}`);
+      if (parseRecord && parseRecord.parsedRanges && parseRecord.parsedRanges.length > 0) {
+        // 已有解析记录，直接跳转
+        console.log('已有解析记录，直接阅读:', parseRecord);
+        wx.hideLoading();
+        wx.navigateTo({
+          url: `/pages/novel/reader/reader?bookId=${book.id}&bookName=${encodeURIComponent(book.name)}&isCloud=true`
+        });
+        return;
+      }
 
       wx.hideLoading();
 
-      if (result.result && result.result.success) {
-        // 解析成功，跳转到阅读页
-        wx.showToast({
-          title: `已解析 ${result.result.chapterCount} 章`,
-          icon: 'success',
-          duration: 1500
-        });
+      const parseResult = await this.parseBookInChunks(book);
 
-        setTimeout(() => {
-          wx.navigateTo({
-            url: `/pages/novel/reader/reader?bookId=${book.id}&bookName=${encodeURIComponent(book.name)}&isCloud=true`
-          });
-        }, 1500);
-      } else {
-        wx.showModal({
-          title: '解析失败',
-          content: result.result?.message || '无法解析该书籍',
-          showCancel: false
+      const parsedChapters = parseResult.chapterCount || parseResult.savedCount || 0;
+      const isPartial = parseResult.partialComplete;
+      
+      wx.showToast({
+        title: isPartial ? `已解析前 ${parsedChapters} 章` : `已解析 ${parsedChapters} 章`,
+        icon: 'success',
+        duration: isPartial ? 2500 : 1500
+      });
+
+      setTimeout(() => {
+        wx.navigateTo({
+          url: `/pages/novel/reader/reader?bookId=${book.id}&bookName=${encodeURIComponent(book.name)}&isCloud=true`
         });
-      }
+      }, isPartial ? 2500 : 1500);
     } catch (error) {
       wx.hideLoading();
       console.error('解析书籍失败:', error);
@@ -213,6 +201,8 @@ Page({
         errorMsg = '文件过大\n已优化：章节将保存到云端';
       } else if (error.errMsg) {
         errorMsg = error.errMsg;
+      } else if (error.message) {
+        errorMsg = error.message;
       }
       
       wx.showModal({
@@ -220,6 +210,74 @@ Page({
         content: errorMsg,
         showCancel: false
       });
+    }
+  },
+
+  /**
+   * 分批调用云函数解析书籍，避免超时
+   * 优化策略：首次只解析 30 章（更安全），后续按需加载
+   */
+  async parseBookInChunks(book) {
+    const INITIAL_CHUNK = 30;  // 首次只解析 30 章，确保不超时
+    const chunkSize = 50;      // 后续每次 50 章
+    let chunkStart = 0;
+    let totalChapters = 0;
+
+    try {
+      // 首次调用：只解析 50 章
+      wx.showLoading({
+        title: '解析中...',
+        mask: true
+      });
+
+      const { result } = await wx.cloud.callFunction({
+        name: 'parseNovel',
+        data: {
+          fileID: book.fileID,
+          format: book.format,
+          novelId: book.id,
+          chunkStart: 0,
+          chunkSize: INITIAL_CHUNK
+        },
+        config: {
+          timeout: 20000
+        }
+      });
+
+      if (!result || !result.success) {
+        throw new Error(result?.message || '解析失败');
+      }
+
+      totalChapters = result.chapterCount || 0;
+      const hasMore = result.hasMore;
+
+      // 保存解析记录
+      const parseRecord = {
+        bookId: book.id,
+        totalChapters,
+        parsedRanges: [{ start: 0, end: Math.min(INITIAL_CHUNK, totalChapters) }],  // 已解析范围
+        lastParsedChapter: Math.min(INITIAL_CHUNK, totalChapters),
+        completed: !hasMore,
+        timestamp: Date.now()
+      };
+
+      wx.setStorageSync(`parse_record_${book.id}`, parseRecord);
+
+      wx.hideLoading();
+
+      return {
+        success: true,
+        chapterCount: totalChapters,
+        savedCount: Math.min(INITIAL_CHUNK, totalChapters),
+        hasMore,
+        partialComplete: hasMore,
+        message: hasMore 
+          ? `已解析前 ${INITIAL_CHUNK} 章，剩余章节可在阅读时按需加载`
+          : `已解析全部 ${totalChapters} 章`
+      };
+    } catch (error) {
+      wx.hideLoading();
+      throw error;
     }
   },
 

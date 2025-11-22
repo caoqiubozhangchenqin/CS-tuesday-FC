@@ -1,6 +1,14 @@
 <!-- pages/novel/reader/reader.wxml -->
-<view class="container {{themeClass}}">
-  <!-- 左侧悬浮菜单按钮 -->
+<view class="container {{themeClass}}">    <!-- 未解析完成提示（仅云端书籍且接近末尾） -->
+    <view class="incomplete-parse-hint" wx:if="{{isCloud && needUnlock && parseRecord}}">
+      <view class="hint-text">
+        <text class="icon">🔒</text>
+        <text>已解析 {{parseRecord.lastParsedChapter}}/{{parseRecord.totalChapters}} 章</text>
+      </view>
+      <view class="continue-parse-btn" bindtap="continueParsingChapters">
+        <text>解锁后 30 章</text>
+      </view>
+    </view>侧悬浮菜单按钮 -->
   <view class="floating-menu-btn" bindtap="toggleMenu">
     <text class="menu-icon">☰</text>
   </view>
@@ -60,8 +68,17 @@
         </view>
       </view>
 
+      <!-- 接近末尾解锁提示（云端书籍） -->
+      <view wx:if="{{!isLoading && chapterContent && isCloud && needUnlock && parseRecord}}" class="unlock-hint">
+        <text class="unlock-icon">🔒</text>
+        <text class="unlock-text">即将看完已解析章节（{{parseRecord.lastParsedChapter}}/{{parseRecord.totalChapters}}）</text>
+        <view class="unlock-btn" bindtap="continueParsingChapters">
+          <text>立即解锁后续 30 章</text>
+        </view>
+      </view>
+
       <!-- 最后一章提示 -->
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1 && (!parseRecord || parseRecord.completed)}}" class="end-hint">
         <text>🎉 全书完</text>
       </view>
     </view>
@@ -69,6 +86,17 @@
 
   <!-- 底部菜单 -->
   <view class="bottom-menu {{showMenu ? 'show' : ''}}">
+    <!-- 未解析完成提示（仅云端书籍且接近末尾） -->
+    <view class="incomplete-parse-hint" wx:if="{{isCloud && needUnlock && parseRecord}}">
+      <view class="hint-text">
+        <text class="icon">�</text>
+        <text>已解析 {{parseRecord.lastParsedChapter}}/{{parseRecord.totalChapters}} 章</text>
+      </view>
+      <view class="continue-parse-btn" bindtap="continueParsingChapters">
+        <text>解锁后 50 章</text>
+      </view>
+    </view>
+
     <!-- 阅读进度 -->
     <view class="progress-section">
       <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>

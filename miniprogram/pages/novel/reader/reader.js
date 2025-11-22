@@ -24,7 +24,11 @@ Page({
     // 新增：书签功能
     bookmarks: [],
     showBookmarkModal: false,
-    bookmarkNote: ''
+    bookmarkNote: '',
+    // 新增：按需解析功能
+    parseRecord: null,           // 解析记录
+    needUnlock: false,           // 是否需要解锁后续章节
+    unlockThreshold: 3           // 距离末尾多少章时提示解锁（改为 3 章）
   },
 
   onLoad(options) {
@@ -120,8 +124,8 @@ Page({
       
       console.log(`📚 数据库中共有 ${countResult.total} 章节`);
 
-  // 查询该书的所有章节（分批获取）
-  const MAX_LIMIT = 20; // 云开发前端 get 接口单次最多 20 条
+      // 查询该书的所有章节（分批获取）
+      const MAX_LIMIT = 20; // 云开发前端 get 接口单次最多 20 条
       let allChapters = [];
       let hasMore = true;
       let skip = 0;
@@ -169,6 +173,12 @@ Page({
         totalChapters: allChapters.length,
         isLoading: false
       });
+
+      // 加载解析记录
+      this.loadParseRecord();
+
+      // 检查是否需要解锁后续章节
+      this.checkUnlockStatus();
 
       // 加载云端阅读进度
       const progress = await this.loadProgress();
@@ -229,6 +239,8 @@ Page({
 
     if (hasCachedContent) {
       this.saveProgress();
+      // 检查是否需要解锁后续章节
+      this.checkUnlockStatus();
       return;
     }
 
@@ -278,6 +290,8 @@ Page({
       });
 
       this.saveProgress();
+      // 检查是否需要解锁后续章节
+      this.checkUnlockStatus();
     } catch (error) {
       console.error(`加载章节内容失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, error);
       
@@ -659,18 +673,9 @@ Page({
       // 云端书籍保存到 reading_progress 集合
       const db = wx.cloud.database();
       const _ = db.command;
-      
-      // 获取用户 openid
-      let openid = wx.getStorageSync('userOpenid');
-      if (!openid) {
-        const res = await wx.cloud.callFunction({ name: 'login' });
-        openid = res.result.openid;
-        wx.setStorageSync('userOpenid', openid);
-      }
 
-      // 准备阅读进度数据
+      // 准备阅读进度数据（不包含 _openid，让云数据库自动添加）
       const progressData = {
-        _openid: openid,
         novelId: this.data.bookId,
         chapterIndex: this.data.currentChapterIndex,
         chapterTitle: this.data.chapterTitle,
@@ -678,10 +683,10 @@ Page({
         updateTime: new Date().getTime()
       };
 
-      // 查询是否已有该书的进度记录
+      // 使用 where 查询当前用户的进度记录
+      // 注意：where 条件中的 _openid 会自动匹配当前用户
       const existResult = await db.collection('reading_progress')
         .where({
-          _openid: openid,
           novelId: this.data.bookId
         })
         .get();
@@ -699,7 +704,7 @@ Page({
             }
           });
       } else {
-        // 创建新记录
+        // 创建新记录（_openid 由云数据库自动添加）
         await db.collection('reading_progress')
           .add({
             data: progressData
@@ -720,17 +725,11 @@ Page({
       if (!this.data.isCloud) return null;
 
       const db = wx.cloud.database();
-      let openid = wx.getStorageSync('userOpenid');
-      if (!openid) {
-        const res = await wx.cloud.callFunction({ name: 'login' });
-        openid = res.result.openid;
-        wx.setStorageSync('userOpenid', openid);
-      }
 
       // 从 reading_progress 集合读取阅读进度
+      // 云数据库会自动过滤当前用户的 _openid
       const result = await db.collection('reading_progress')
         .where({
-          _openid: openid,
           novelId: this.data.bookId
         })
         .get();
@@ -1026,16 +1025,147 @@ Page({
       showMenu: false
     });
 
-    // 根据来源选择加载方式
-    if (this.data.isCloud) {
-      this.loadChapter(bookmark.chapterIndex);
-    } else {
-      this.loadCurrentChapter();
+    this.loadChapter(bookmark.chapterIndex);
+  },
+
+  /**
+   * 检查是否有未完成的解析任务
+   */
+  checkIncompleteParsingStatus() {
+    // 已废弃，改用 checkUnlockStatus
+  },
+
+  /**
+   * 加载解析记录
+   */
+  loadParseRecord() {
+    try {
+      const parseRecord = wx.getStorageSync(`parse_record_${this.data.bookId}`);
+      if (parseRecord) {
+        this.setData({ parseRecord });
+        console.log('📚 解析记录:', parseRecord);
+      }
+    } catch (error) {
+      console.error('加载解析记录失败:', error);
+    }
+  },
+
+  /**
+   * 检查是否需要解锁后续章节
+   */
+  checkUnlockStatus() {
+    const { currentChapterIndex, totalChapters, parseRecord, unlockThreshold } = this.data;
+    
+    if (!parseRecord || parseRecord.completed) {
+      // 没有记录或已全部解析完成
+      this.setData({ needUnlock: false });
+      return;
     }
 
-    wx.showToast({
-      title: `已跳转到书签：${bookmark.chapterTitle}`,
-      icon: 'success'
+    const lastParsedChapter = parseRecord.lastParsedChapter || 0;
+    
+    // 判断：当前阅读位置接近已解析章节末尾
+    const needUnlock = (currentChapterIndex >= lastParsedChapter - unlockThreshold) 
+                       && (lastParsedChapter < parseRecord.totalChapters);
+
+    this.setData({ needUnlock });
+
+    // 如果需要解锁且是第一次提示，显示 Toast
+    if (needUnlock && !this.unlockToastShown) {
+      this.unlockToastShown = true;
+      wx.showToast({
+        title: '即将看完，可解锁后续章节',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  },
+
+  /**
+   * 继续解析剩余章节（按需加载 50 章）
+   */
+  async continueParsingChapters() {
+    const { parseRecord } = this.data;
+    
+    if (!parseRecord) {
+      wx.showToast({ title: '无解析记录', icon: 'none' });
+      return;
+    }
+
+    const { lastParsedChapter, totalChapters } = parseRecord;
+    const remainingChapters = totalChapters - lastParsedChapter;
+
+    wx.showModal({
+      title: '解锁后续章节',
+      content: `当前已解析 ${lastParsedChapter} 章\n还有 ${remainingChapters} 章待解析\n\n本次将解析 ${Math.min(30, remainingChapters)} 章`,
+      confirmText: '立即解锁',
+      cancelText: '暂不解锁',
+      success: async (res) => {
+        if (!res.confirm) return;
+
+        wx.showLoading({ title: '解析中...' });
+
+        try {
+          const db = wx.cloud.database();
+          const bookResult = await db.collection('novels').doc(this.data.bookId).get();
+          
+          if (!bookResult.data) throw new Error('找不到书籍信息');
+
+          const book = bookResult.data;
+          const chunkSize = 30;  // 每次解锁 30 章（更安全）
+          const chunkStart = lastParsedChapter;
+
+          const { result } = await wx.cloud.callFunction({
+            name: 'parseNovel',
+            data: {
+              fileID: book.fileID,
+              format: book.format,
+              novelId: this.data.bookId,
+              chunkStart,
+              chunkSize
+            },
+            config: { timeout: 20000 }
+          });
+
+          if (!result || !result.success) throw new Error(result?.message || '解析失败');
+
+          const newLastParsedChapter = Math.min(chunkStart + chunkSize, totalChapters);
+          const isCompleted = !result.hasMore || newLastParsedChapter >= totalChapters;
+
+          const updatedRecord = {
+            ...parseRecord,
+            lastParsedChapter: newLastParsedChapter,
+            parsedRanges: [
+              ...(parseRecord.parsedRanges || []),
+              { start: chunkStart, end: newLastParsedChapter }
+            ],
+            completed: isCompleted,
+            timestamp: Date.now()
+          };
+
+          wx.setStorageSync(`parse_record_${this.data.bookId}`, updatedRecord);
+          wx.hideLoading();
+
+          const parsedCount = result.savedCount || (newLastParsedChapter - chunkStart);
+          wx.showModal({
+            title: '解锁完成',
+            content: isCompleted 
+              ? `成功解析 ${parsedCount} 章\n全书已全部解析完成！`
+              : `成功解析 ${parsedCount} 章\n当前进度：${newLastParsedChapter}/${totalChapters}`,
+            showCancel: false,
+            success: () => this.loadCloudBook()
+          });
+
+        } catch (error) {
+          wx.hideLoading();
+          console.error('继续解析失败:', error);
+          wx.showModal({
+            title: '解析失败',
+            content: error.message || '网络错误，请稍后重试',
+            showCancel: false
+          });
+        }
+      }
     });
   },
 

@@ -281,6 +281,85 @@
   background: #2a2a2a;
 }
 
+/* 未完成解析提示 */
+.incomplete-parse-hint {
+  padding: 20rpx 40rpx;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.incomplete-parse-hint .hint-text {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 26rpx;
+}
+
+.incomplete-parse-hint .icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.incomplete-parse-hint .continue-parse-btn {
+  background: white;
+  color: #ff6b6b;
+  padding: 12rpx 28rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+}
+
+.incomplete-parse-hint .continue-parse-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+/* 章节末尾解锁提示 */
+.unlock-hint {
+  margin-top: 60rpx;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  border-radius: 20rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 24rpx rgba(250, 112, 154, 0.3);
+}
+
+.unlock-icon {
+  font-size: 64rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.unlock-text {
+  font-size: 28rpx;
+  color: #fff;
+  display: block;
+  margin-bottom: 30rpx;
+  font-weight: 500;
+}
+
+.unlock-btn {
+  background: white;
+  color: #fa709a;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  display: inline-block;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.unlock-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+
 .progress-section {
   padding: 20rpx 40rpx 15rpx;
 }
