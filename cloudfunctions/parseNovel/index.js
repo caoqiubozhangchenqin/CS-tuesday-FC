@@ -13,28 +13,113 @@ const leadingWhitespacePattern = '[\\s\t\u3000\u00A0\uFEFF]*';
 const buildPattern = (body, flags = 'g') => new RegExp(`(?:^|\n)${leadingWhitespacePattern}(${body})`, flags);
 
 // 改进的章节识别模式 - 优先识别最常见的格式
-const chapterPatterns = [
-  // 最优先：单独的章节标记（第一章、第1章等）
-  buildPattern(`^第${numberPattern}[章节回](?![卷])`, 'gm'),
-  // 卷+章节组合格式
-  buildPattern(`第${numberPattern}卷\\s*第${numberPattern}[章节回]`, 'gm'),
-  // 独立的卷标记（但要确保后面没有紧跟章节）
-  buildPattern(`^第${numberPattern}卷(?!\\s*第)`, 'gm'),
-  // 带标题的章节
-  buildPattern(`第${numberPattern}[章节回]${separatorPattern}.{1,50}`, 'gm'),
-  // 纯数字章节（如：1、2、3 或 1. 2. 3.）
-  buildPattern(`^\\s*\\d+[.、]\\s*.{0,50}`, 'gm'),
-  // 中文数字章节（如：一、二、三）
-  buildPattern(`^[一二三四五六七八九十百千]+[、.]\\s*.{0,50}`, 'gm'),
-  // 序号+标题格式（如：1 疯狂年代、2 沉默的大多数）
-  buildPattern(`^\\d+\\s+[\\u4e00-\\u9fa5].{0,50}`, 'gm'),
-  // 英文格式
-  buildPattern('Chapter\\s*\\d+[^\\n]{0,50}', 'gi'),
-  buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi'),
-  // 纯标题格式（用于《三体》等书籍，如：疯狂年代、沉默的大多数）
-  // 特征：单独一行，长度在2-30字之间，不包含常见非标题词
-  buildPattern(`^[\\u4e00-\\u9fa5]{2,30}(?![\\u4e00-\\u9fa5]{10,})`, 'gm')
+const chapterPatternVariants = [
+  `第${numberPattern}[章节回]${separatorPattern}.{1,80}`,
+  `第${numberPattern}卷\\s*第${numberPattern}[章节回]${separatorPattern}.{0,80}`,
+  `第${numberPattern}卷(?!\\s*第)` ,
+  `${numberPattern}[.、）\\)]\\s*.{0,80}`,
+  `[一二三四五六七八九十百千万]+[.、）\\)]\\s*.{0,80}`,
+  `第${numberPattern}部${separatorPattern}.{1,80}`,
+  `(?:Chapter|CHAPTER)\\s*\\d+[^\\n]{0,80}`,
+  `Volume\\s*\\d+[^\\n]{0,80}`,
+  `[\\u4e00-\\u9fa5]{2,20}[：:——\-~\\s]{0,3}[\\u4e00-\\u9fa5]{0,40}`
 ];
+
+const combinedChapterPattern = buildPattern(`(?:${chapterPatternVariants.join('|')})`, 'gm');
+
+// 改进的章节识别模式 - 先尝试组合模式，再回退到更细粒度的模式
+const chapterPatterns = [
+  combinedChapterPattern,
+  buildPattern(`^第${numberPattern}[章节回](?![卷])`, 'gm'),
+  buildPattern(`第${numberPattern}卷\\s*第${numberPattern}[章节回]`, 'gm'),
+  buildPattern(`^第${numberPattern}卷(?!\\s*第)`, 'gm'),
+  buildPattern(`第${numberPattern}[章节回]${separatorPattern}.{1,50}`, 'gm'),
+  buildPattern(`^\\s*${numberPattern}[.、]\\s*.{0,50}`, 'gm'),
+  buildPattern('Chapter\\s*\\d+[^\\n]{0,50}', 'gi'),
+  buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi')
+];
+
+const normalizeChapterMatches = (content, matches) => {
+  const normalized = matches
+    .map(match => {
+      const rawText = (match[1] || match[0] || '').trim();
+      const prefixLength = match[0].length - (match[1] ? match[1].length : 0);
+      const index = (match.index || 0) + prefixLength;
+      return { index, text: rawText };
+    })
+    .filter(item => {
+      if (!item.text) {
+        return false;
+      }
+
+      const text = item.text;
+
+      if (text.includes('回合') || text.includes('回复') || text.includes('回答')) {
+        return false;
+      }
+
+      if (text.length < 2) {
+        return false;
+      }
+
+      if (/^[\u4e00-\u9fa5]{2,30}$/.test(text)) {
+        return true;
+      }
+
+      if (/^\d+$/.test(text) && text.length > 3) {
+        return false;
+      }
+
+      const punctuationRatio = (text.match(/[，。！？、；：""''（）《》【】]/g) || []).length / text.length;
+      if (punctuationRatio > 0.3) {
+        return false;
+      }
+
+      return true;
+    });
+
+  const seen = new Set();
+  const deduped = [];
+  for (const item of normalized) {
+    const key = `${item.index}-${item.text}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    deduped.push(item);
+  }
+
+  return deduped.sort((a, b) => a.index - b.index);
+};
+
+const findChapterMatches = (content) => {
+  let fallbackMatches = [];
+
+  for (let p = 0; p < chapterPatterns.length; p++) {
+    const pattern = chapterPatterns[p];
+    pattern.lastIndex = 0; // 防止跨调用状态污染
+    const matches = [...content.matchAll(pattern)];
+
+    console.log(`尝试模式 ${p + 1}/${chapterPatterns.length}: 找到 ${matches.length} 个匹配`);
+
+    if (!matches.length) {
+      continue;
+    }
+
+    const normalized = normalizeChapterMatches(content, matches);
+
+    if (normalized.length) {
+      console.log(`✅ 模式 ${p + 1} 单次扫描捕获 ${normalized.length} 个章节`);
+      return normalized;
+    }
+
+    if (normalized.length > fallbackMatches.length) {
+      fallbackMatches = normalized;
+    }
+  }
+
+  return fallbackMatches;
+};
 
 const detectEncodingByBOM = buffer => {
   if (buffer.length >= 2) {
@@ -157,70 +242,11 @@ async function parseTXT(fileID) {
     }
 
     const chapters = [];
-    let chapterMatches = [];
+    const chapterMatches = findChapterMatches(content);
 
-    // 尝试所有模式，记录匹配结果
-    for (let p = 0; p < chapterPatterns.length; p++) {
-      const pattern = chapterPatterns[p];
-      const matches = [...content.matchAll(pattern)];
-      
-      console.log(`尝试模式 ${p + 1}/${chapterPatterns.length}: 找到 ${matches.length} 个匹配`);
-      
-      if (!matches.length) {
-        continue;
-      }
-
-      const normalized = matches
-        .map(match => {
-          const matchedText = (match[1] || match[0] || '').trim();
-          const prefixLength = match[0].length - (match[1] ? match[1].length : 0);
-          const index = match.index + prefixLength;
-          return {
-            index,
-            text: matchedText
-          };
-        })
-        .filter(item => {
-          if (!item.text) {
-            return false;
-          }
-
-          // 改进过滤逻辑：只过滤明显的非章节内容
-          // 过滤包含"回合"、"回复"、"回答"的情况
-          if (item.text.includes('回合') || item.text.includes('回复') || item.text.includes('回答')) {
-            return false;
-          }
-
-          // 过滤过短的匹配（可能是误匹配）- 但保留中文短标题
-          if (item.text.length < 2) {
-            return false;
-          }
-
-          // 如果是纯中文且长度合理，可能是标题，保留
-          if (/^[\u4e00-\u9fa5]{2,30}$/.test(item.text)) {
-            return true;
-          }
-
-          // 过滤只包含数字且过长的匹配
-          if (/^\d+$/.test(item.text) && item.text.length > 3) {
-            return false;
-          }
-
-          // 过滤明显的非章节内容（包含过多标点符号）
-          const punctuationRatio = (item.text.match(/[，。！？、；：""''（）《》【】]/g) || []).length / item.text.length;
-          if (punctuationRatio > 0.3) {
-            return false;
-          }
-
-          return true;
-        });
-
-      if (normalized.length > 0) {
-        console.log(`✅ 模式 ${p + 1} 有效匹配: ${normalized.length} 个章节`);
-        console.log(`前3个章节示例:`, normalized.slice(0, 3).map(n => n.text));
-        chapterMatches = normalized;
-        break;
-      }
+    console.log(`章节识别匹配结果: ${chapterMatches.length} 个章节`);
+    if (chapterMatches.length) {
+      console.log('前3个章节示例:', chapterMatches.slice(0, 3).map(n => n.text));
     }
 
     if (chapterMatches.length) {
