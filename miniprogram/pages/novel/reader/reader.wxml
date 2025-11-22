@@ -80,15 +80,11 @@
       </view>
     </view>
 
-    <!-- 功能按钮 -->
+    <!-- 功能按钮（简化版：只保留常用功能）-->
     <view class="menu-actions">
       <view class="action-item" bindtap="showChapterList">
         <text class="action-icon">📑</text>
         <text class="action-label">目录</text>
-      </view>
-      <view class="action-item" bindtap="showJumpToPage">
-        <text class="action-icon">�</text>
-        <text class="action-label">跳转</text>
       </view>
       <view class="action-item" bindtap="decreaseFontSize">
         <text class="action-icon">A-</text>
@@ -97,14 +93,6 @@
       <view class="action-item" bindtap="increaseFontSize">
         <text class="action-icon">A+</text>
         <text class="action-label">放大</text>
-      </view>
-      <view class="action-item" bindtap="toggleTheme">
-        <text class="action-icon">🎨</text>
-        <text class="action-label">主题</text>
-      </view>
-      <view class="action-item" bindtap="backToShelf">
-        <text class="action-icon">📚</text>
-        <text class="action-label">书架</text>
       </view>
     </view>
   </view>
