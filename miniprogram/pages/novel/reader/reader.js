@@ -127,11 +127,11 @@ Page({
             novelId: this.data.bookId
           })
           .orderBy('chapterId', 'asc')
+          .limit(MAX_LIMIT)  // 先limit再skip
           .skip(skip)
-          .limit(MAX_LIMIT)
           .get();
 
-        console.log(`📖 分批加载章节 skip=${skip}, 获取到 ${result.data.length} 章`);
+        console.log(`📖 分批加载章节 skip=${skip}, limit=${MAX_LIMIT}, 获取到 ${result.data.length} 章`);
         allChapters = allChapters.concat(result.data);
         
         if (result.data.length < MAX_LIMIT) {

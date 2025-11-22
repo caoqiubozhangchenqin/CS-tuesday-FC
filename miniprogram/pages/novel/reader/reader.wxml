@@ -14,7 +14,7 @@
 
   <!-- 章节内容（滚动模式）-->
   <scroll-view 
-    class="content-scroll" 
+    class="content-scroll {{themeClass}}" 
     scroll-y="{{true}}"
     bindtap="toggleHeader"
     scroll-top="{{scrollTop}}"
@@ -24,7 +24,7 @@
     refresher-triggered="{{pullDownRefreshing}}"
     bindrefresherrefresh="onPullDownRefresh"
   >
-    <view class="content-container">
+    <view class="content-container {{themeClass}}">
       <!-- 第一章提示 -->
       <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">
         <text>📖 这是第一章</text>
