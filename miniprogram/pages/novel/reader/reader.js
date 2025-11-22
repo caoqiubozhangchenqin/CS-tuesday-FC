@@ -16,13 +16,15 @@ Page({
     showHeader: true,
     showMenu: false,
     showChapterDrawer: false,
-    showJumpModal: false,  // 跳转弹窗
-    jumpChapterNumber: '',  // 跳转章节号
     fontSize: 18,
     themeClass: 'theme-white',
     scrollTop: 0,
     lastScrollTop: 0,  // 记录滚动位置
-    pullDownRefreshing: false  // 下拉刷新状态
+    pullDownRefreshing: false,  // 下拉刷新状态
+    // 新增：书签功能
+    bookmarks: [],
+    showBookmarkModal: false,
+    bookmarkNote: ''
   },
 
   onLoad(options) {
@@ -48,6 +50,9 @@ Page({
 
     // 加载阅读设置
     this.loadReadSettings();
+    
+    // 加载书签
+    this.loadBookmarks();
     
     // 根据来源加载书籍
     if (this.data.isCloud) {
@@ -227,10 +232,13 @@ Page({
       return;
     }
 
-    this.fetchCloudChapterContent(chapterMeta, index);
+    // 添加重试机制
+    this.fetchCloudChapterContent(chapterMeta, index, 0);
   },
 
-  async fetchCloudChapterContent(chapterMeta, index) {
+  async fetchCloudChapterContent(chapterMeta, index, retryCount = 0) {
+    const maxRetries = 3;
+    
     try {
       const db = wx.cloud.database();
       let result;
@@ -256,6 +264,11 @@ Page({
       }
 
       const content = result.data.content || '';
+      
+      if (!content.trim()) {
+        throw new Error('章节内容为空');
+      }
+
       const chapterPath = `chapters[${index}].content`;
 
       this.setData({
@@ -266,12 +279,46 @@ Page({
 
       this.saveProgress();
     } catch (error) {
-      console.error('加载章节内容失败:', error);
-      this.setData({ isLoading: false });
-      wx.showToast({
-        title: '章节内容加载失败',
-        icon: 'none'
-      });
+      console.error(`加载章节内容失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, error);
+      
+      if (retryCount < maxRetries) {
+        // 延迟重试
+        setTimeout(() => {
+          this.fetchCloudChapterContent(chapterMeta, index, retryCount + 1);
+        }, 1000 * (retryCount + 1)); // 递增延迟
+        
+        wx.showToast({
+          title: `加载失败，正在重试 (${retryCount + 1}/${maxRetries})`,
+          icon: 'loading',
+          duration: 1000
+        });
+      } else {
+        this.setData({ isLoading: false });
+        
+        // 提供用户友好的错误提示
+        let errorMessage = '章节内容加载失败';
+        if (error.message.includes('网络')) {
+          errorMessage = '网络连接失败，请检查网络后重试';
+        } else if (error.message.includes('权限')) {
+          errorMessage = '权限不足，无法访问章节内容';
+        } else if (error.message.includes('缺失')) {
+          errorMessage = '章节数据不存在，可能已被删除';
+        }
+
+        wx.showModal({
+          title: '加载失败',
+          content: `${errorMessage}\n\n错误详情：${error.message}`,
+          confirmText: '重试',
+          cancelText: '返回',
+          success: (res) => {
+            if (res.confirm) {
+              this.fetchCloudChapterContent(chapterMeta, index, 0);
+            } else {
+              wx.navigateBack();
+            }
+          }
+        });
+      }
     }
   },
 
@@ -593,7 +640,7 @@ Page({
   },
 
   /**
-   * 保存阅读进度（云端）
+   * 保存阅读进度（统一保存到users集合）
    */
   async saveProgress() {
     try {
@@ -609,76 +656,92 @@ Page({
         return;
       }
 
-      // 云端书籍保存到数据库
+      // 云端书籍保存到users集合的阅读进度字段
       const db = wx.cloud.database();
       const _ = db.command;
       
       // 获取用户 openid
-      const openid = wx.getStorageSync('userOpenid');
+      let openid = wx.getStorageSync('userOpenid');
       if (!openid) {
         const res = await wx.cloud.callFunction({ name: 'login' });
-        wx.setStorageSync('userOpenid', res.result.openid);
+        openid = res.result.openid;
+        wx.setStorageSync('userOpenid', openid);
       }
 
-      // 保存或更新阅读进度
+      // 准备阅读进度数据
+      const progressKey = `readingProgress.${this.data.bookId}`;
       const progressData = {
-        novelId: this.data.bookId,
         chapterIndex: this.data.currentChapterIndex,
+        chapterTitle: this.data.chapterTitle,
         scrollTop: this.data.lastScrollTop,
-        updateTime: db.serverDate()
+        updateTime: new Date().getTime()
       };
 
-      // 查询是否已有记录
-      const existResult = await db.collection('reading_progress')
-        .where({
-          novelId: this.data.bookId,
-          _openid: openid
-        })
+      // 查询用户记录是否存在
+      const userResult = await db.collection('users')
+        .where({ _openid: openid })
         .get();
 
-      if (existResult.data.length > 0) {
-        // 更新记录
-        await db.collection('reading_progress')
-          .doc(existResult.data[0]._id)
+      if (userResult.data.length > 0) {
+        // 更新用户的阅读进度
+        await db.collection('users')
+          .doc(userResult.data[0]._id)
           .update({
-            data: progressData
+            data: {
+              [progressKey]: progressData
+            }
           });
       } else {
-        // 新增记录
-        await db.collection('reading_progress')
+        // 创建用户记录
+        await db.collection('users')
           .add({
-            data: progressData
+            data: {
+              _openid: openid,
+              readingProgress: {
+                [this.data.bookId]: progressData
+              },
+              createTime: db.serverDate()
+            }
           });
       }
 
-      console.log('阅读进度已保存到云端');
+      console.log('阅读进度已保存到users集合');
     } catch (error) {
       console.error('保存阅读进度失败:', error);
     }
   },
 
   /**
-   * 加载阅读进度（云端）
+   * 加载阅读进度（从users集合读取）
    */
   async loadProgress() {
     try {
       if (!this.data.isCloud) return null;
 
       const db = wx.cloud.database();
-      const openid = wx.getStorageSync('userOpenid');
-      if (!openid) return null;
+      let openid = wx.getStorageSync('userOpenid');
+      if (!openid) {
+        const res = await wx.cloud.callFunction({ name: 'login' });
+        openid = res.result.openid;
+        wx.setStorageSync('userOpenid', openid);
+      }
 
-      const result = await db.collection('reading_progress')
-        .where({
-          novelId: this.data.bookId,
-          _openid: openid
-        })
-        .orderBy('updateTime', 'desc')
-        .limit(1)
+      // 从users集合读取阅读进度
+      const result = await db.collection('users')
+        .where({ _openid: openid })
         .get();
 
       if (result.data.length > 0) {
-        return result.data[0];
+        const userData = result.data[0];
+        const readingProgress = userData.readingProgress || {};
+        const bookProgress = readingProgress[this.data.bookId];
+        
+        if (bookProgress) {
+          return {
+            chapterIndex: bookProgress.chapterIndex || 0,
+            scrollTop: bookProgress.scrollTop || 0
+          };
+        }
       }
       return null;
     } catch (error) {
@@ -754,80 +817,6 @@ Page({
   },
 
   /**
-   * 显示跳转弹窗
-   */
-  showJumpToPage() {
-    this.setData({
-      showJumpModal: true,
-      jumpChapterNumber: (this.data.currentChapterIndex + 1).toString(),
-      showMenu: false
-    });
-  },
-
-  /**
-   * 关闭跳转弹窗
-   */
-  closeJumpModal() {
-    this.setData({
-      showJumpModal: false,
-      jumpChapterNumber: ''
-    });
-  },
-
-  /**
-   * 输入章节号
-   */
-  onJumpInputChange(e) {
-    this.setData({
-      jumpChapterNumber: e.detail.value
-    });
-  },
-
-  /**
-   * 确认跳转
-   */
-  confirmJump() {
-    const chapterNum = parseInt(this.data.jumpChapterNumber);
-    
-    if (isNaN(chapterNum)) {
-      wx.showToast({
-        title: '请输入有效数字',
-        icon: 'none'
-      });
-      return;
-    }
-
-    if (chapterNum < 1 || chapterNum > this.data.totalChapters) {
-      wx.showToast({
-        title: `请输入1-${this.data.totalChapters}之间的数字`,
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 跳转到指定章节
-    const targetIndex = chapterNum - 1;
-    this.setData({
-      currentChapterIndex: targetIndex,
-      showJumpModal: false,
-      jumpChapterNumber: '',
-      scrollTop: 0
-    });
-
-    // 根据来源选择加载方式
-    if (this.data.isCloud) {
-      this.loadChapter(targetIndex);
-    } else {
-      this.loadCurrentChapter();
-    }
-
-    wx.showToast({
-      title: `已跳转到第${chapterNum}章`,
-      icon: 'success'
-    });
-  },
-
-  /**
    * 返回书架
    */
   backToShelf() {
@@ -841,9 +830,225 @@ Page({
   },
 
   /**
-   * 返回
+   * 显示搜索弹窗
    */
-  goBack() {
-    wx.navigateBack();
+  showSearchModal() {
+    this.setData({
+      showSearchModal: true,
+      searchKeyword: '',
+      searchResults: [],
+      showMenu: false
+    });
+  },
+
+  /**
+   * 关闭搜索弹窗
+   */
+  closeSearchModal() {
+    this.setData({
+      showSearchModal: false,
+      searchKeyword: '',
+      searchResults: []
+    });
+  },
+
+  /**
+   * 搜索输入
+   */
+  onSearchInput(e) {
+    this.setData({
+      searchKeyword: e.detail.value
+    });
+  },
+
+  /**
+   * 执行搜索
+   */
+  performSearch() {
+    const keyword = this.data.searchKeyword.trim();
+    if (!keyword) {
+      wx.showToast({
+        title: '请输入搜索关键词',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const results = [];
+    this.data.chapters.forEach((chapter, index) => {
+      if (chapter.title && chapter.title.includes(keyword)) {
+        results.push({
+          index,
+          title: chapter.title,
+          snippet: chapter.title
+        });
+      }
+    });
+
+    this.setData({
+      searchResults: results
+    });
+
+    if (results.length === 0) {
+      wx.showToast({
+        title: '未找到相关章节',
+        icon: 'none'
+      });
+    }
+  },
+
+  /**
+   * 跳转到搜索结果章节
+   */
+  jumpToSearchResult(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    this.setData({
+      currentChapterIndex: index,
+      showSearchModal: false,
+      searchKeyword: '',
+      searchResults: [],
+      scrollTop: 0
+    });
+
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(index);
+    } else {
+      this.loadCurrentChapter();
+    }
+
+    wx.showToast({
+      title: `已跳转到第${index + 1}章`,
+      icon: 'success'
+    });
+  },
+
+  /**
+   * 添加书签
+   */
+  addBookmark() {
+    this.setData({
+      showBookmarkModal: true,
+      bookmarkNote: '',
+      showMenu: false
+    });
+  },
+
+  /**
+   * 关闭书签弹窗
+   */
+  closeBookmarkModal() {
+    this.setData({
+      showBookmarkModal: false,
+      bookmarkNote: ''
+    });
+  },
+
+  /**
+   * 书签备注输入
+   */
+  onBookmarkInput(e) {
+    this.setData({
+      bookmarkNote: e.detail.value
+    });
+  },
+
+  /**
+   * 保存书签
+   */
+  saveBookmark() {
+    const bookmark = {
+      chapterIndex: this.data.currentChapterIndex,
+      chapterTitle: this.data.chapterTitle,
+      note: this.data.bookmarkNote.trim(),
+      scrollTop: this.data.lastScrollTop,
+      createTime: new Date().getTime()
+    };
+
+    const bookmarks = [...this.data.bookmarks, bookmark];
+    
+    // 限制书签数量
+    if (bookmarks.length > 50) {
+      bookmarks.shift(); // 移除最旧的书签
+    }
+
+    this.setData({
+      bookmarks,
+      showBookmarkModal: false,
+      bookmarkNote: ''
+    });
+
+    // 保存到本地存储
+    try {
+      wx.setStorageSync(`bookmarks_${this.data.bookId}`, bookmarks);
+    } catch (error) {
+      console.error('保存书签失败:', error);
+    }
+
+    wx.showToast({
+      title: '书签已保存',
+      icon: 'success'
+    });
+  },
+
+  /**
+   * 删除书签
+   */
+  deleteBookmark(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    const bookmarks = [...this.data.bookmarks];
+    bookmarks.splice(index, 1);
+
+    this.setData({ bookmarks });
+
+    // 保存到本地存储
+    try {
+      wx.setStorageSync(`bookmarks_${this.data.bookId}`, bookmarks);
+    } catch (error) {
+      console.error('删除书签失败:', error);
+    }
+
+    wx.showToast({
+      title: '书签已删除',
+      icon: 'success'
+    });
+  },
+
+  /**
+   * 跳转到书签
+   */
+  jumpToBookmark(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    const bookmark = this.data.bookmarks[index];
+    
+    this.setData({
+      currentChapterIndex: bookmark.chapterIndex,
+      scrollTop: bookmark.scrollTop,
+      showMenu: false
+    });
+
+    // 根据来源选择加载方式
+    if (this.data.isCloud) {
+      this.loadChapter(bookmark.chapterIndex);
+    } else {
+      this.loadCurrentChapter();
+    }
+
+    wx.showToast({
+      title: `已跳转到书签：${bookmark.chapterTitle}`,
+      icon: 'success'
+    });
+  },
+
+  /**
+   * 加载书签
+   */
+  loadBookmarks() {
+    try {
+      const bookmarks = wx.getStorageSync(`bookmarks_${this.data.bookId}`) || [];
+      this.setData({ bookmarks });
+    } catch (error) {
+      console.error('加载书签失败:', error);
+    }
   }
 });

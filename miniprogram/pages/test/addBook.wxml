@@ -1,0 +1,33 @@
+<!-- 临时测试页面：添加《我 中国队长》到书架 -->
+<view class="container">
+  <view class="header">
+    <text class="title">📚 添加书籍到书架</text>
+  </view>
+
+  <view class="book-info">
+    <view class="info-item">
+      <text class="label">书名：</text>
+      <text class="value">我 中国队长</text>
+    </view>
+    <view class="info-item">
+      <text class="label">文件ID：</text>
+      <text class="value small">cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/小说/我 中国队长.txt</text>
+    </view>
+    <view class="info-item">
+      <text class="label">大小：</text>
+      <text class="value">> 10 MB</text>
+    </view>
+    <view class="info-item">
+      <text class="label">格式：</text>
+      <text class="value">TXT</text>
+    </view>
+  </view>
+
+  <button class="add-btn" bindtap="addBook" loading="{{loading}}">
+    {{loading ? '添加中...' : '添加到书架'}}
+  </button>
+
+  <view class="tip">
+    <text>💡 提示：点击按钮后会自动调用云函数将书籍添加到数据库</text>
+  </view>
+</view>

@@ -1,0 +1,9 @@
+{
+  "name": "addBookToShelf",
+  "version": "1.0.0",
+  "description": "添加书籍到书架",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

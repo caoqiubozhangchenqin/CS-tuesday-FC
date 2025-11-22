@@ -7,20 +7,23 @@ cloud.init({
 });
 
 const numberPattern = '[零〇一二三四五六七八九十百千万0-9]+';
-const suffixPattern = '(章|节|卷|回)';
+const suffixPattern = '(章|节|回|卷|集|部|篇|话)';
 const separatorPattern = '[\\s、:：—·•　-]{1,3}';
 const leadingWhitespacePattern = '[\\s\t\u3000\u00A0\uFEFF]*';
 const buildPattern = (body, flags = 'g') => new RegExp(`(?:^|\n)${leadingWhitespacePattern}(${body})`, flags);
 
+// 改进的章节识别模式 - 优先识别最常见的格式
 const chapterPatterns = [
-  // 格式：第XXX卷 第XXX章/节/回 标题
-  buildPattern(`第${numberPattern}卷\\s*第${numberPattern}${suffixPattern}(?:${separatorPattern}.{0,50})?`),
-  // 格式：第XXX卷 标题
-  buildPattern(`第${numberPattern}卷(?:${separatorPattern}.{0,50})?`),
-  // 格式：第XXX章/节/回 标题
-  buildPattern(`第${numberPattern}${suffixPattern}(?:${separatorPattern}.{0,50})?`),
-  // 格式：第XXX：标题（无章/节字样）
-  buildPattern(`第${numberPattern}[：:].{0,50}`),
+  // 最优先：单独的章节标记（第一章、第1章等）
+  buildPattern(`^第${numberPattern}[章节回](?![卷])`, 'gm'),
+  // 卷+章节组合格式
+  buildPattern(`第${numberPattern}卷\\s*第${numberPattern}[章节回]`, 'gm'),
+  // 独立的卷标记（但要确保后面没有紧跟章节）
+  buildPattern(`^第${numberPattern}卷(?!\\s*第)`, 'gm'),
+  // 带标题的章节
+  buildPattern(`第${numberPattern}[章节回]${separatorPattern}.{1,50}`, 'gm'),
+  // 数字开头格式
+  buildPattern(`^\\s*${numberPattern}[.、]\\s*.{0,50}`, 'gm'),
   // 英文格式
   buildPattern('Chapter\\s*\\d+[^\\n]{0,50}', 'gi'),
   buildPattern('Volume\\s*\\d+[^\\n]{0,50}', 'gi')
@@ -69,7 +72,7 @@ const sanitizeContent = buffer => {
 
   // 如果 BOM 未检出或解码失败，则尝试多种编码评分
   if (!bestContent) {
-    const encodings = ['utf8', 'utf16le', 'utf16be', 'gb18030', 'gbk', 'gb2312', 'big5'];
+    const encodings = ['utf8', 'utf16le', 'utf16be', 'gb18030', 'gbk', 'gb2312', 'big5', 'shift_jis', 'euc-kr'];
     let maxScore = -Infinity;
 
     for (const encoding of encodings) {
@@ -78,12 +81,27 @@ const sanitizeContent = buffer => {
           ? buffer.toString('utf8')
           : iconv.decode(buffer, encoding);
 
+        // 改进的评分算法
         const chineseChars = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
+        const japaneseChars = (content.match(/[\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+        const koreanChars = (content.match(/[\uac00-\ud7af]/g) || []).length;
+        const englishChars = (content.match(/[a-zA-Z]/g) || []).length;
+        const numbers = (content.match(/[0-9]/g) || []).length;
+        const punctuation = (content.match(/[,.!?;:'"()[\]{}]/g) || []).length;
         const invalidChars = (content.match(/�/g) || []).length;
-        const printable = (content.match(/[\u0020-\u007e\u3000-\u303f\u4e00-\u9fa5]/g) || []).length;
-        const score = chineseChars * 3 + printable - invalidChars * 12;
+        const controlChars = (content.match(/[\x00-\x1F\x7F-\x9F]/g) || []).length;
+        
+        // 计算可读字符比例
+        const totalChars = content.length;
+        const readableChars = chineseChars + japaneseChars + koreanChars + englishChars + numbers + punctuation;
+        const readability = totalChars > 0 ? readableChars / totalChars : 0;
+        
+        // 综合评分
+        const score = chineseChars * 3 + japaneseChars * 2 + koreanChars * 2 + 
+                     englishChars * 1 + numbers * 1 + punctuation * 0.5 + 
+                     readability * 100 - invalidChars * 20 - controlChars * 5;
 
-        console.log(`尝试 ${encoding} 编码: 中文=${chineseChars}, 乱码=${invalidChars}, 可读字符=${printable}, 得分=${score}`);
+        console.log(`尝试 ${encoding} 编码: 中文=${chineseChars}, 日文=${japaneseChars}, 韩文=${koreanChars}, 英文=${englishChars}, 数字=${numbers}, 标点=${punctuation}, 乱码=${invalidChars}, 控制=${controlChars}, 可读性=${(readability * 100).toFixed(1)}%, 得分=${score.toFixed(1)}`);
 
         if (score > maxScore) {
           maxScore = score;
@@ -101,13 +119,18 @@ const sanitizeContent = buffer => {
     bestContent = buffer.toString('utf8');
   }
 
+  // 改进的文本清洗
   return bestContent
-    .replace(/\uFEFF/g, '')
-    .replace(/\r\n/g, '\n')
+    .replace(/\uFEFF/g, '')  // 移除 BOM
+    .replace(/\r\n/g, '\n')  // 统一换行符
     .replace(/\r/g, '\n')
-    .replace(/\t/g, '  ')
-    .replace(/[ ]{2,}/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\t/g, '  ')   // 制表符转空格
+    .replace(/[\u2000-\u200F\u2028-\u202F\u205F-\u206F]/g, ' ') // 特殊空白字符转普通空格
+    .replace(/[ ]{2,}/g, ' ')  // 多个空格合并
+    .replace(/\n{4,}/g, '\n\n\n')  // 过多换行合并
+    .replace(/^\s+|\s+$/gm, '')   // 移除行首尾空白
+    .replace(/^\s*$/gm, '')       // 移除空行
+    .replace(/\n\s*\n/g, '\n\n')  // 清理多余空行
     .trim();
 };
 
@@ -129,8 +152,13 @@ async function parseTXT(fileID) {
     const chapters = [];
     let chapterMatches = [];
 
-    for (const pattern of chapterPatterns) {
+    // 尝试所有模式，记录匹配结果
+    for (let p = 0; p < chapterPatterns.length; p++) {
+      const pattern = chapterPatterns[p];
       const matches = [...content.matchAll(pattern)];
+      
+      console.log(`尝试模式 ${p + 1}/${chapterPatterns.length}: 找到 ${matches.length} 个匹配`);
+      
       if (!matches.length) {
         continue;
       }
@@ -150,17 +178,28 @@ async function parseTXT(fileID) {
             return false;
           }
 
-          if (item.text.includes('回')) {
-            const nextChar = content[item.index + item.text.length] || '';
-            if (nextChar === '合') {
-              return false;
-            }
+          // 改进过滤逻辑：只过滤明显的非章节内容
+          // 过滤包含"回合"的情况
+          if (item.text.includes('回合')) {
+            return false;
+          }
+
+          // 过滤过短的匹配（可能是误匹配）
+          if (item.text.length < 2) {
+            return false;
+          }
+
+          // 过滤只包含数字的匹配（除非是纯数字章节号）
+          if (/^\d+$/.test(item.text) && item.text.length > 3) {
+            return false;
           }
 
           return true;
         });
 
-      if (normalized.length) {
+      if (normalized.length > 0) {
+        console.log(`✅ 模式 ${p + 1} 有效匹配: ${normalized.length} 个章节`);
+        console.log(`前3个章节示例:`, normalized.slice(0, 3).map(n => n.text));
         chapterMatches = normalized;
         break;
       }
@@ -170,21 +209,47 @@ async function parseTXT(fileID) {
       // 限制单章内容长度（避免写入超限）
       const maxChapterContentLength = 80 * 1024; // 80KB
       
+      // 对章节进行排序，确保按在文本中的出现顺序
+      chapterMatches.sort((a, b) => a.index - b.index);
+      
       for (let i = 0; i < chapterMatches.length; i++) {
         const match = chapterMatches[i];
         let title = match.text;
 
-        title = title.replace(/\s+/g, ' ').trim();
+        // 智能提取标题：去除多余的标点和空格
+        title = title
+          .replace(/^[第章节节回卷集部篇话\s\d零〇一二三四五六七八九十百千万]+/g, '') // 去除章节前缀
+          .replace(/^[.、:：—·•\s-]+/g, '') // 去除分隔符
+          .replace(/[.、:：—·•\s-]+$/g, '') // 去除末尾分隔符
+          .trim();
+
+        // 如果标题为空，使用默认格式
+        if (!title) {
+          title = `第${i + 1}章`;
+        }
+
+        // 限制标题长度
+        if (title.length > 100) {
+          title = title.substring(0, 100) + '...';
+        }
 
         const titleStartIndex = match.index;
         const nextLineBreak = content.indexOf('\n', titleStartIndex);
         const safeEnd = nextLineBreak === -1 ? content.length : nextLineBreak;
-        const titleEndIndex = Math.min(safeEnd, titleStartIndex + 100);
+        const titleEndIndex = Math.min(safeEnd, titleStartIndex + 200); // 扩大搜索范围
 
+        // 尝试在标题行中找到更完整的标题
         if (titleEndIndex > titleStartIndex) {
-          const fullTitle = content.substring(titleStartIndex, titleEndIndex).trim();
-          if (fullTitle.length > title.length && fullTitle.length <= 100) {
-            title = fullTitle;
+          const fullTitleLine = content.substring(titleStartIndex, titleEndIndex).trim();
+          // 如果整行更长且包含中文，可能是更完整的标题
+          if (fullTitleLine.length > title.length && /[\u4e00-\u9fa5]/.test(fullTitleLine)) {
+            const cleanTitle = fullTitleLine
+              .replace(/^[第章节节回卷集部篇话\s\d零〇一二三四五六七八九十百千万.、:：—·•-]+/g, '')
+              .replace(/[.、:：—·•\s-]+$/g, '')
+              .trim();
+            if (cleanTitle && cleanTitle.length <= 100) {
+              title = cleanTitle;
+            }
           }
         }
 
@@ -194,9 +259,24 @@ async function parseTXT(fileID) {
           : content.length;
         let chapterContent = content.substring(startIndex, endIndex).trim();
         
+        // 移除章节标题行（避免重复显示）
+        const firstLineBreak = chapterContent.indexOf('\n');
+        if (firstLineBreak !== -1) {
+          const firstLine = chapterContent.substring(0, firstLineBreak).trim();
+          // 如果第一行看起来像标题，则移除
+          if (firstLine.includes(title) || title.includes(firstLine) || firstLine.length < 50) {
+            chapterContent = chapterContent.substring(firstLineBreak + 1).trim();
+          }
+        }
+        
         // 截断超长章节
         if (chapterContent.length > maxChapterContentLength) {
           chapterContent = chapterContent.substring(0, maxChapterContentLength) + '\n\n（本章内容过长，已截断）';
+        }
+
+        // 跳过空章节
+        if (chapterContent.length < 10) {
+          continue;
         }
 
         chapters.push({
@@ -207,14 +287,31 @@ async function parseTXT(fileID) {
         });
       }
     } else {
-      // fallback 按段落分章（同样限制长度）
-      const paragraphs = content.split(/\n\s*\n+/);
-      const chunkSize = Math.ceil(paragraphs.length / 100) || 1;
+      // fallback 按段落分章（改进版：智能分段）
+      const paragraphs = content.split(/\n\s*\n+/).filter(p => p.trim().length > 0);
+      
+      if (paragraphs.length === 0) {
+        throw new Error('文件内容为空或无法解析');
+      }
+
+      // 根据内容长度动态调整分章策略
+      let chunkSize;
+      if (paragraphs.length <= 50) {
+        // 短文，按每5段分章
+        chunkSize = 5;
+      } else if (paragraphs.length <= 200) {
+        // 中等长度，按每10段分章
+        chunkSize = 10;
+      } else {
+        // 长文，按每20段分章
+        chunkSize = 20;
+      }
+
       const maxChapterContentLength = 80 * 1024; // 80KB
 
-      for (let i = 0; i < Math.min(100, paragraphs.length); i++) {
-        const start = i * chunkSize;
-        const end = Math.min((i + 1) * chunkSize, paragraphs.length);
+      for (let i = 0; i < Math.min(100, paragraphs.length); i += chunkSize) {
+        const start = i;
+        const end = Math.min(i + chunkSize, paragraphs.length);
         let chapterContent = paragraphs.slice(start, end).join('\n\n').trim();
         
         // 截断超长章节
@@ -222,12 +319,24 @@ async function parseTXT(fileID) {
           chapterContent = chapterContent.substring(0, maxChapterContentLength) + '\n\n（本章内容过长，已截断）';
         }
 
+        // 生成智能标题
+        let title;
+        const firstPara = paragraphs[start].trim();
+        
+        if (firstPara.length < 30 && /[\u4e00-\u9fa5]/.test(firstPara)) {
+          // 如果第一段较短且包含中文，可能是标题
+          title = firstPara;
+        } else {
+          // 使用默认标题
+          title = `第${Math.floor(i / chunkSize) + 1}章`;
+        }
+
         if (chapterContent.length > 0) {
           chapters.push({
-            id: i,
-            title: `第${i + 1}章`,
+            id: Math.floor(i / chunkSize),
+            title,
             content: chapterContent,
-            link: `chapter_${i}`
+            link: `chapter_${Math.floor(i / chunkSize)}`
           });
         }
       }
@@ -381,14 +490,29 @@ async function parseEPUB(fileID) {
 exports.main = async (event, context) => {
   const { fileID, format, novelId } = event;
 
-  console.log('解析文件:', fileID, format, novelId);
+  console.log('解析文件:', { fileID, format, novelId });
+
+  // 参数验证
+  if (!fileID || !format || !novelId) {
+    return {
+      success: false,
+      message: '参数不完整：缺少 fileID、format 或 novelId'
+    };
+  }
+
+  if (!['TXT', 'EPUB'].includes(format.toUpperCase())) {
+    return {
+      success: false,
+      message: '不支持的文件格式，仅支持 TXT 和 EPUB'
+    };
+  }
 
   try {
     let result;
 
-    if (format === 'TXT') {
+    if (format.toUpperCase() === 'TXT') {
       result = await parseTXT(fileID);
-    } else if (format === 'EPUB') {
+    } else if (format.toUpperCase() === 'EPUB') {
       result = await parseEPUB(fileID);
     } else {
       return {
@@ -415,7 +539,9 @@ exports.main = async (event, context) => {
     // 批量保存到数据库（每次最多10条，单章最大100KB）
     const batchSize = 10;
     const maxChapterSize = 100 * 1024; // 100KB
-    
+    let savedCount = 0;
+    let failedCount = 0;
+
     for (let i = 0; i < chaptersToSave.length; i += batchSize) {
       const batch = chaptersToSave.slice(i, i + batchSize);
       
@@ -436,8 +562,12 @@ exports.main = async (event, context) => {
             link: chapter.link,
             createTime: db.serverDate()
           }
+        }).then(() => {
+          savedCount++;
+          return { success: true };
         }).catch(err => {
           console.error(`保存章节 ${chapter.id} 失败:`, err);
+          failedCount++;
           return { success: false, error: err };
         });
       });
@@ -446,20 +576,48 @@ exports.main = async (event, context) => {
       console.log(`已保存章节 ${i + 1} - ${Math.min(i + batchSize, chaptersToSave.length)}`);
     }
 
+    // 返回详细的处理结果
+    const message = chaptersToSave.length < chapters.length 
+      ? `已保存前 ${maxChapters} 章（共 ${chapters.length} 章）` 
+      : `成功保存所有 ${chaptersToSave.length} 章`;
+
+    if (failedCount > 0) {
+      return {
+        success: true,
+        chapterCount: savedCount,
+        message: `${message}，但有 ${failedCount} 章保存失败`,
+        warning: `部分章节保存失败，请重试或联系管理员`
+      };
+    }
+
     // 🎯 只返回元数据，不返回章节内容
     return {
       success: true,
-      chapterCount: chaptersToSave.length,
-      message: chaptersToSave.length < chapters.length 
-        ? `已保存前 ${maxChapters} 章` 
-        : '所有章节已保存'
+      chapterCount: savedCount,
+      message: message
     };
 
   } catch (error) {
     console.error('解析失败:', error);
+    
+    // 详细的错误分类
+    let errorMessage = '解析失败';
+    if (error.message.includes('文件下载失败')) {
+      errorMessage = '文件下载失败，请检查文件是否存在或网络连接';
+    } else if (error.message.includes('文件内容为空')) {
+      errorMessage = '文件内容为空，请检查文件是否损坏';
+    } else if (error.message.includes('无效的EPUB文件')) {
+      errorMessage = 'EPUB文件格式错误，请检查文件是否完整';
+    } else if (error.message.includes('编码')) {
+      errorMessage = '文件编码识别失败，建议使用UTF-8编码保存';
+    } else if (error.message.includes('数据库')) {
+      errorMessage = '数据保存失败，请重试或联系管理员';
+    }
+
     return {
       success: false,
-      message: error.message
+      message: errorMessage,
+      error: error.message
     };
   }
 };

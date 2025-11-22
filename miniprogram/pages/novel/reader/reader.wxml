@@ -77,11 +77,35 @@
       </view>
     </view>
 
+    <!-- 书签列表 -->
+    <view class="bookmarks-section" wx:if="{{bookmarks.length > 0}}">
+      <text class="section-title">📖 书签</text>
+      <scroll-view class="bookmarks-list" scroll-x="{{true}}">
+        <view 
+          wx:for="{{bookmarks}}" 
+          wx:key="createTime"
+          class="bookmark-item"
+          bindtap="jumpToBookmark"
+          data-index="{{index}}"
+        >
+          <text class="bookmark-title">{{item.chapterTitle}}</text>
+          <text class="bookmark-note" wx:if="{{item.note}}">{{item.note}}</text>
+          <view class="bookmark-delete" bindtap="deleteBookmark" data-index="{{index}}">
+            <text>✕</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
     <!-- 功能按钮 -->
     <view class="menu-actions">
       <view class="action-item" bindtap="showChapterList">
         <text class="action-icon">📑</text>
         <text class="action-label">目录</text>
+      </view>
+      <view class="action-item" bindtap="addBookmark">
+        <text class="action-icon">📖</text>
+        <text class="action-label">书签</text>
       </view>
       <view class="action-item" bindtap="decreaseFontSize">
         <text class="action-icon">A-</text>
@@ -107,47 +131,53 @@
         <text>✕</text>
       </view>
     </view>
+    <view class="drawer-count">
+      <text>共 {{totalChapters}} 章</text>
+    </view>
     <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
-      <view class="drawer-count">
-        <text>共 {{totalChapters}} 章 · 单屏显示 20 章</text>
-      </view>
-      <view class="chapter-grid">
+      <view class="chapter-list-container">
         <view 
           wx:for="{{chapters}}" 
-          wx:key="id"
+          wx:key="index"
           id="chapter-{{index}}"
-          class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
+          class="chapter-list-item {{index === currentChapterIndex ? 'active' : ''}}"
           bindtap="selectChapter"
           data-index="{{index}}"
         >
           <text class="chapter-number">{{index + 1}}</text>
           <text class="chapter-name">{{item.title}}</text>
+          <text class="chapter-arrow">›</text>
         </view>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 跳转页码弹窗 -->
-  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">
-    <view class="modal-mask" bindtap="closeJumpModal"></view>
+  <!-- 跳转页码弹窗（已移除）-->
+
+  <!-- 书签弹窗 -->
+  <view class="bookmark-modal {{showBookmarkModal ? 'show' : ''}}">
+    <view class="modal-mask" bindtap="closeBookmarkModal"></view>
     <view class="modal-content">
       <view class="modal-header">
-        <text class="modal-title">跳转到指定章节</text>
-        <view class="modal-close" bindtap="closeJumpModal">✕</view>
+        <text class="modal-title">📖 添加书签</text>
+        <view class="modal-close" bindtap="closeBookmarkModal">✕</view>
       </view>
       <view class="modal-body">
-        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>
-        <input 
-          class="chapter-input"
-          type="number"
-          value="{{jumpChapterNumber}}"
-          placeholder="请输入章节号"
-          bindinput="onJumpInputChange"
+        <view class="bookmark-info">
+          <text class="bookmark-chapter">{{chapterTitle}}</text>
+          <text class="bookmark-position">第{{currentChapterIndex + 1}}章</text>
+        </view>
+        <textarea 
+          class="bookmark-input"
+          value="{{bookmarkNote}}"
+          placeholder="添加备注（可选）"
+          bindinput="onBookmarkInput"
+          maxlength="200"
         />
       </view>
       <view class="modal-footer">
-        <view class="modal-btn cancel" bindtap="closeJumpModal">取消</view>
-        <view class="modal-btn confirm" bindtap="confirmJump">跳转</view>
+        <view class="modal-btn cancel" bindtap="closeBookmarkModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveBookmark">保存书签</view>
       </view>
     </view>
   </view>
