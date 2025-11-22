@@ -127,7 +127,15 @@ Page({
             novelId: this.data.bookId
           })
           .orderBy('chapterId', 'asc')
-          .limit(MAX_LIMIT)  // 先limit再skip
+          .field({
+            chapterId: true,
+            title: true,
+            _id: true,
+            novelId: true,
+            wordCount: true,
+            content: false
+          })
+          .limit(MAX_LIMIT)
           .skip(skip)
           .get();
 
@@ -198,7 +206,7 @@ Page({
    */
   loadChapter(index) {
     const chapters = this.data.chapters;
-    
+
     if (!chapters || !chapters[index]) {
       wx.showToast({
         title: '章节不存在',
@@ -206,19 +214,68 @@ Page({
       });
       return;
     }
+    const chapterMeta = chapters[index];
+    const hasCachedContent = !!chapterMeta.content;
 
-    const chapter = chapters[index];
-    
     this.setData({
       currentChapterIndex: index,
-      chapterTitle: chapter.title,
-      chapterContent: chapter.content,
-      isLoading: false,
+      chapterTitle: chapterMeta.title,
+      chapterContent: hasCachedContent ? chapterMeta.content : '',
+      isLoading: !hasCachedContent,
       scrollTop: 0
     });
 
-    // 保存阅读进度
-    this.saveProgress();
+    if (hasCachedContent) {
+      this.saveProgress();
+      return;
+    }
+
+    this.fetchCloudChapterContent(chapterMeta, index);
+  },
+
+  async fetchCloudChapterContent(chapterMeta, index) {
+    try {
+      const db = wx.cloud.database();
+      let result;
+
+      if (chapterMeta._id) {
+        result = await db.collection('novel_chapters')
+          .doc(chapterMeta._id)
+          .get();
+      } else {
+        const queryRes = await db.collection('novel_chapters')
+          .where({
+            novelId: this.data.bookId,
+            chapterId: chapterMeta.chapterId
+          })
+          .limit(1)
+          .get();
+
+        if (!queryRes.data.length) {
+          throw new Error('章节内容缺失');
+        }
+
+        result = { data: queryRes.data[0] };
+      }
+
+      const content = result.data.content || '';
+      const chapterPath = `chapters[${index}].content`;
+
+      this.setData({
+        chapterContent: content,
+        [chapterPath]: content,
+        isLoading: false
+      });
+
+      this.saveProgress();
+    } catch (error) {
+      console.error('加载章节内容失败:', error);
+      this.setData({ isLoading: false });
+      wx.showToast({
+        title: '章节内容加载失败',
+        icon: 'none'
+      });
+    }
   },
 
   /**
