@@ -1,450 +1,144 @@
-<!-- pages/novel/reader/reader.wxml --><!-- pages/novel/reader/reader.wxml --><!-- pages/novel/reader/reader.wxml -->
-
+<!-- pages/novel/reader/reader.wxml -->
 <view class="container {{themeClass}}">
-
-  <!-- 左侧悬浮菜单按钮 --><view class="container {{themeClass}}"><view class="c      <!-- 章节底部提示 - 使用菜单切换章节 -->
-
+  <!-- 左侧悬浮菜单按钮 -->
   <view class="floating-menu-btn" bindtap="toggleMenu">
-
-    <text class="menu-icon">☰</text>  <!-- 左侧悬浮菜单按钮 -->      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">
-
+    <text class="menu-icon">☰</text>
   </view>
-
-  <view class="floating-menu-btn" bindtap="toggleMenu">        <view class="hint-btn" bindtap="nextChapter">
 
   <!-- 顶部标题栏（简化版，只显示书名）-->
-
-  <view class="header" wx:if="{{showHeader}}">    <text class="menu-icon">☰</text>          <text>👉 下一章</text>
-
+  <view class="header" wx:if="{{showHeader}}">
     <view class="header-center">
-
-      <text class="book-title">{{bookName}}</text>  </view>        </view>
-
+      <text class="book-title">{{bookName}}</text>
     </view>
-
-  </view>      </view>{{themeClass}}">
-
-
-
-  <!-- 章节内容（滚动模式）-->  <!-- 顶部标题栏（简化版，只显示书名）-->  <!-- 左侧悬浮菜单按钮 -->
-
-  <scroll-view 
-
-    class="content-scroll"   <view class="header" wx:if="{{showHeader}}">  <view class="floating-menu-btn" bindtap="toggleMenu">
-
-    scroll-y="{{true}}"
-
-    bindtap="toggleHeader"    <view class="header-center">    <text class="menu-icon">☰</text>
-
-    scroll-top="{{scrollTop}}"
-
-    bindscroll="onScroll"      <text class="book-title">{{bookName}}</text>  </view>
-
-    refresher-enabled="{{true}}"
-
-    refresher-threshold="80"    </view>
-
-    refresher-triggered="{{pullDownRefreshing}}"
-
-    bindrefresherrefresh="onPullDownRefresh"  </view>  <!-- 顶部标题栏（简化版，只显示书名）-->
-
-  >
-
-    <view class="content-container">  <view class="header" wx:if="{{showHeader}}">
-
-      <!-- 第一章提示 -->
-
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">  <!-- 章节内容（滚动模式）-->    <view class="header-center">
-
-        <text>📖 这是第一章</text>
-
-      </view>  <scroll-view       <text class="book-title">{{bookName}}</text>
-
-
-
-      <!-- 章节标题 -->    class="content-scroll"     </view>
-
-      <view class="chapter-title">{{chapterTitle}}</view>
-
-          scroll-y="{{true}}"  </view>
-
-      <!-- 加载状态 -->
-
-      <view wx:if="{{isLoading}}" class="loading-state">    bindtap="toggleHeader"
-
-        <text class="loading-icon">📖</text>
-
-        <text class="loading-text">加载中...</text>    scroll-top="{{scrollTop}}"  <!-- 章节内容（滚动模式）-->
-
-      </view>
-
-    bindscroll="onScroll"  <scroll-view 
-
-      <!-- 章节内容 -->
-
-      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">    refresher-enabled="{{true}}"    class="content-scroll" 
-
-        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
-
-      </view>    refresher-threshold="80"    scroll-y="{{true}}"
-
-
-
-      <!-- 加载失败 -->    refresher-triggered="{{pullDownRefreshing}}"    bindtap="toggleHeader"
-
-      <view wx:if="{{!isLoading && !chapterContent}}" class="error-state">
-
-        <text class="error-icon">😔</text>    bindrefresherrefresh="onPullDownRefresh"    scroll-top="{{scrollTop}}"
-
-        <text class="error-text">加载失败</text>
-
-        <view class="retry-btn" bindtap="retryLoad">  >    bindscroll="onScroll"
-
-          <text>重试</text>
-
-        </view>    <view class="content-container">    refresher-enabled="{{true}}"
-
-      </view>
-
-      <!-- 第一章提示 -->    refresher-threshold="80"
-
-      <!-- 章节底部按钮 -->
-
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">    refresher-triggered="{{pullDownRefreshing}}"
-
-        <view class="hint-btn" bindtap="nextChapter">
-
-          <text>👉 下一章</text>        <text>📖 这是第一章</text>    bindrefresherrefresh="onPullDownRefresh"
-
-        </view>
-
-      </view>      </view>  >
-
-
-
-      <!-- 最后一章提示 -->    <view class="content-container">
-
-      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">
-
-        <text>🎉 全书完</text>      <!-- 章节标题 -->      <!-- 第一章提示 -->
-
-      </view>
-
-    </view>      <view class="chapter-title">{{chapterTitle}}</view>      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">
-
-  </scroll-view>
-
-              <text>📖 这是第一章</text>
-
-  <!-- 底部菜单 -->
-
-  <view class="bottom-menu {{showMenu ? 'show' : ''}}">      <!-- 加载状态 -->      </view>
-
-    <!-- 阅读进度 -->
-
-    <view class="progress-section">      <view wx:if="{{isLoading}}" class="loading-state">
-
-      <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>
-
-      <view class="progress-bar">        <text class="loading-icon">📖</text>      <!-- 章节标题 -->
-
-        <view class="progress-fill" style="width: {{(currentChapterIndex + 1) / totalChapters * 100}}%"></view>
-
-      </view>        <text class="loading-text">加载中...</text>      <view class="chapter-title">{{chapterTitle}}</view>
-
-    </view>
-
-      </view>      
-
-    <!-- 功能按钮 -->
-
-    <view class="menu-actions">      <!-- 加载状态 -->
-
-      <view class="action-item" bindtap="showChapterList">
-
-        <text class="action-icon">📑</text>      <!-- 章节内容 -->      <view wx:if="{{isLoading}}" class="loading-state">
-
-        <text class="action-label">目录</text>
-
-      </view>      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">        <text class="loading-icon">📖</text>
-
-      <view class="action-item" bindtap="decreaseFontSize">
-
-        <text class="action-icon">A-</text>        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>        <text class="loading-text">加载中...</text>
-
-        <text class="action-label">缩小</text>
-
-      </view>      </view>      </view>
-
-      <view class="action-item" bindtap="increaseFontSize">
-
-        <text class="action-icon">A+</text>
-
-        <text class="action-label">放大</text>
-
-      </view>      <!-- 加载失败 -->      <!-- 章节内容 -->
-
-      <view class="action-item" bindtap="toggleNightMode">
-
-        <text class="action-icon">{{themeClass === 'theme-night' ? '☀️' : '🌙'}}</text>      <view wx:if="{{!isLoading && !chapterContent}}" class="error-state">      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">
-
-        <text class="action-label">{{themeClass === 'theme-night' ? '日间' : '夜间'}}</text>
-
-      </view>        <text class="error-icon">😔</text>        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
-
-    </view>
-
-  </view>        <text class="error-text">加载失败</text>      </view>
-
-
-
-  <!-- 章节列表抽屉 -->        <view class="retry-btn" bindtap="retryLoad">
-
-  <view class="drawer-mask {{showChapterDrawer ? 'show' : ''}}" bindtap="closeChapterList"></view>
-
-  <view class="chapter-drawer {{showChapterDrawer ? 'show' : ''}}">          <text>重试</text>      <!-- 加载失败 -->
-
-    <view class="drawer-header">
-
-      <text class="drawer-title">📑 章节目录</text>        </view>      <view wx:if="{{!isLoading && !chapterContent}}" class="error-state">
-
-      <view class="close-btn" bindtap="closeChapterList">
-
-        <text>✕</text>      </view>        <text class="error-icon">😔</text>
-
-      </view>
-
-    </view>        <text class="error-text">加载失败</text>
-
-    <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
-
-      <view       <!-- 章节底部提示 - 使用菜单切换章节 -->        <view class="retry-btn" bindtap="retryLoad">
-
-        wx:for="{{chapters}}" 
-
-        wx:key="id"      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">          <text>重试</text>
-
-        id="chapter-{{index}}"
-
-        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"        <view class="hint-btn" bindtap="nextChapter">        </view>
-
-        bindtap="selectChapter"
-
-        data-index="{{index}}"          <text>👉 下一章</text>      </view>
-
-      >
-
-        <text class="chapter-number">{{index + 1}}</text>        </view>
-
-        <text class="chapter-name">{{item.title}}</text>
-
-      </view>      </view>      <!-- 章节底部提示 - 使用菜单切换章节 -->
-
-    </scroll-view>
-
-  </view>      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">
-
-
-
-  <!-- 跳转页码弹窗 -->      <!-- 最后一章提示 -->        <text class="hint-text">已到本章末尾</text>
-
-  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">
-
-    <view class="modal-mask" bindtap="closeJumpModal"></view>      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">        <view class="hint-actions">
-
-    <view class="modal-content">
-
-      <view class="modal-header">        <text>🎉 全书完</text>          <view class="hint-btn" bindtap="nextChapter">
-
-        <text class="modal-title">跳转到指定章节</text>
-
-        <view class="modal-close" bindtap="closeJumpModal">✕</view>      </view>            <text>� 下一章</text>
-
-      </view>
-
-      <view class="modal-body">    </view>          </view>
-
-        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>
-
-        <input   </scroll-view>        </view>
-
-          class="chapter-input"
-
-          type="number"      </view>
-
-          value="{{jumpChapterNumber}}"
-
-          placeholder="请输入章节号"  <!-- 底部菜单 -->
-
-          bindinput="onJumpInputChange"
-
-        />  <view class="bottom-menu {{showMenu ? 'show' : ''}}">      <!-- 最后一章提示 -->
-
-      </view>
-
-      <view class="modal-footer">    <!-- 阅读进度 -->      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">
-
-        <view class="modal-btn cancel" bindtap="closeJumpModal">取消</view>
-
-        <view class="modal-btn confirm" bindtap="confirmJump">跳转</view>    <view class="progress-section">        <text>🎉 全书完</text>
-
-      </view>
-
-    </view>      <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>      </view>
-
   </view>
 
-</view>      <view class="progress-bar">    </view>
-
-
-        <view class="progress-fill" style="width: {{(currentChapterIndex + 1) / totalChapters * 100}}%"></view>  </scroll-view>
-
+  <!-- 章节内容（滚动模式）-->
+  <scroll-view 
+    class="content-scroll" 
+    scroll-y="{{true}}"
+    bindtap="toggleHeader"
+    scroll-top="{{scrollTop}}"
+    bindscroll="onScroll"
+    refresher-enabled="{{true}}"
+    refresher-threshold="80"
+    refresher-triggered="{{pullDownRefreshing}}"
+    bindrefresherrefresh="onPullDownRefresh"
+  >
+    <view class="content-container">
+      <!-- 第一章提示 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex === 0}}" class="start-hint">
+        <text>📖 这是第一章</text>
       </view>
 
-    </view>  <!-- 底部菜单 -->
+      <!-- 章节标题 -->
+      <view class="chapter-title">{{chapterTitle}}</view>
+      
+      <!-- 加载状态 -->
+      <view wx:if="{{isLoading}}" class="loading-state">
+        <text class="loading-icon">📖</text>
+        <text class="loading-text">加载中...</text>
+      </view>
 
+      <!-- 章节内容 -->
+      <view wx:if="{{!isLoading && chapterContent}}" class="chapter-content" style="font-size: {{fontSize}}px;">
+        <text class="content-text" decode="{{true}}" space="{{true}}">{{chapterContent}}</text>
+      </view>
+
+      <!-- 加载失败 -->
+      <view wx:if="{{!isLoading && !chapterContent}}" class="error-state">
+        <text class="error-icon">😔</text>
+        <text class="error-text">加载失败</text>
+        <view class="retry-btn" bindtap="retryLoad">
+          <text>重试</text>
+        </view>
+      </view>
+
+      <!-- 章节底部按钮 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex < totalChapters - 1}}" class="chapter-end-hint">
+        <view class="hint-btn" bindtap="nextChapter">
+          <text>👉 下一章</text>
+        </view>
+      </view>
+
+      <!-- 最后一章提示 -->
+      <view wx:if="{{!isLoading && chapterContent && currentChapterIndex >= totalChapters - 1}}" class="end-hint">
+        <text>🎉 全书完</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部菜单 -->
   <view class="bottom-menu {{showMenu ? 'show' : ''}}">
+    <!-- 阅读进度 -->
+    <view class="progress-section">
+      <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{(currentChapterIndex + 1) / totalChapters * 100}}%"></view>
+      </view>
+    </view>
 
-    <!-- 功能按钮（简化版：目录、字号调整、夜间模式）-->    <!-- 阅读进度 -->
-
-    <view class="menu-actions">    <view class="progress-section">
-
-      <view class="action-item" bindtap="showChapterList">      <text class="progress-text">第 {{currentChapterIndex + 1}} / {{totalChapters}} 章</text>
-
-        <text class="action-icon">📑</text>      <view class="progress-bar">
-
-        <text class="action-label">目录</text>        <view class="progress-fill" style="width: {{(currentChapterIndex + 1) / totalChapters * 100}}%"></view>
-
-      </view>      </view>
-
-      <view class="action-item" bindtap="decreaseFontSize">    </view>
-
+    <!-- 功能按钮 -->
+    <view class="menu-actions">
+      <view class="action-item" bindtap="showChapterList">
+        <text class="action-icon">📑</text>
+        <text class="action-label">目录</text>
+      </view>
+      <view class="action-item" bindtap="decreaseFontSize">
         <text class="action-icon">A-</text>
-
-        <text class="action-label">缩小</text>    <!-- 功能按钮（简化版：目录、字号调整、夜间模式）-->
-
-      </view>    <view class="menu-actions">
-
-      <view class="action-item" bindtap="increaseFontSize">      <view class="action-item" bindtap="showChapterList">
-
-        <text class="action-icon">A+</text>        <text class="action-icon">📑</text>
-
-        <text class="action-label">放大</text>        <text class="action-label">目录</text>
-
-      </view>      </view>
-
-      <view class="action-item" bindtap="toggleNightMode">      <view class="action-item" bindtap="decreaseFontSize">
-
-        <text class="action-icon">{{themeClass === 'theme-night' ? '☀️' : '🌙'}}</text>        <text class="action-icon">A-</text>
-
-        <text class="action-label">{{themeClass === 'theme-night' ? '日间' : '夜间'}}</text>        <text class="action-label">缩小</text>
-
-      </view>      </view>
-
-    </view>      <view class="action-item" bindtap="increaseFontSize">
-
-  </view>        <text class="action-icon">A+</text>
-
+        <text class="action-label">缩小</text>
+      </view>
+      <view class="action-item" bindtap="increaseFontSize">
+        <text class="action-icon">A+</text>
         <text class="action-label">放大</text>
-
-  <!-- 章节列表抽屉 -->      </view>
-
-  <view class="drawer-mask {{showChapterDrawer ? 'show' : ''}}" bindtap="closeChapterList"></view>      <view class="action-item" bindtap="toggleNightMode">
-
-  <view class="chapter-drawer {{showChapterDrawer ? 'show' : ''}}">        <text class="action-icon">{{themeClass === 'theme-night' ? '☀️' : '🌙'}}</text>
-
-    <view class="drawer-header">        <text class="action-label">{{themeClass === 'theme-night' ? '日间' : '夜间'}}</text>
-
-      <text class="drawer-title">📑 章节目录</text>      </view>
-
-      <view class="close-btn" bindtap="closeChapterList">    </view>
-
-        <text>✕</text>  </view>
-
       </view>
+      <view class="action-item" bindtap="toggleNightMode">
+        <text class="action-icon">{{themeClass === 'theme-night' ? '☀️' : '🌙'}}</text>
+        <text class="action-label">{{themeClass === 'theme-night' ? '日间' : '夜间'}}</text>
+      </view>
+    </view>
+  </view>
 
-    </view>  <!-- 章节列表抽屉 -->
-
-    <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">  <view class="drawer-mask {{showChapterDrawer ? 'show' : ''}}" bindtap="closeChapterList"></view>
-
-      <view   <view class="chapter-drawer {{showChapterDrawer ? 'show' : ''}}">
-
-        wx:for="{{chapters}}"     <view class="drawer-header">
-
-        wx:key="id"      <text class="drawer-title">📑 章节目录</text>
-
-        id="chapter-{{index}}"      <view class="close-btn" bindtap="closeChapterList">
-
-        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"        <text>✕</text>
-
-        bindtap="selectChapter"      </view>
-
-        data-index="{{index}}"    </view>
-
-      >    <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
-
-        <text class="chapter-number">{{index + 1}}</text>      <view 
-
-        <text class="chapter-name">{{item.title}}</text>        wx:for="{{chapters}}" 
-
-      </view>        wx:key="id"
-
-    </scroll-view>        id="chapter-{{index}}"
-
-  </view>        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
-
+  <!-- 章节列表抽屉 -->
+  <view class="drawer-mask {{showChapterDrawer ? 'show' : ''}}" bindtap="closeChapterList"></view>
+  <view class="chapter-drawer {{showChapterDrawer ? 'show' : ''}}">
+    <view class="drawer-header">
+      <text class="drawer-title">📑 章节目录</text>
+      <view class="close-btn" bindtap="closeChapterList">
+        <text>✕</text>
+      </view>
+    </view>
+    <scroll-view class="chapter-list" scroll-y="{{true}}" scroll-into-view="chapter-{{currentChapterIndex}}">
+      <view 
+        wx:for="{{chapters}}" 
+        wx:key="id"
+        id="chapter-{{index}}"
+        class="chapter-item {{index === currentChapterIndex ? 'active' : ''}}"
         bindtap="selectChapter"
-
-  <!-- 跳转页码弹窗 -->        data-index="{{index}}"
-
-  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">      >
-
-    <view class="modal-mask" bindtap="closeJumpModal"></view>        <text class="chapter-number">{{index + 1}}</text>
-
-    <view class="modal-content">        <text class="chapter-name">{{item.title}}</text>
-
-      <view class="modal-header">      </view>
-
-        <text class="modal-title">跳转到指定章节</text>    </scroll-view>
-
-        <view class="modal-close" bindtap="closeJumpModal">✕</view>  </view>
-
+        data-index="{{index}}"
+      >
+        <text class="chapter-number">{{index + 1}}</text>
+        <text class="chapter-name">{{item.title}}</text>
       </view>
+    </scroll-view>
+  </view>
 
-      <view class="modal-body">  <!-- 跳转页码弹窗 -->
-
-        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">
-
-        <input     <view class="modal-mask" bindtap="closeJumpModal"></view>
-
-          class="chapter-input"    <view class="modal-content">
-
-          type="number"      <view class="modal-header">
-
-          value="{{jumpChapterNumber}}"        <text class="modal-title">跳转到指定章节</text>
-
-          placeholder="请输入章节号"        <view class="modal-close" bindtap="closeJumpModal">✕</view>
-
-          bindinput="onJumpInputChange"      </view>
-
-        />      <view class="modal-body">
-
-      </view>        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>
-
-      <view class="modal-footer">        <input 
-
-        <view class="modal-btn cancel" bindtap="closeJumpModal">取消</view>          class="chapter-input"
-
-        <view class="modal-btn confirm" bindtap="confirmJump">跳转</view>          type="number"
-
-      </view>          value="{{jumpChapterNumber}}"
-
-    </view>          placeholder="请输入章节号"
-
-  </view>          bindinput="onJumpInputChange"
-
-</view>        />
-
+  <!-- 跳转页码弹窗 -->
+  <view class="jump-modal {{showJumpModal ? 'show' : ''}}">
+    <view class="modal-mask" bindtap="closeJumpModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">跳转到指定章节</text>
+        <view class="modal-close" bindtap="closeJumpModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <text class="input-label">请输入章节序号（1-{{totalChapters}}）</text>
+        <input 
+          class="chapter-input"
+          type="number"
+          value="{{jumpChapterNumber}}"
+          placeholder="请输入章节号"
+          bindinput="onJumpInputChange"
+        />
       </view>
       <view class="modal-footer">
         <view class="modal-btn cancel" bindtap="closeJumpModal">取消</view>
