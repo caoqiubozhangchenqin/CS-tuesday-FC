@@ -414,24 +414,60 @@ Page({
           try {
             wx.showLoading({ title: '删除中...' });
 
-            // 从数据库删除
             const db = wx.cloud.database();
-            await db.collection('novels').doc(bookId).remove();
+            
+            // 1. 先删除所有章节
+            try {
+              const chaptersResult = await db.collection('novel_chapters')
+                .where({ novelId: bookId })
+                .get();
+              
+              console.log(`找到 ${chaptersResult.data.length} 章需要删除`);
+              
+              // 批量删除章节（每次最多20条）
+              const batchSize = 20;
+              for (let i = 0; i < chaptersResult.data.length; i += batchSize) {
+                const batch = chaptersResult.data.slice(i, i + batchSize);
+                await Promise.all(
+                  batch.map(chapter => 
+                    db.collection('novel_chapters').doc(chapter._id).remove()
+                  )
+                );
+              }
+              console.log('章节删除完成');
+            } catch (chapterError) {
+              console.error('删除章节时出错:', chapterError);
+              // 继续删除小说记录
+            }
 
-            // 刷新列表
+            // 2. 删除小说记录
+            await db.collection('novels').doc(bookId).remove();
+            console.log('小说记录删除完成');
+
+            // 3. 刷新列表
             await this.loadCloudBooks();
 
             wx.hideLoading();
             wx.showToast({
-              title: '已删除',
+              title: '删除成功',
               icon: 'success'
             });
           } catch (error) {
             wx.hideLoading();
             console.error('删除失败:', error);
+            
+            // 根据错误类型提供更友好的提示
+            let errorMsg = '删除失败';
+            if (error.errCode === -502003) {
+              errorMsg = '没有删除权限';
+            } else if (error.message) {
+              errorMsg = error.message;
+            }
+            
             wx.showToast({
-              title: '删除失败',
-              icon: 'none'
+              title: errorMsg,
+              icon: 'none',
+              duration: 2000
             });
           }
         }
