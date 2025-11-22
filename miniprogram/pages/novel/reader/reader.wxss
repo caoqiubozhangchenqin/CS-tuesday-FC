@@ -93,6 +93,10 @@
   animation: slideDown 0.3s;
 }
 
+.theme-night .header {
+  background: rgba(255, 255, 255, 0.05);  /* 夜间模式的头部背景 */
+}
+
 @keyframes slideDown {
   from { transform: translateY(-100%); }
   to { transform: translateY(0); }
@@ -109,6 +113,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: inherit;  /* 继承主题颜色 */
+}
+
+.theme-night .book-title {
+  color: #d0d0d0;  /* 夜间模式书名颜色 */
 }
 
 /* 内容区域 */
@@ -128,6 +137,11 @@
   text-align: center;
   margin-bottom: 60rpx;
   line-height: 1.5;
+  color: inherit;  /* 继承主题颜色 */
+}
+
+.theme-night .chapter-title {
+  color: #d0d0d0;  /* 夜间模式更亮的标题 */
 }
 
 .chapter-content {
@@ -137,6 +151,15 @@
   letter-spacing: 1rpx;
   white-space: pre-wrap;  /* 保留换行和空格 */
   word-wrap: break-word;   /* 自动换行 */
+  color: inherit;  /* 继承主题颜色 */
+}
+
+.theme-night .chapter-content {
+  color: #b0b0b0;  /* 夜间模式文本颜色 */
+}
+
+.theme-night .content-text {
+  color: #b0b0b0;  /* 确保文本颜色应用 */
 }
 
 /* 加载状态 */
@@ -162,6 +185,11 @@
   font-size: 28rpx;
   margin-top: 30rpx;
   opacity: 0.6;
+  color: inherit;  /* 继承主题颜色 */
+}
+
+.theme-night .loading-text {
+  color: #b0b0b0;
 }
 
 /* 错误状态 */
@@ -182,6 +210,11 @@
   font-size: 28rpx;
   margin: 30rpx 0;
   opacity: 0.6;
+  color: inherit;  /* 继承主题颜色 */
+}
+
+.theme-night .error-text {
+  color: #b0b0b0;
 }
 
 .retry-btn {
@@ -436,6 +469,10 @@
   color: #999;
 }
 
+.theme-night .hint-text {
+  color: #888;
+}
+
 .hint-actions {
   display: flex;
   gap: 30rpx;
@@ -462,6 +499,10 @@
   font-size: 32rpx;
   color: #667eea;
   font-weight: 600;
+}
+
+.theme-night .end-hint {
+  color: #8896e8;  /* 夜间模式下稍微亮一点 */
 }
 
 /* 跳转弹窗 */
@@ -621,4 +662,8 @@
   font-size: 28rpx;
   color: #667eea;
   opacity: 0.6;
+}
+
+.theme-night .start-hint {
+  color: #8896e8;
 }
