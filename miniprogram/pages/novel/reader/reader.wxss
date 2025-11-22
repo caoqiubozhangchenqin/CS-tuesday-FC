@@ -1,5 +1,35 @@
 /* pages/novel/reader/reader.wxss */
 
+/* 右侧悬浮菜单按钮 */
+.floating-menu-btn {
+  position: fixed;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.9);
+  backdrop-filter: blur(10rpx);
+  border-radius: 50%;
+  z-index: 99;
+  box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.4);
+  transition: all 0.3s;
+}
+
+.floating-menu-btn:active {
+  transform: translateY(-50%) scale(0.9);
+  background: rgba(102, 126, 234, 1);
+}
+
+.floating-menu-btn .menu-icon {
+  font-size: 48rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
 /* 主题配置 */
 .container {
   width: 100%;
@@ -33,12 +63,12 @@
   color: #b0b0b0;
 }
 
-/* 顶部标题栏 */
+/* 顶部标题栏（简化版）*/
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 30rpx;
+  justify-content: center;
+  padding: 20rpx 120rpx;
   background: rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10rpx);
   position: fixed;
@@ -52,30 +82,6 @@
 @keyframes slideDown {
   from { transform: translateY(-100%); }
   to { transform: translateY(0); }
-}
-
-.header-left,
-.header-right {
-  width: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10rpx;
-  transition: all 0.2s;
-}
-
-.header-left:active,
-.header-right:active {
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 50%;
-  transform: scale(1.1);
-}
-
-.back-icon,
-.menu-icon {
-  font-size: 44rpx;
-  color: #667eea;
-  filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.1));
 }
 
 .header-center {
@@ -236,8 +242,9 @@
 }
 
 .menu-actions {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15rpx 0;
   padding: 15rpx 0 25rpx;
   border-top: 1rpx solid #f0f0f0;
 }
@@ -251,8 +258,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8rpx;
-  padding: 10rpx 20rpx;
-  min-width: 100rpx;
+  padding: 15rpx 10rpx;
   transition: all 0.2s;
 }
 

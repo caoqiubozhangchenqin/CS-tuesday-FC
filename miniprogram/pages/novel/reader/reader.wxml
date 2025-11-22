@@ -1,15 +1,14 @@
 <!-- pages/novel/reader/reader.wxml -->
 <view class="container {{themeClass}}">
-  <!-- 顶部标题栏 -->
+  <!-- 右侧悬浮菜单按钮 -->
+  <view class="floating-menu-btn" bindtap="toggleMenu">
+    <text class="menu-icon">☰</text>
+  </view>
+
+  <!-- 顶部标题栏（简化版，只显示书名）-->
   <view class="header" wx:if="{{showHeader}}">
-    <view class="header-left" bindtap="toggleMenu">
-      <text class="menu-icon">☰</text>
-    </view>
     <view class="header-center">
       <text class="book-title">{{bookName}}</text>
-    </view>
-    <view class="header-right" bindtap="backToShelf">
-      <text class="back-icon">📚</text>
     </view>
   </view>
 
@@ -102,6 +101,10 @@
       <view class="action-item" bindtap="toggleTheme">
         <text class="action-icon">🎨</text>
         <text class="action-label">主题</text>
+      </view>
+      <view class="action-item" bindtap="backToShelf">
+        <text class="action-icon">📚</text>
+        <text class="action-label">书架</text>
       </view>
     </view>
   </view>
