@@ -27,10 +27,17 @@ async function parseTXT(fileID) {
     // 按章节分割
     const chapters = [];
     
-    // 尝试多种章节分割方式
+    // 尝试多种章节分割方式（优先匹配更具体的格式）
     const patterns = [
+      // 格式：第XXX章 标题 或 第XXX章：标题
+      /第[零〇一二三四五六七八九十百千万0-9]+[章节回][\s:：].{0,50}/g,
+      // 格式：第XXX章 或 第XXX节
       /第[零〇一二三四五六七八九十百千万0-9]+[章节回]/g,
+      // 格式：第XXX: 标题（有些书用半角冒号）
+      /第[0-9]+[:：].{0,50}/g,
+      // 格式：纯数字章节
       /第[0-9]+章/g,
+      // 英文格式
       /Chapter\s*[0-9]+/gi
     ];
 
@@ -47,7 +54,26 @@ async function parseTXT(fileID) {
       // 找到章节标记
       for (let i = 0; i < chapterMatches.length; i++) {
         const match = chapterMatches[i];
-        const title = match[0];
+        let title = match[0].trim();
+        
+        // 清理标题：去掉多余空格和标点
+        title = title.replace(/\s+/g, ' ').trim();
+        
+        // 提取更完整的标题（向后查找到换行符或一定长度）
+        const titleStartIndex = match.index;
+        const titleEndIndex = Math.min(
+          content.indexOf('\n', titleStartIndex),
+          titleStartIndex + 100
+        );
+        
+        if (titleEndIndex > titleStartIndex) {
+          const fullTitle = content.substring(titleStartIndex, titleEndIndex).trim();
+          // 如果完整标题比匹配到的长，且不超过100字符，使用完整标题
+          if (fullTitle.length > title.length && fullTitle.length <= 100) {
+            title = fullTitle;
+          }
+        }
+        
         const startIndex = match.index;
         const endIndex = i < chapterMatches.length - 1 
           ? chapterMatches[i + 1].index 
