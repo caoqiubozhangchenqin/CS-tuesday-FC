@@ -1,20 +1,15 @@
 <!-- pages/novel/reader/reader.wxml -->
 <view class="container {{themeClass}}">
-  <!-- 左侧返回书架按钮（半透明，隐藏）-->
-  <view class="back-to-shelf-btn" bindtap="backToShelf">
-    <text class="back-icon">📚</text>
-  </view>
-
   <!-- 顶部标题栏 -->
   <view class="header" wx:if="{{showHeader}}">
-    <view class="header-left" bindtap="goBack">
-      <text class="back-icon">←</text>
+    <view class="header-left" bindtap="toggleMenu">
+      <text class="menu-icon">☰</text>
     </view>
     <view class="header-center">
       <text class="book-title">{{bookName}}</text>
     </view>
-    <view class="header-right" bindtap="toggleMenu">
-      <text class="menu-icon">☰</text>
+    <view class="header-right" bindtap="backToShelf">
+      <text class="back-icon">📚</text>
     </view>
   </view>
 
