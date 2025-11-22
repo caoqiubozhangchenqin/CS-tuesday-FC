@@ -640,7 +640,7 @@ Page({
   },
 
   /**
-   * 保存阅读进度（统一保存到users集合）
+   * 保存阅读进度（保存到独立的 reading_progress 集合）
    */
   async saveProgress() {
     try {
@@ -656,7 +656,7 @@ Page({
         return;
       }
 
-      // 云端书籍保存到users集合的阅读进度字段
+      // 云端书籍保存到 reading_progress 集合
       const db = wx.cloud.database();
       const _ = db.command;
       
@@ -669,50 +669,51 @@ Page({
       }
 
       // 准备阅读进度数据
-      const progressKey = `readingProgress.${this.data.bookId}`;
       const progressData = {
+        _openid: openid,
+        novelId: this.data.bookId,
         chapterIndex: this.data.currentChapterIndex,
         chapterTitle: this.data.chapterTitle,
         scrollTop: this.data.lastScrollTop,
         updateTime: new Date().getTime()
       };
 
-      // 查询用户记录是否存在
-      const userResult = await db.collection('users')
-        .where({ _openid: openid })
+      // 查询是否已有该书的进度记录
+      const existResult = await db.collection('reading_progress')
+        .where({
+          _openid: openid,
+          novelId: this.data.bookId
+        })
         .get();
 
-      if (userResult.data.length > 0) {
-        // 更新用户的阅读进度
-        await db.collection('users')
-          .doc(userResult.data[0]._id)
+      if (existResult.data.length > 0) {
+        // 更新现有记录
+        await db.collection('reading_progress')
+          .doc(existResult.data[0]._id)
           .update({
             data: {
-              [progressKey]: progressData
+              chapterIndex: progressData.chapterIndex,
+              chapterTitle: progressData.chapterTitle,
+              scrollTop: progressData.scrollTop,
+              updateTime: progressData.updateTime
             }
           });
       } else {
-        // 创建用户记录
-        await db.collection('users')
+        // 创建新记录
+        await db.collection('reading_progress')
           .add({
-            data: {
-              _openid: openid,
-              readingProgress: {
-                [this.data.bookId]: progressData
-              },
-              createTime: db.serverDate()
-            }
+            data: progressData
           });
       }
 
-      console.log('阅读进度已保存到users集合');
+      console.log('阅读进度已保存');
     } catch (error) {
       console.error('保存阅读进度失败:', error);
     }
   },
 
   /**
-   * 加载阅读进度（从users集合读取）
+   * 加载阅读进度（从 reading_progress 集合读取）
    */
   async loadProgress() {
     try {
@@ -726,22 +727,20 @@ Page({
         wx.setStorageSync('userOpenid', openid);
       }
 
-      // 从users集合读取阅读进度
-      const result = await db.collection('users')
-        .where({ _openid: openid })
+      // 从 reading_progress 集合读取阅读进度
+      const result = await db.collection('reading_progress')
+        .where({
+          _openid: openid,
+          novelId: this.data.bookId
+        })
         .get();
 
       if (result.data.length > 0) {
-        const userData = result.data[0];
-        const readingProgress = userData.readingProgress || {};
-        const bookProgress = readingProgress[this.data.bookId];
-        
-        if (bookProgress) {
-          return {
-            chapterIndex: bookProgress.chapterIndex || 0,
-            scrollTop: bookProgress.scrollTop || 0
-          };
-        }
+        const progress = result.data[0];
+        return {
+          chapterIndex: progress.chapterIndex || 0,
+          scrollTop: progress.scrollTop || 0
+        };
       }
       return null;
     } catch (error) {
