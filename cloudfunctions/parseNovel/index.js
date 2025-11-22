@@ -22,7 +22,7 @@ const chapterPatternVariants = [
   `第${numberPattern}部${separatorPattern}.{1,80}`,
   `(?:Chapter|CHAPTER)\\s*\\d+[^\\n]{0,80}`,
   `Volume\\s*\\d+[^\\n]{0,80}`,
-  `[\\u4e00-\\u9fa5]{2,20}[：:——\-~\\s]{0,3}[\\u4e00-\\u9fa5]{0,40}`
+  `[\\u4e00-\\u9fa5]{2,20}[-：:——~\\s]{0,3}[\\u4e00-\\u9fa5]{0,40}`
 ];
 
 const combinedChapterPattern = buildPattern(`(?:${chapterPatternVariants.join('|')})`, 'gm');
