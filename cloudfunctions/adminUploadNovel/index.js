@@ -25,7 +25,7 @@ exports.main = async (event, context) => {
     // ==================== 1. 验证管理员权限 ====================
     // ⚠️ 重要：请替换为实际的管理员 openid
     const ADMIN_LIST = [
-      'oXXXX-your-admin-openid-1',  // 替换为你的 openid
+      'oVAxOvrDAY9Q0qG8WBnRxO3_m1nw',  // 替换为你的 openid
       'oXXXX-your-admin-openid-2'   // 可以添加多个管理员
     ];
 

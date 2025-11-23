@@ -9,6 +9,7 @@ Page({
     
     currentPage: 0,
     totalPages: 0,
+    progressPercent: 0,     // 进度百分比（已计算好的）
     
     visiblePages: [],       // 当前可见的3页
     fullContent: '',        // 完整文本（按需加载）
@@ -88,7 +89,8 @@ Page({
     this.setData({
       novelInfo: res.data,
       totalPages: res.data.totalPages,
-      pageIndicator: `1/${res.data.totalPages}`
+      pageIndicator: `1/${res.data.totalPages}`,
+      progressPercent: 0
     });
   },
 
@@ -104,10 +106,14 @@ Page({
     if (res.data.length > 0) {
       const progress = res.data[0];
       const pageNum = progress.currentPage || 0;
+      const percent = this.data.totalPages > 0 
+        ? ((pageNum / this.data.totalPages) * 100).toFixed(1)
+        : 0;
       
       this.setData({
         currentPage: pageNum,
-        pageIndicator: `${pageNum + 1}/${this.data.totalPages}`
+        pageIndicator: `${pageNum + 1}/${this.data.totalPages}`,
+        progressPercent: percent
       });
 
       console.log(`恢复进度：第 ${pageNum + 1} 页`);
@@ -206,10 +212,16 @@ Page({
 
     console.log('翻页到:', newPageIndex + 1);
 
+    // 计算进度百分比
+    const percent = this.data.totalPages > 0 
+      ? ((newPageIndex / this.data.totalPages) * 100).toFixed(1)
+      : 0;
+
     // 更新当前页
     this.setData({
       currentPage: newPageIndex,
-      pageIndicator: `${newPageIndex + 1}/${this.data.totalPages}`
+      pageIndicator: `${newPageIndex + 1}/${this.data.totalPages}`,
+      progressPercent: percent
     });
 
     // 检查是否需要加载新分段
@@ -334,6 +346,38 @@ Page({
   },
 
   /**
+   * 阻止事件冒泡（空函数）
+   */
+  doNothing() {
+    // 阻止事件冒泡
+  },
+
+  /**
+   * 进度条拖动
+   */
+  onSliderChange(e) {
+    const newPage = e.detail.value;
+    const percent = this.data.totalPages > 0 
+      ? ((newPage / this.data.totalPages) * 100).toFixed(1)
+      : 0;
+    
+    this.setData({ 
+      currentPage: newPage,
+      pageIndicator: `${newPage + 1}/${this.data.totalPages}`,
+      progressPercent: percent
+    });
+    
+    // 加载新页面内容
+    this.loadContent();
+    
+    // 保存进度
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => {
+      this.saveProgress();
+    }, 1000);
+  },
+
+  /**
    * 跳转到指定页
    */
   jumpToPage(e) {
@@ -345,7 +389,16 @@ Page({
         if (res.confirm && res.content) {
           const pageNum = parseInt(res.content);
           if (pageNum > 0 && pageNum <= this.data.totalPages) {
-            this.setData({ currentPage: pageNum - 1 });
+            const newPage = pageNum - 1;
+            const percent = this.data.totalPages > 0 
+              ? ((newPage / this.data.totalPages) * 100).toFixed(1)
+              : 0;
+            
+            this.setData({ 
+              currentPage: newPage,
+              pageIndicator: `${pageNum}/${this.data.totalPages}`,
+              progressPercent: percent
+            });
             this.loadContent();
           } else {
             wx.showToast({ title: '页码无效', icon: 'none' });

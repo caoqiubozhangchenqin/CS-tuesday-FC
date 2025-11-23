@@ -43,7 +43,7 @@
 
       <!-- 进度条 -->
       <view class="progress-section">
-        <text class="progress-text">阅读进度：{{((currentPage / totalPages) * 100).toFixed(1)}}%</text>
+        <text class="progress-text">阅读进度：{{progressPercent}}%</text>
         <slider 
           value="{{currentPage}}"
           max="{{totalPages - 1}}"
