@@ -136,7 +136,8 @@
             bindtap="goToLive" 
             data-match="{{item}}"
           >
-            📺
+            <text class="tv-icon">📺</text>
+            <text class="live-text">Live</text>
           </button>
         </view>
       </view>

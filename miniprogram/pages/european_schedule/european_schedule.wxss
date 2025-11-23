@@ -405,20 +405,42 @@
 .live-button {
   background: transparent;
   color: #666;
-  font-size: 28rpx;
   border: none;
-  width: 60rpx;
-  height: 60rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   margin-left: 15rpx;
+  animation: bounce 2s infinite;
+}
+
+.tv-icon {
+  font-size: 28rpx;
+  margin-right: 4rpx;
+}
+
+.live-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #e74c3c;
 }
 
 .live-button:active {
   transform: scale(0.9);
-  color: #333;
+  animation-play-state: paused;
+}
+
+/* 跳动动画 */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6rpx);
+  }
+  60% {
+    transform: translateY(-3rpx);
+  }
 }
 
 /* 更新时间 */
