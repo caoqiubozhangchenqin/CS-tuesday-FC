@@ -130,7 +130,7 @@
           <text class="venue-text">{{item.venue}}</text>
         </view>
         <!-- 直播按钮 -->
-        <view wx:if="{{item.status === 'live'}}" class="live-button-container">
+        <view wx:if="{{item.status === 'live' || item.status === 'scheduled'}}" class="live-button-container">
           <button 
             class="live-button" 
             bindtap="goToLive" 
