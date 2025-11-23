@@ -1,0 +1,298 @@
+/* 书架重复检查页面样式 */
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 头部 */
+.header {
+  background: white;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2d3748;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #4299e1, #3182ce);
+  color: white;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 20rpx;
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(66, 153, 225, 0.3);
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(66, 153, 225, 0.3);
+}
+
+/* 加载状态 */
+.loading {
+  text-align: center;
+  padding: 100rpx;
+}
+
+.loading-text {
+  font-size: 32rpx;
+  color: #667eea;
+}
+
+/* 结果区域 */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+/* 重复书籍区域 */
+.duplicates-section {
+  background: white;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #e2e8f0;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.count-badge {
+  background: #e53e3e;
+  color: white;
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+
+/* 摘要 */
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  border: 2rpx solid #e2e8f0;
+}
+
+.summary-text {
+  font-size: 28rpx;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.cleanup-btn {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 20rpx;
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(72, 187, 120, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cleanup-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(72, 187, 120, 0.3);
+}
+
+/* 重复书籍列表 */
+.duplicate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.duplicate-item {
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  border: 2rpx solid #e2e8f0;
+}
+
+.book-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.book-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.book-count {
+  background: #667eea;
+  color: white;
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+
+/* 书籍详情 */
+.book-details {
+  background: white;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.book-info {
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+  background: #f7fafc;
+  border-radius: 8rpx;
+  border-left: 4rpx solid #667eea;
+}
+
+.book-info:last-child {
+  margin-bottom: 0;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 8rpx;
+  align-items: center;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #718096;
+  min-width: 140rpx;
+  font-weight: 500;
+}
+
+.value {
+  font-size: 26rpx;
+  color: #2d3748;
+  flex: 1;
+}
+
+.status {
+  font-size: 26rpx;
+  font-weight: bold;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+.status.readable {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.status.unreadable {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+/* 无重复提示 */
+.no-duplicates {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  background: white;
+  border-radius: 20rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.no-duplicates-text {
+  font-size: 32rpx;
+  color: #48bb78;
+  font-weight: bold;
+}
+
+/* 所有书籍区域 */
+.all-books-section {
+  background: white;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.book-item {
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  border: 1rpx solid #e2e8f0;
+}
+
+.book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.book-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.book-meta {
+  font-size: 24rpx;
+  color: #718096;
+}
+
+.book-status {
+  font-size: 24rpx;
+  font-weight: bold;
+  align-self: flex-start;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+.book-status.readable {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.book-status.unreadable {
+  background: #fed7d7;
+  color: #742a2a;
+}

@@ -1,0 +1,56 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <text class="title">检查重复书籍</text>
+    <text class="message">{{message}}</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text class="loading-text">正在检查中...</text>
+  </view>
+
+  <!-- 重复书籍列表 -->
+  <view wx:else class="duplicates-list">
+    <view wx:if="{{duplicates.length === 0}}" class="no-duplicates">
+      <text class="no-duplicates-text">🎉 没有发现重复书籍！</text>
+    </view>
+
+    <view wx:else class="duplicates-container">
+      <view class="summary">
+        <text class="summary-text">发现 {{duplicates.length}} 种重复书籍</text>
+        <button class="cleanup-btn" bindtap="cleanupDuplicates">一键清理</button>
+      </view>
+
+      <view class="duplicate-items">
+        <view wx:for="{{duplicates}}" wx:key="title" class="duplicate-item">
+          <view class="item-header">
+            <text class="book-title">{{item.title}}</text>
+            <text class="count-badge">{{item.count}}本</text>
+          </view>
+
+          <view class="book-details">
+            <view wx:for="{{item.books}}" wx:key="id" class="book-info">
+              <view class="book-row">
+                <text class="label">ID:</text>
+                <text class="value">{{item.id}}</text>
+              </view>
+              <view class="book-row">
+                <text class="label">上传时间:</text>
+                <text class="value">{{item.uploadTime ? formatTime(item.uploadTime) : '未知'}}</text>
+              </view>
+              <view class="book-row">
+                <text class="label">字数:</text>
+                <text class="value">{{item.totalChars}}</text>
+              </view>
+              <view class="book-row">
+                <text class="label">状态:</text>
+                <text class="status {{item.hasContent === '可读' ? 'readable' : 'unreadable'}}">{{item.hasContent}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

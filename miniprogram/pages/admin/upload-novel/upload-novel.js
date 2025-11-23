@@ -1,8 +1,9 @@
-// 管理员上传小说页面（极简版）
+// 管理员上传小说页面（现代化美化版）
 Page({
   data: {
     selectedFile: null,
     uploading: false,
+    uploadProgress: 0, // 上传进度
     fileSizeText: '', // 用于显示文件大小
     novelList: [], // 已上传的小说列表
     loading: false, // 加载状态
@@ -75,8 +76,8 @@ Page({
         const file = res.tempFiles[0]
         console.log('已选择文件:', file)
         
-        // 从文件名提取书名（去掉 .txt 后缀）
-        let bookTitle = file.name.replace(/\.txt$/i, '')
+        // 从文件名提取书名（去掉时间戳前缀和 .txt 后缀）
+        let bookTitle = file.name.replace(/^\d+_/, '').replace(/\.txt$/i, '')
         
         // 计算文件大小（转换为 KB，保留2位小数）
         const sizeInKB = (file.size / 1024).toFixed(2)
@@ -114,32 +115,35 @@ Page({
       return
     }
 
-    this.setData({ uploading: true })
-
-    wx.showLoading({ title: '正在上传文件...' })
+    this.setData({
+      uploading: true,
+      uploadProgress: 0
+    })
 
     try {
-      // 第1步：上传文件到云存储
+      // 第1步：上传文件到云存储（带进度跟踪）
+      this.setData({ uploadProgress: 10 })
+
       const uploadRes = await wx.cloud.uploadFile({
         cloudPath: `novels/${Date.now()}_${this.data.selectedFile.name}`,
         filePath: this.data.selectedFile.path
       })
 
       console.log('文件上传成功:', uploadRes.fileID)
+      this.setData({ uploadProgress: 50 })
 
-      wx.showLoading({ title: '正在保存信息...' })
+      // 第2步：调用云函数保存元信息
+      this.setData({ uploadProgress: 70 })
 
-      // 第2步：调用云函数保存元信息（使用文件名作为标题）
-      // 注意：云函数超时需要在云端配置，客户端只能等待
       const callFunctionPromise = wx.cloud.callFunction({
         name: 'adminUploadNovel',
         data: {
           fileID: uploadRes.fileID,
-          title: this.data.selectedFile.bookTitle, // 自动从文件名提取
-          author: '未知作者', // 默认值
-          category: 'other', // 默认分类
-          tags: [], // 空标签
-          description: '' // 无简介
+          title: this.data.selectedFile.bookTitle,
+          author: '未知作者',
+          category: 'other',
+          tags: [],
+          description: ''
         }
       })
 
@@ -150,23 +154,25 @@ Page({
 
       const result = await Promise.race([callFunctionPromise, timeoutPromise])
 
-      wx.hideLoading()
-
+      this.setData({ uploadProgress: 90 })
       console.log('上传完成:', result)
 
       // 云函数返回格式：{ errMsg, result: { success, data, error } }
       const cloudResult = result.result
 
       if (cloudResult && cloudResult.success) {
+        this.setData({ uploadProgress: 100 })
+
         wx.showModal({
-          title: '上传成功！',
-          content: `《${this.data.selectedFile.bookTitle}》已成功上传\n总字数: ${cloudResult.data.totalChars.toLocaleString()}\n总页数: ${cloudResult.data.totalPages}`,
+          title: '🎉 上传成功！',
+          content: `《${this.data.selectedFile.bookTitle}》已成功上传\n📊 总字数: ${cloudResult.data.totalChars.toLocaleString()}\n📄 总页数: ${cloudResult.data.totalPages}`,
           showCancel: false,
           success: () => {
             // 清空表单
             this.setData({
               selectedFile: null,
               uploading: false,
+              uploadProgress: 0,
               fileSizeText: ''
             })
             // 刷新列表
@@ -178,17 +184,17 @@ Page({
       }
 
     } catch (error) {
-      wx.hideLoading()
       console.error('上传失败:', error)
-      
+
       wx.showModal({
-        title: '上传失败',
-        content: error.message || '未知错误',
+        title: '❌ 上传失败',
+        content: error.message || '未知错误，请重试',
         showCancel: false
       })
 
-      this.setData({ 
+      this.setData({
         uploading: false,
+        uploadProgress: 0,
         fileSizeText: ''
       })
     }
@@ -197,13 +203,23 @@ Page({
   /**
    * 删除小说 - 显示自定义确认弹窗
    */
-  deleteNovel(e) {
+  showDeleteConfirm(e) {
     const { novel } = e.currentTarget.dataset
-    
+
     this.setData({
       showDeleteModal: true,
       deleteNovelTitle: novel.title,
       deleteNovelData: novel
+    })
+  },
+
+  /**
+   * 查看小说详情
+   */
+  viewNovel(e) {
+    const { novel } = e.currentTarget.dataset
+    wx.navigateTo({
+      url: `/pages/novel/reader/reader?novelId=${novel._id}`
     })
   },
 
@@ -262,5 +278,23 @@ Page({
         showCancel: false
       })
     }
+  },
+
+  /**
+   * 跳转到清理重复书籍页面
+   */
+  goToCleanup() {
+    wx.navigateTo({
+      url: '/pages/admin/check-duplicates/check-duplicates'
+    })
+  },
+
+  /**
+   * 跳转到书架检查页面
+   */
+  goToShelfCheck() {
+    wx.navigateTo({
+      url: '/pages/admin/shelf-check/shelf-check'
+    })
   }
 })

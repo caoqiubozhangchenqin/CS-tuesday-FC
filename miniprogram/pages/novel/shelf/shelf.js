@@ -71,8 +71,8 @@ Page({
 
       // 调整《中国队长》位置到列表首位
       bookList.sort((a, b) => {
-        if (a.name === '中国队长') return -1;
-        if (b.name === '中国队长') return 1;
+        if (a.name === '我 中国队长') return -1;
+        if (b.name === '我 中国队长') return 1;
         return 0;
       });
 

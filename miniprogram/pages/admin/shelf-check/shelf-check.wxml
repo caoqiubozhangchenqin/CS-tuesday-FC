@@ -1,0 +1,83 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <text class="title">🔍 书架重复检查</text>
+    <view class="header-actions">
+      <button class="refresh-btn" bindtap="refreshCheck">🔄 重新检查</button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text class="loading-text">正在检查书架...</text>
+  </view>
+
+  <!-- 结果显示 -->
+  <view wx:else class="results">
+    <!-- 重复书籍统计 -->
+    <view wx:if="{{duplicates.length > 0}}" class="duplicates-section">
+      <view class="section-header">
+        <text class="section-title">⚠️ 发现重复书籍</text>
+        <text class="count-badge">{{duplicates.length}} 种</text>
+      </view>
+
+      <view class="summary">
+        <text class="summary-text">发现 {{duplicates.length}} 种重复书籍</text>
+        <button class="cleanup-btn" bindtap="cleanupDuplicates">🧹 一键清理</button>
+      </view>
+
+      <view class="duplicate-list">
+        <view wx:for="{{duplicates}}" wx:key="title" class="duplicate-item">
+          <view class="book-header">
+            <text class="book-title">{{item.title}}</text>
+            <text class="book-count">{{item.count}}本</text>
+          </view>
+
+          <view class="book-details">
+            <view wx:for="{{item.books}}" wx:key="_id" class="book-info">
+              <view class="info-row">
+                <text class="label">ID:</text>
+                <text class="value">{{item._id}}</text>
+              </view>
+              <view class="info-row">
+                <text class="label">上传时间:</text>
+                <text class="value">{{formatTime(item.uploadTime)}}</text>
+              </view>
+              <view class="info-row">
+                <text class="label">字数:</text>
+                <text class="value">{{item.totalChars}}</text>
+              </view>
+              <view class="info-row">
+                <text class="label">状态:</text>
+                <text class="status {{item.totalChars > 0 ? 'readable' : 'unreadable'}}">{{item.totalChars > 0 ? '可读' : '不可读'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无重复提示 -->
+    <view wx:else class="no-duplicates">
+      <text class="no-duplicates-text">✅ 书架中没有重复书籍</text>
+    </view>
+
+    <!-- 所有书籍列表 -->
+    <view class="all-books-section">
+      <view class="section-header">
+        <text class="section-title">📚 书架中的所有书籍</text>
+        <text class="count-badge">{{bookList.length}} 本</text>
+      </view>
+
+      <view class="book-list">
+        <view wx:for="{{bookList}}" wx:key="id" class="book-item">
+          <view class="book-info">
+            <text class="book-name">{{item.name}}</text>
+            <text class="book-meta">{{item.author}} · {{item.totalChars}}字 · {{item.uploadTime}}</text>
+            <text class="book-status {{item.hasContent === '可读' ? 'readable' : 'unreadable'}}">{{item.hasContent}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

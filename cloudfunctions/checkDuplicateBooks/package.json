@@ -1,0 +1,7 @@
+{
+  "name": "check-duplicate-books",
+  "version": "1.0.0",
+  "description": "检查数据库中重复的书籍",
+  "main": "index.js",
+  "dependencies": {}
+}

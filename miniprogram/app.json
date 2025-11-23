@@ -22,7 +22,9 @@
     "pages/novel/reader-v2/reader-v2",
     "pages/novel/recommend/recommend",
     "pages/novel/upload/upload",
-    "pages/admin/upload-novel/upload-novel"
+    "pages/admin/upload-novel/upload-novel",
+    "pages/admin/check-duplicates/check-duplicates",
+    "pages/admin/shelf-check/shelf-check"
   ],
   "window": {
     "backgroundTextStyle": "light",
