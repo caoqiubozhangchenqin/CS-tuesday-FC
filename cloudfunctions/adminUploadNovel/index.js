@@ -7,6 +7,8 @@ cloud.init({
 const db = cloud.database();
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const iconv = require('iconv-lite');
 
 /**
  * 管理员上传小说到公共库
@@ -71,15 +73,111 @@ exports.main = async (event, context) => {
     let fullContent = content;
     let fileSize = 0;
 
-    if (fileID && !content) {
-      // 从云存储下载文件
-      const downloadRes = await cloud.downloadFile({
-        fileID: fileID
-      });
+  let finalFileID = fileID;
 
-      const tempFilePath = downloadRes.tempFilePath;
-      fullContent = fs.readFileSync(tempFilePath, 'utf8');
-      fileSize = fs.statSync(tempFilePath).size;
+  if (fileID && !content) {
+      try {
+        console.log('开始获取文件:', fileID);
+        
+        // 方法1：先尝试 getTempFileURL
+        const tempFileResult = await cloud.getTempFileURL({
+          fileList: [fileID]
+        });
+
+        console.log('获取临时链接结果:', JSON.stringify(tempFileResult));
+
+        if (!tempFileResult.fileList || tempFileResult.fileList.length === 0) {
+          return {
+            success: false,
+            error: '获取文件临时链接失败',
+            code: 'GET_TEMP_URL_FAILED'
+          };
+        }
+
+        const tempFileURL = tempFileResult.fileList[0].tempFileURL;
+        console.log('临时下载链接:', tempFileURL);
+
+        // 方法2：通过 HTTPS 下载文件内容（支持多种编码）
+        fullContent = await new Promise((resolve, reject) => {
+          https.get(tempFileURL, (res) => {
+            const chunks = [];
+            
+            // 不设置编码，接收原始二进制数据
+            res.on('data', (chunk) => {
+              chunks.push(chunk);
+            });
+            
+            res.on('end', () => {
+              // 合并所有数据块
+              const buffer = Buffer.concat(chunks);
+              console.log('文件下载完成，大小:', buffer.length, '字节');
+              
+              // 尝试检测编码并转换
+              let text = '';
+              
+              // 尝试UTF-8
+              try {
+                text = buffer.toString('utf8');
+                // 检查是否有乱码（UTF-8解码失败的标志）
+                if (text.includes('�') || text.includes('\ufffd')) {
+                  console.log('UTF-8检测到乱码，尝试GBK');
+                  text = iconv.decode(buffer, 'gbk');
+                  console.log('使用GBK编码解析');
+                } else {
+                  console.log('使用UTF-8编码解析');
+                }
+              } catch (err) {
+                // UTF-8失败，尝试GBK
+                console.log('UTF-8解析失败，使用GBK');
+                text = iconv.decode(buffer, 'gbk');
+              }
+              
+              resolve(text);
+            });
+            
+            res.on('error', (err) => {
+              console.error('下载流错误:', err);
+              reject(err);
+            });
+          }).on('error', (err) => {
+            console.error('HTTPS请求错误:', err);
+            reject(err);
+          });
+        });
+
+        fileSize = Buffer.byteLength(fullContent, 'utf8');
+        console.log('文件大小:', fileSize, '字节');
+
+        // 将解析后的 UTF-8 内容重新上传，替换原始文件
+        const safeTitle = title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        const utf8FileName = `${safeTitle}_${Date.now()}_utf8.txt`;
+        const utf8CloudPath = `novels/${utf8FileName}`;
+
+        const uploadUtf8Res = await cloud.uploadFile({
+          cloudPath: utf8CloudPath,
+          fileContent: Buffer.from(fullContent, 'utf8')
+        });
+
+        console.log('UTF-8 文件已上传:', uploadUtf8Res.fileID);
+        finalFileID = uploadUtf8Res.fileID;
+
+        // 清理原始上传文件，节省存储
+        try {
+          await cloud.deleteFile({ fileList: [fileID] });
+          console.log('已删除原始上传文件:', fileID);
+        } catch (deleteErr) {
+          console.warn('删除原始文件失败，可忽略:', deleteErr.message);
+        }
+        
+      } catch (error) {
+        console.error('文件处理异常:', error);
+        return {
+          success: false,
+          error: `文件处理失败: ${error.message}`,
+          code: 'FILE_PROCESS_ERROR',
+          stack: error.stack
+        };
+      }
     } else if (content) {
       fileSize = Buffer.byteLength(content, 'utf8');
     }
@@ -97,8 +195,6 @@ exports.main = async (event, context) => {
     });
 
     // ==================== 6. 如果没有 fileID，上传到云存储 ====================
-    let finalFileID = fileID;
-    
     if (!fileID && content) {
       // 生成文件名
       const fileName = `${title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}_${Date.now()}.txt`;

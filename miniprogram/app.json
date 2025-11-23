@@ -21,7 +21,8 @@
     "pages/novel/reader/reader",
     "pages/novel/reader-v2/reader-v2",
     "pages/novel/recommend/recommend",
-    "pages/novel/upload/upload"
+    "pages/novel/upload/upload",
+    "pages/admin/upload-novel/upload-novel"
   ],
   "window": {
     "backgroundTextStyle": "light",

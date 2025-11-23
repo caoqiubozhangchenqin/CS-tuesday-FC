@@ -178,16 +178,24 @@
 .stats-info {
   text-align: center;
   margin-bottom: 30rpx;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16rpx;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20rpx 30rpx;
 }
 
 .stats-text {
   font-size: 28rpx;
-  color: #666;
-  font-weight: 500;
+  color: #FFD700;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(255, 215, 0, 0.5);
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8rpx);
+  }
 }
 
 /* 加载更多样式 */

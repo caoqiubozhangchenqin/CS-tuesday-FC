@@ -4,6 +4,11 @@
   height: 100vh;
   position: relative;
   background-color: #f9f6f0;
+  transition: background-color 0.3s ease;
+}
+
+.reader-container.night-mode {
+  background-color: #1a1a1a;
 }
 
 /* 顶部标题栏 */
@@ -19,6 +24,12 @@
   padding: 0 30rpx;
   z-index: 100;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.top-bar.night-mode {
+  background: rgba(30, 30, 30, 0.95);
+  box-shadow: 0 2rpx 8rpx rgba(255, 255, 255, 0.05);
 }
 
 .back-btn {
@@ -32,6 +43,11 @@
 .icon-back {
   font-size: 48rpx;
   color: #333;
+  transition: color 0.3s ease;
+}
+
+.night-mode .icon-back {
+  color: #ddd;
 }
 
 .novel-title {
@@ -44,6 +60,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-right: 60rpx;
+  transition: color 0.3s ease;
+}
+
+.night-mode .novel-title {
+  color: #ddd;
 }
 
 /* 横向翻页阅读器 */
@@ -52,6 +73,7 @@
   height: 100vh;
   padding-top: 88rpx;
   padding-bottom: 100rpx;
+  box-sizing: border-box;
 }
 
 .page-scroll {
@@ -60,17 +82,23 @@
 }
 
 .page-content {
-  padding: 40rpx;
+  padding: 60rpx 40rpx;  /* 增加上下边距：60rpx 上下，40rpx 左右 */
   min-height: 100%;
+  box-sizing: border-box;
 }
 
 .page-text {
   font-size: 32rpx;
-  line-height: 1.8;
+  line-height: 2;
   color: #333;
   word-wrap: break-word;
   white-space: pre-wrap;
-  letter-spacing: 1rpx;
+  letter-spacing: 2rpx;
+  transition: color 0.3s ease;
+}
+
+.page-text.night-mode {
+  color: #c0c0c0;
 }
 
 /* 底部页码指示器 */
@@ -83,6 +111,11 @@
   background: rgba(0, 0, 0, 0.5);
   border-radius: 40rpx;
   z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.page-indicator.night-mode {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .page-indicator text {
@@ -113,6 +146,11 @@
   border-radius: 32rpx 32rpx 0 0;
   padding: 40rpx 30rpx;
   animation: slideUp 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.menu-content.night-mode {
+  background: #2a2a2a;
 }
 
 @keyframes slideUp {
@@ -132,17 +170,32 @@
   margin-bottom: 30rpx;
   padding-bottom: 20rpx;
   border-bottom: 1rpx solid #eee;
+  transition: border-color 0.3s ease;
+}
+
+.night-mode .menu-header {
+  border-bottom-color: #444;
 }
 
 .menu-title {
   font-size: 36rpx;
   font-weight: bold;
   color: #333;
+  transition: color 0.3s ease;
+}
+
+.night-mode .menu-title {
+  color: #ddd;
 }
 
 .menu-author {
   font-size: 26rpx;
   color: #666;
+  transition: color 0.3s ease;
+}
+
+.night-mode .menu-author {
+  color: #999;
 }
 
 /* 进度条区域 */
@@ -155,6 +208,11 @@
   font-size: 28rpx;
   color: #666;
   margin-bottom: 20rpx;
+  transition: color 0.3s ease;
+}
+
+.night-mode .progress-text {
+  color: #999;
 }
 
 .progress-hint {
@@ -163,6 +221,11 @@
   font-size: 24rpx;
   color: #999;
   margin-top: 10rpx;
+  transition: color 0.3s ease;
+}
+
+.night-mode .progress-hint {
+  color: #777;
 }
 
 /* 操作按钮 */
@@ -177,7 +240,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12rpx;
-  padding: 20rpx 40rpx;
+  padding: 20rpx 30rpx;
 }
 
 .action-icon {
@@ -187,4 +250,9 @@
 .action-text {
   font-size: 24rpx;
   color: #666;
+  transition: color 0.3s ease;
+}
+
+.night-mode .action-text {
+  color: #999;
 }

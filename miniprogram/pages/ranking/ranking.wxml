@@ -5,9 +5,9 @@
     <text>身价排名榜</text>
   </view>
 
-  <!-- 统计信息 -->
+  <!-- 提示信息 -->
   <view class="stats-info" wx:if="{{totalCount > 0}}">
-    <text class="stats-text">共 {{totalCount}} 位球员已参赛</text>
+    <text class="stats-text">未显示名字请在主页按退出登录按钮重新登陆</text>
   </view>
 
   <view class="ranking-list">

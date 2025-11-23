@@ -6,18 +6,22 @@ Page({
   data: {
     novelId: '',
     novelInfo: null,
+    progressId: null,       // 阅读进度记录ID
     
     currentPage: 0,
     totalPages: 0,
     progressPercent: 0,     // 进度百分比（已计算好的）
     
     visiblePages: [],       // 当前可见的3页
+    swiperIndex: 1,         // swiper 当前索引（动态计算）
     fullContent: '',        // 完整文本（按需加载）
     segmentCache: {},       // 分段缓存
     currentSegment: -1,     // 当前加载的分段
     
     showMenu: false,        // 显示菜单
-    fontSize: 32,           // 字体大小
+    nightMode: false,       // 夜间模式
+    fontSize: 32,           // 字体大小（rpx）
+    fontSizeLevel: 2,       // 字号级别：0=小(28), 1=中小(30), 2=中(32), 3=中大(36), 4=大(40)
     pageIndicator: '1/100'  // 页码指示器
   },
 
@@ -30,6 +34,10 @@ Page({
     }
 
     this.setData({ novelId });
+    
+    // 加载用户设置（字号、夜间模式）
+    this.loadSettings();
+    
     this.init();
   },
 
@@ -98,25 +106,43 @@ Page({
    * 加载阅读进度（个人数据）
    */
   async loadProgress() {
-    const db = wx.cloud.database();
-    const res = await db.collection('reading_progress')
-      .where({ novelId: this.data.novelId })
-      .get();
-
-    if (res.data.length > 0) {
-      const progress = res.data[0];
-      const pageNum = progress.currentPage || 0;
-      const percent = this.data.totalPages > 0 
-        ? ((pageNum / this.data.totalPages) * 100).toFixed(1)
-        : 0;
+    try {
+      const db = wx.cloud.database();
+      const _ = db.command;
       
-      this.setData({
-        currentPage: pageNum,
-        pageIndicator: `${pageNum + 1}/${this.data.totalPages}`,
-        progressPercent: percent
-      });
+      const res = await db.collection('reading_progress')
+        .where({
+          novelId: _.eq(this.data.novelId)
+        })
+        .limit(1)
+        .get();
 
-      console.log(`恢复进度：第 ${pageNum + 1} 页`);
+      if (res.data && res.data.length > 0) {
+        const progress = res.data[0];
+        const pageNum = progress.currentPage || 0;
+        const percent = this.data.totalPages > 0 
+          ? ((pageNum / this.data.totalPages) * 100).toFixed(1)
+          : 0;
+        
+        this.setData({
+          currentPage: pageNum,
+          progressId: progress._id, // 保存进度记录ID，用于后续更新
+          pageIndicator: `${pageNum + 1}/${this.data.totalPages}`,
+          progressPercent: percent
+        });
+
+        console.log(`恢复进度：第 ${pageNum + 1} 页`);
+      } else {
+        console.log('没有历史进度，从第1页开始');
+      }
+    } catch (error) {
+      // 如果是权限错误，可能是集合不存在或首次访问
+      if (error.errCode === -502003 || error.errCode === -502005) {
+        console.log('无法加载进度（可能是首次阅读）:', error.errMsg);
+        // 不抛出错误，允许继续初始化
+      } else {
+        throw error;
+      }
     }
   },
 
@@ -198,7 +224,14 @@ Page({
       }
     }
 
-    this.setData({ visiblePages: pages });
+    // 计算 swiper 应该显示的索引
+    // 如果是第0页，索引=0；否则索引=1（中间位置）
+    const swiperIdx = (centerPage === 0) ? 0 : 1;
+
+    this.setData({ 
+      visiblePages: pages,
+      swiperIndex: swiperIdx
+    });
   },
 
   /**
@@ -245,7 +278,8 @@ Page({
   async saveProgress() {
     try {
       const db = wx.cloud.database();
-      const { novelId, currentPage, totalPages, novelInfo } = this.data;
+      const _ = db.command;
+      const { novelId, currentPage, totalPages, novelInfo, progressId } = this.data;
 
       const progressData = {
         novelId,
@@ -254,29 +288,52 @@ Page({
         charOffset: currentPage * CHARS_PER_PAGE,
         totalPages,
         progress: parseFloat(((currentPage / totalPages) * 100).toFixed(2)),
-        lastReadTime: Date.now(),
-        updateTime: Date.now()
+        lastReadTime: db.serverDate(),
+        updateTime: db.serverDate()
       };
 
-      // 查询是否已有进度
-      const exist = await db.collection('reading_progress')
-        .where({ novelId })
-        .get();
-
-      if (exist.data.length > 0) {
-        // 更新
+      if (progressId) {
+        // 已有进度记录ID，直接更新
         await db.collection('reading_progress')
-          .doc(exist.data[0]._id)
-          .update({ data: progressData });
+          .doc(progressId)
+          .update({ 
+            data: progressData 
+          });
+        console.log('进度已更新:', currentPage + 1);
       } else {
-        // 新增（_openid 自动添加）
-        await db.collection('reading_progress')
-          .add({ data: progressData });
-      }
+        // 没有进度ID，先查询
+        const exist = await db.collection('reading_progress')
+          .where({ 
+            novelId: _.eq(novelId)
+          })
+          .limit(1)
+          .get();
 
-      console.log('进度已保存:', currentPage + 1);
+        if (exist.data && exist.data.length > 0) {
+          // 找到已有记录，更新
+          const existId = exist.data[0]._id;
+          await db.collection('reading_progress')
+            .doc(existId)
+            .update({ 
+              data: progressData 
+            });
+          // 保存ID供下次使用
+          this.setData({ progressId: existId });
+          console.log('进度已更新:', currentPage + 1);
+        } else {
+          // 没有记录，新增（_openid 自动添加）
+          const addRes = await db.collection('reading_progress')
+            .add({ 
+              data: progressData 
+            });
+          // 保存新ID
+          this.setData({ progressId: addRes._id });
+          console.log('进度已创建:', currentPage + 1);
+        }
+      }
     } catch (error) {
       console.error('保存进度失败:', error);
+      // 不阻断用户阅读，静默失败
     }
   },
 
@@ -414,5 +471,76 @@ Page({
   goBack() {
     this.saveProgress(); // 保存后返回
     wx.navigateBack();
+  },
+
+  /**
+   * 加载用户设置
+   */
+  loadSettings() {
+    try {
+      const fontSize = wx.getStorageSync('reader_fontSize') || 32;
+      const fontSizeLevel = wx.getStorageSync('reader_fontSizeLevel') || 2;
+      const nightMode = wx.getStorageSync('reader_nightMode') || false;
+      
+      this.setData({
+        fontSize,
+        fontSizeLevel,
+        nightMode
+      });
+    } catch (error) {
+      console.log('加载设置失败:', error);
+    }
+  },
+
+  /**
+   * 保存用户设置
+   */
+  saveSettings() {
+    try {
+      wx.setStorageSync('reader_fontSize', this.data.fontSize);
+      wx.setStorageSync('reader_fontSizeLevel', this.data.fontSizeLevel);
+      wx.setStorageSync('reader_nightMode', this.data.nightMode);
+    } catch (error) {
+      console.log('保存设置失败:', error);
+    }
+  },
+
+  /**
+   * 调整字体大小
+   */
+  adjustFontSize() {
+    const fontSizes = [28, 30, 32, 36, 40];
+    const fontNames = ['小', '中小', '中', '中大', '大'];
+    
+    let newLevel = (this.data.fontSizeLevel + 1) % fontSizes.length;
+    const newSize = fontSizes[newLevel];
+    
+    this.setData({
+      fontSize: newSize,
+      fontSizeLevel: newLevel
+    });
+    
+    this.saveSettings();
+    
+    wx.showToast({
+      title: `字号：${fontNames[newLevel]}`,
+      icon: 'none',
+      duration: 1000
+    });
+  },
+
+  /**
+   * 切换夜间模式
+   */
+  toggleNightMode() {
+    const newMode = !this.data.nightMode;
+    this.setData({ nightMode: newMode });
+    this.saveSettings();
+    
+    wx.showToast({
+      title: newMode ? '夜间模式' : '日间模式',
+      icon: 'none',
+      duration: 1000
+    });
   }
 });

@@ -1,16 +1,13 @@
-<view class="reader-container">
+<view class="reader-container {{nightMode ? 'night-mode' : ''}}">
   <!-- 顶部标题栏 -->
-  <view class="top-bar" wx:if="{{!showMenu}}">
-    <view class="back-btn" bindtap="goBack">
-      <text class="icon-back">←</text>
-    </view>
+  <view class="top-bar {{nightMode ? 'night-mode' : ''}}" wx:if="{{!showMenu}}">
     <text class="novel-title">{{novelInfo.title}}</text>
   </view>
 
   <!-- 横向翻页阅读器 -->
   <swiper 
     class="reader-swiper"
-    current="1"
+    current="{{swiperIndex}}"
     bindchange="onPageChange"
     vertical="{{false}}"
     circular="{{false}}"
@@ -20,20 +17,20 @@
     <swiper-item wx:for="{{visiblePages}}" wx:key="index">
       <scroll-view scroll-y class="page-scroll">
         <view class="page-content">
-          <text class="page-text" style="font-size: {{fontSize}}rpx;">{{item.content}}</text>
+          <text class="page-text {{nightMode ? 'night-mode' : ''}}" style="font-size: {{fontSize}}rpx;">{{item.content}}</text>
         </view>
       </scroll-view>
     </swiper-item>
   </swiper>
 
   <!-- 底部页码指示器 -->
-  <view class="page-indicator" wx:if="{{!showMenu}}">
+  <view class="page-indicator {{nightMode ? 'night-mode' : ''}}" wx:if="{{!showMenu}}">
     <text>{{pageIndicator}}</text>
   </view>
 
   <!-- 菜单面板 -->
   <view class="menu-panel {{showMenu ? 'show' : ''}}" catchtap="toggleMenu">
-    <view class="menu-content" catchtap="doNothing">
+    <view class="menu-content {{nightMode ? 'night-mode' : ''}}" catchtap="doNothing">
       
       <!-- 标题信息 -->
       <view class="menu-header">
@@ -60,14 +57,19 @@
 
       <!-- 操作按钮 -->
       <view class="menu-actions">
-        <view class="action-btn" bindtap="jumpToPage">
-          <text class="action-icon">📍</text>
-          <text class="action-text">跳转</text>
-        </view>
-        
         <view class="action-btn" bindtap="adjustFontSize">
           <text class="action-icon">🔤</text>
-          <text class="action-text">字号</text>
+          <text class="action-text">字体</text>
+        </view>
+
+        <view class="action-btn" bindtap="toggleNightMode">
+          <text class="action-icon">{{nightMode ? '☀️' : '🌙'}}</text>
+          <text class="action-text">{{nightMode ? '日间' : '夜间'}}</text>
+        </view>
+        
+        <view class="action-btn" bindtap="jumpToPage">
+          <text class="action-icon">→</text>
+          <text class="action-text">跳转</text>
         </view>
         
         <view class="action-btn" bindtap="goBack">
