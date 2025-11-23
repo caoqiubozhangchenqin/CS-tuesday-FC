@@ -395,6 +395,34 @@
   max-width: 300rpx;
 }
 
+/* 直播按钮 */
+.live-button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.live-button {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: #fff;
+  font-size: 28rpx;
+  border: none;
+  border-radius: 50%;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+  transition: all 0.3s ease;
+  margin-left: 15rpx;
+}
+
+.live-button:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
 /* 更新时间 */
 .update-time {
   text-align: center;

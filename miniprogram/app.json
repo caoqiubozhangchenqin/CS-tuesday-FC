@@ -24,7 +24,8 @@
     "pages/novel/upload/upload",
     "pages/admin/upload-novel/upload-novel",
     "pages/admin/check-duplicates/check-duplicates",
-    "pages/admin/shelf-check/shelf-check"
+    "pages/admin/shelf-check/shelf-check",
+    "pages/live-view/live-view"
   ],
   "window": {
     "backgroundTextStyle": "light",

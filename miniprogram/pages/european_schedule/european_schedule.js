@@ -239,5 +239,22 @@ Page({
     if (this._removeBgListener) {
       this._removeBgListener();
     }
+  },
+
+  // 跳转到直播页面
+  goToLive(e) {
+    const match = e.currentTarget.dataset.match;
+    
+    // 构造zqbaba直播URL
+    // 这里暂时使用主页，用户可以根据需要修改为具体的直播页面URL
+    const liveUrl = 'https://www.zqbaba.org';
+    
+    // 或者构造搜索URL
+    // const searchQuery = encodeURIComponent(`${match.homeTeam.name} vs ${match.awayTeam.name}`);
+    // const liveUrl = `https://www.zqbaba.org/search?q=${searchQuery}`;
+    
+    wx.navigateTo({
+      url: `/pages/live-view/live-view?url=${encodeURIComponent(liveUrl)}`
+    });
   }
 });

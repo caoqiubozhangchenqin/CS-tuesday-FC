@@ -129,6 +129,16 @@
           <text class="venue-icon">🏟️</text>
           <text class="venue-text">{{item.venue}}</text>
         </view>
+        <!-- 直播按钮 -->
+        <view wx:if="{{item.status === 'live'}}" class="live-button-container">
+          <button 
+            class="live-button" 
+            bindtap="goToLive" 
+            data-match="{{item}}"
+          >
+            📺
+          </button>
+        </view>
       </view>
     </view>
   </view>
