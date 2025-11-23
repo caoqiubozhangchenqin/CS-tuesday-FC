@@ -1,0 +1,190 @@
+/* pages/novel/reader-v2/reader-v2.wxss */
+.reader-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background-color: #f9f6f0;
+}
+
+/* 顶部标题栏 */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  padding: 0 30rpx;
+  z-index: 100;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-back {
+  font-size: 48rpx;
+  color: #333;
+}
+
+.novel-title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 60rpx;
+}
+
+/* 横向翻页阅读器 */
+.reader-swiper {
+  width: 100%;
+  height: 100vh;
+  padding-top: 88rpx;
+  padding-bottom: 100rpx;
+}
+
+.page-scroll {
+  width: 100%;
+  height: 100%;
+}
+
+.page-content {
+  padding: 40rpx;
+  min-height: 100%;
+}
+
+.page-text {
+  font-size: 32rpx;
+  line-height: 1.8;
+  color: #333;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  letter-spacing: 1rpx;
+}
+
+/* 底部页码指示器 */
+.page-indicator {
+  position: fixed;
+  bottom: 30rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12rpx 32rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 40rpx;
+  z-index: 100;
+}
+
+.page-indicator text {
+  font-size: 24rpx;
+  color: white;
+}
+
+/* 菜单面板 */
+.menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: none;
+}
+
+.menu-panel.show {
+  display: flex;
+  align-items: flex-end;
+}
+
+.menu-content {
+  width: 100%;
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx 30rpx;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 菜单头部 */
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.menu-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.menu-author {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 进度条区域 */
+.progress-section {
+  margin-bottom: 40rpx;
+}
+
+.progress-text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.progress-hint {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+/* 操作按钮 */
+.menu-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 40rpx;
+}
+
+.action-icon {
+  font-size: 48rpx;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #666;
+}

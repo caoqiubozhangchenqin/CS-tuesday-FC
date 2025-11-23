@@ -1,0 +1,160 @@
+<view class="bookstore-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 书城内容 -->
+  <view wx:else class="bookstore-content">
+    
+    <!-- 推荐区 -->
+    <view class="section recommend-section">
+      <view class="section-header">
+        <text class="section-title">🔥 精选推荐</text>
+      </view>
+      
+      <scroll-view scroll-x class="recommend-scroll" wx:if="{{recommendBooks.length > 0}}">
+        <view class="recommend-list">
+          <view 
+            class="recommend-item" 
+            wx:for="{{recommendBooks}}" 
+            wx:key="_id"
+            bindtap="openBook" 
+            data-id="{{item._id}}"
+            data-novel="{{item}}">
+            
+            <image 
+              src="{{item.cover || '/images/default-book-cover.png'}}" 
+              class="recommend-cover"
+              mode="aspectFill"/>
+            
+            <view class="recommend-info">
+              <text class="recommend-title">{{item.title}}</text>
+              <text class="recommend-author">{{item.author}}</text>
+              <text class="recommend-stats">{{item.viewCount}}人阅读</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view wx:else class="empty-hint">
+        <text>暂无推荐小说</text>
+      </view>
+    </view>
+
+    <!-- 分类标签 -->
+    <view class="category-tabs">
+      <view 
+        class="category-tab {{activeCategory === '全部' ? 'active' : ''}}"
+        bindtap="switchCategory"
+        data-category="全部">
+        全部
+      </view>
+      <view 
+        class="category-tab {{activeCategory === item ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="*this"
+        bindtap="switchCategory"
+        data-category="{{item}}">
+        {{item}}
+      </view>
+    </view>
+
+    <!-- 分类列表 -->
+    <view class="category-content">
+      <!-- 全部分类 -->
+      <view wx:if="{{activeCategory === '全部'}}">
+        <block wx:for="{{categories}}" wx:key="*this" wx:for-item="category">
+          <view class="section" wx:if="{{categoryBooks[category] && categoryBooks[category].length > 0}}">
+            <view class="section-header">
+              <text class="section-title">📖 {{category}}</text>
+              <text class="section-count">({{categoryBooks[category].length}}本)</text>
+            </view>
+            
+            <view class="book-grid">
+              <view 
+                class="book-item" 
+                wx:for="{{categoryBooks[category]}}" 
+                wx:key="_id"
+                wx:for-item="book"
+                bindtap="openBook" 
+                data-id="{{book._id}}"
+                data-novel="{{book}}">
+                
+                <image 
+                  src="{{book.cover || '/images/default-book-cover.png'}}" 
+                  class="book-cover"
+                  mode="aspectFill"/>
+                
+                <view class="book-info">
+                  <text class="book-title">{{book.title}}</text>
+                  <text class="book-author">{{book.author}}</text>
+                  <text class="book-stats">
+                    {{book.totalPages || 0}}页 · {{book.viewCount || 0}}人读过
+                  </text>
+                </view>
+
+                <!-- 添加到书架按钮 -->
+                <view 
+                  class="add-shelf-btn"
+                  catchtap="addToShelf"
+                  data-id="{{book._id}}"
+                  data-novel="{{book}}">
+                  <text>+</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 单个分类 -->
+      <view wx:else>
+        <view class="section" wx:if="{{categoryBooks[activeCategory] && categoryBooks[activeCategory].length > 0}}">
+          <view class="book-grid">
+            <view 
+              class="book-item" 
+              wx:for="{{categoryBooks[activeCategory]}}" 
+              wx:key="_id"
+              bindtap="openBook" 
+              data-id="{{item._id}}"
+              data-novel="{{item}}">
+              
+              <image 
+                src="{{item.cover || '/images/default-book-cover.png'}}" 
+                class="book-cover"
+                mode="aspectFill"/>
+              
+              <view class="book-info">
+                <text class="book-title">{{item.title}}</text>
+                <text class="book-author">{{item.author}}</text>
+                <text class="book-stats">
+                  {{item.totalPages || 0}}页 · {{item.viewCount || 0}}人读过
+                </text>
+              </view>
+
+              <view 
+                class="add-shelf-btn"
+                catchtap="addToShelf"
+                data-id="{{item._id}}"
+                data-novel="{{item}}">
+                <text>+</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:else class="empty-hint">
+          <text>该分类暂无小说</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{recommendBooks.length === 0 && Object.keys(categoryBooks).length === 0}}" class="empty-state">
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">书城正在建设中...</text>
+      <text class="empty-hint">管理员可以上传小说到公共库</text>
+    </view>
+  </view>
+</view>

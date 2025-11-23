@@ -1,0 +1,9 @@
+{
+  "name": "adminUploadNovel",
+  "version": "1.0.0",
+  "description": "管理员上传小说到公共库",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

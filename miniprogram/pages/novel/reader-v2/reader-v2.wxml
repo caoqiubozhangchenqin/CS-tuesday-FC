@@ -1,0 +1,80 @@
+<view class="reader-container">
+  <!-- 顶部标题栏 -->
+  <view class="top-bar" wx:if="{{!showMenu}}">
+    <view class="back-btn" bindtap="goBack">
+      <text class="icon-back">←</text>
+    </view>
+    <text class="novel-title">{{novelInfo.title}}</text>
+  </view>
+
+  <!-- 横向翻页阅读器 -->
+  <swiper 
+    class="reader-swiper"
+    current="1"
+    bindchange="onPageChange"
+    vertical="{{false}}"
+    circular="{{false}}"
+    indicator-dots="{{false}}"
+    bindtap="toggleMenu">
+    
+    <swiper-item wx:for="{{visiblePages}}" wx:key="index">
+      <scroll-view scroll-y class="page-scroll">
+        <view class="page-content">
+          <text class="page-text" style="font-size: {{fontSize}}rpx;">{{item.content}}</text>
+        </view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 底部页码指示器 -->
+  <view class="page-indicator" wx:if="{{!showMenu}}">
+    <text>{{pageIndicator}}</text>
+  </view>
+
+  <!-- 菜单面板 -->
+  <view class="menu-panel {{showMenu ? 'show' : ''}}" catchtap="toggleMenu">
+    <view class="menu-content" catchtap="doNothing">
+      
+      <!-- 标题信息 -->
+      <view class="menu-header">
+        <text class="menu-title">{{novelInfo.title}}</text>
+        <text class="menu-author">作者：{{novelInfo.author}}</text>
+      </view>
+
+      <!-- 进度条 -->
+      <view class="progress-section">
+        <text class="progress-text">阅读进度：{{((currentPage / totalPages) * 100).toFixed(1)}}%</text>
+        <slider 
+          value="{{currentPage}}"
+          max="{{totalPages - 1}}"
+          block-size="20"
+          activeColor="#667eea"
+          backgroundColor="#eee"
+          show-value="{{false}}"
+          bindchange="onSliderChange"/>
+        <view class="progress-hint">
+          <text>第 {{currentPage + 1}} 页</text>
+          <text>共 {{totalPages}} 页</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="menu-actions">
+        <view class="action-btn" bindtap="jumpToPage">
+          <text class="action-icon">📍</text>
+          <text class="action-text">跳转</text>
+        </view>
+        
+        <view class="action-btn" bindtap="adjustFontSize">
+          <text class="action-icon">🔤</text>
+          <text class="action-text">字号</text>
+        </view>
+        
+        <view class="action-btn" bindtap="goBack">
+          <text class="action-icon">📚</text>
+          <text class="action-text">书架</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
