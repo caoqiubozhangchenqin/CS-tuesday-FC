@@ -245,16 +245,32 @@ Page({
   goToLive(e) {
     const match = e.currentTarget.dataset.match;
     
-    // 构造zqbaba直播URL
-    // 这里暂时使用主页，用户可以根据需要修改为具体的直播页面URL
-    const liveUrl = 'https://www.zqbaba.org';
-    
-    // 或者构造搜索URL
-    // const searchQuery = encodeURIComponent(`${match.homeTeam.name} vs ${match.awayTeam.name}`);
-    // const liveUrl = `https://www.zqbaba.org/search?q=${searchQuery}`;
-    
-    wx.navigateTo({
-      url: `/pages/live-view/live-view?url=${encodeURIComponent(liveUrl)}`
+    wx.showModal({
+      title: '观看直播',
+      content: '请复制以下网址到浏览器中打开：\n\nwww.zqbaba.org',
+      confirmText: '复制网址',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          // 复制网址到剪贴板
+          wx.setClipboardData({
+            data: 'www.zqbaba.org',
+            success: () => {
+              wx.showToast({
+                title: '网址已复制',
+                icon: 'success',
+                duration: 2000
+              });
+            },
+            fail: () => {
+              wx.showToast({
+                title: '复制失败',
+                icon: 'none'
+              });
+            }
+          });
+        }
+      }
     });
   }
 });
