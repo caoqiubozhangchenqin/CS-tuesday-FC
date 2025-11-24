@@ -246,10 +246,10 @@ Page({
     const match = e.currentTarget.dataset.match;
     
     wx.showModal({
-      title: '观看直播',
-      content: '请复制以下网址到浏览器中打开：\n\nwww.zqbaba.org',
-      confirmText: '复制网址',
-      cancelText: '取消',
+      title: '📺 观看直播',
+      content: `🔥 比赛正在进行中！\n\n🌐 直播网站：www.zqbaba.org\n\n💡 请复制网址到浏览器中打开观看`,
+      confirmText: '📋 复制网址',
+      cancelText: '❌ 取消',
       success: (res) => {
         if (res.confirm) {
           // 复制网址到剪贴板
@@ -257,14 +257,14 @@ Page({
             data: 'www.zqbaba.org',
             success: () => {
               wx.showToast({
-                title: '网址已复制',
+                title: '✅ 网址已复制',
                 icon: 'success',
                 duration: 2000
               });
             },
             fail: () => {
               wx.showToast({
-                title: '复制失败',
+                title: '❌ 复制失败',
                 icon: 'none'
               });
             }
