@@ -243,56 +243,34 @@ Page({
 
   // 跳转到直播页面
   goToLive(e) {
-    console.log('=== 直播按钮被点击了！===', e);
-    wx.showToast({
-      title: '按钮被点击了！',
-      icon: 'none',
-      duration: 3000
-    });
-    
     const match = e.currentTarget.dataset.match;
-    console.log('比赛数据：', match);
     
-    // 简单的测试弹窗
-    setTimeout(() => {
-      wx.showModal({
-        title: '测试弹窗',
-        content: '按钮点击正常！现在显示完整弹窗。',
-        showCancel: false,
-        confirmText: '好的',
-        success: () => {
-          wx.showModal({
-            title: '📺 观看直播',
-            content: `🔥 比赛正在进行中！\n\n🌐 直播网站：www.zqbaba.org\n\n💡 请复制网址到浏览器中打开观看`,
-            confirmText: '📋 复制网址',
-            cancelText: '❌ 取消',
-            success: (res) => {
-              console.log('完整弹窗结果：', res);
-              if (res.confirm) {
-                // 复制网址到剪贴板
-                wx.setClipboardData({
-                  data: 'www.zqbaba.org',
-                  success: () => {
-                    console.log('复制成功');
-                    wx.showToast({
-                      title: '✅ 网址已复制',
-                      icon: 'success',
-                      duration: 2000
-                    });
-                  },
-                  fail: (error) => {
-                    console.log('复制失败：', error);
-                    wx.showToast({
-                      title: '❌ 复制失败',
-                      icon: 'none'
-                    });
-                  }
-                });
-              }
+    wx.showModal({
+      title: '📺 观看直播',
+      content: `🔥 比赛正在进行中！\n\n🌐 直播网站：www.zqbaba.org\n\n💡 请复制网址到浏览器中打开观看`,
+      confirmText: '📋 复制网址',
+      cancelText: '❌ 取消',
+      success: (res) => {
+        if (res.confirm) {
+          // 复制网址到剪贴板
+          wx.setClipboardData({
+            data: 'www.zqbaba.org',
+            success: () => {
+              wx.showToast({
+                title: '✅ 网址已复制',
+                icon: 'success',
+                duration: 2000
+              });
+            },
+            fail: (error) => {
+              wx.showToast({
+                title: '❌ 复制失败',
+                icon: 'none'
+              });
             }
           });
         }
-      });
-    }, 1000);
+      }
+    });
   }
 });
