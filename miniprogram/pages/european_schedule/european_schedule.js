@@ -245,9 +245,17 @@ Page({
 
         // 如果比赛数据已经加载，重新处理以更新提醒状态
         if (this.data.matches && this.data.matches.length > 0) {
-          const processedMatches = this.processMatches(this.data.matches);
+          // 只更新提醒状态，不重新处理整个比赛数据
+          const userReminders = reminders;
+          const reminderMatchIds = userReminders.map(reminder => reminder.matchId);
+          
+          const updatedMatches = this.data.matches.map(match => ({
+            ...match,
+            hasReminder: reminderMatchIds.includes(match.id.toString())
+          }));
+          
           this.setData({
-            matches: processedMatches
+            matches: updatedMatches
           });
         }
       } else {
@@ -343,15 +351,14 @@ Page({
         });
 
         // 重新处理比赛数据以更新UI
-        const processedMatches = this.processMatches(this.data.matches.map(m => {
-          return {
-            ...m,
-            hasReminder: updatedReminders.some(reminder => reminder.matchId === m.id.toString())
-          };
+        const reminderMatchIds = updatedReminders.map(reminder => reminder.matchId);
+        const updatedMatches = this.data.matches.map(match => ({
+          ...match,
+          hasReminder: reminderMatchIds.includes(match.id.toString())
         }));
-
+        
         this.setData({
-          matches: processedMatches
+          matches: updatedMatches
         });
 
       } else {
@@ -406,15 +413,14 @@ Page({
         });
 
         // 重新处理比赛数据以更新UI
-        const processedMatches = this.processMatches(this.data.matches.map(m => {
-          return {
-            ...m,
-            hasReminder: updatedReminders.some(reminder => reminder.matchId === m.id.toString())
-          };
+        const reminderMatchIds = updatedReminders.map(reminder => reminder.matchId);
+        const updatedMatches = this.data.matches.map(match => ({
+          ...match,
+          hasReminder: reminderMatchIds.includes(match.id.toString())
         }));
-
+        
         this.setData({
-          matches: processedMatches
+          matches: updatedMatches
         });
 
       } else {
