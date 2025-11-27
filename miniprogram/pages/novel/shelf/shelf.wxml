@@ -17,32 +17,22 @@
   </view>
 
   <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading-state">
-    <text class="loading-icon">⏳</text>
-    <text class="loading-text">加载中...</text>
-  </view>
+  <loading wx:if="{{loading}}" text="加载中..." mask="{{false}}"></loading>
 
   <!-- 书籍列表 -->
   <view wx:elif="{{bookList && bookList.length > 0}}" class="book-list">
-    <view wx:for="{{bookList}}" wx:key="id" class="book-card" bindtap="goToReader" data-book="{{item}}">
-      <view class="book-cover">
+    <card wx:for="{{bookList}}" wx:key="id" class="book-card" bindtap="goToReader" data-book="{{item}}">
+      <view slot="content" class="book-cover">
         <text class="cover-icon">📖</text>
         <view class="book-badge">{{item.format}}</view>
       </view>
-      <view class="book-info">
+      <view slot="footer" class="book-info">
         <text class="book-name">{{item.name}}</text>
         <text class="book-meta">{{item.uploadTime}}</text>
       </view>
-    </view>
+    </card>
   </view>
 
   <!-- 空状态 -->
-  <view wx:else class="empty-state">
-    <text class="empty-icon">📚</text>
-    <text class="empty-text">书架空空如也</text>
-    <text class="empty-hint">{{isAdmin ? '快去上传你喜欢的小说吧' : '等待管理员上传精彩书籍'}}</text>
-    <view wx:if="{{isAdmin}}" class="empty-btn" bindtap="goToUpload">
-      <text>📤 立即上传</text>
-    </view>
-  </view>
+  <empty wx:else title="书架空空如也" description="{{isAdmin ? '快去上传你喜欢的小说吧' : '等待管理员上传精彩书籍'}}" icon="📚" show-action="{{isAdmin}}" action-text="📤 立即上传" bindaction="goToUpload"></empty>
 </view>

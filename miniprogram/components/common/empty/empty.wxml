@@ -1,0 +1,24 @@
+<!-- components/common/empty/empty.wxml -->
+<view class="empty-container">
+  <!-- 空状态图标 -->
+  <view class="empty-icon">
+    <slot name="icon">
+      <text class="default-icon">{{icon}}</text>
+    </slot>
+  </view>
+
+  <!-- 空状态文本 -->
+  <view class="empty-content">
+    <text class="empty-title" wx:if="{{title}}">{{title}}</text>
+    <text class="empty-description" wx:if="{{description}}">{{description}}</text>
+  </view>
+
+  <!-- 空状态操作 -->
+  <view class="empty-actions" wx:if="{{showAction}}">
+    <slot name="action">
+      <button class="empty-action-btn" bindtap="onActionTap" wx:if="{{actionText}}">
+        {{actionText}}
+      </button>
+    </slot>
+  </view>
+</view>

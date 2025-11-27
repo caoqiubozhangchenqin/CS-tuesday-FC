@@ -1,0 +1,12 @@
+<!-- components/common/loading/loading.wxml -->
+<view class="loading-container {{show ? 'show' : ''}}" wx:if="{{show}}">
+  <view class="loading-mask" wx:if="{{mask}}"></view>
+  <view class="loading-content">
+    <view class="loading-spinner">
+      <view class="loading-dot loading-dot-1"></view>
+      <view class="loading-dot loading-dot-2"></view>
+      <view class="loading-dot loading-dot-3"></view>
+    </view>
+    <text class="loading-text">{{text}}</text>
+  </view>
+</view>

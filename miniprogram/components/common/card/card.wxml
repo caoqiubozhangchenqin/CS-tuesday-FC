@@ -1,0 +1,23 @@
+<!-- components/common/card/card.wxml -->
+<view class="card {{type ? 'card-' + type : ''}} {{shadow ? 'card-shadow' : ''}}" bindtap="onTap">
+  <!-- 卡片头部 -->
+  <view class="card-header" wx:if="{{title || subtitle}}">
+    <view class="card-title-section">
+      <text class="card-title" wx:if="{{title}}">{{title}}</text>
+      <text class="card-subtitle" wx:if="{{subtitle}}">{{subtitle}}</text>
+    </view>
+    <view class="card-extra" wx:if="{{extra}}">
+      <slot name="extra">{{extra}}</slot>
+    </view>
+  </view>
+
+  <!-- 卡片内容 -->
+  <view class="card-content">
+    <slot></slot>
+  </view>
+
+  <!-- 卡片底部 -->
+  <view class="card-footer" wx:if="{{footer}}">
+    <slot name="footer">{{footer}}</slot>
+  </view>
+</view>

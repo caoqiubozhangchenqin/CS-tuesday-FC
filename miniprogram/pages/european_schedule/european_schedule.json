@@ -2,6 +2,9 @@
   "navigationBarTitleText": "欧洲五大联赛赛程",
   "enablePullDownRefresh": true,
   "usingComponents": {
-    "bg": "/components/bg/bg"
+    "bg": "/components/bg/bg",
+    "loading": "/components/common/loading/loading",
+    "card": "/components/common/card/card",
+    "empty": "/components/common/empty/empty"
   }
 }

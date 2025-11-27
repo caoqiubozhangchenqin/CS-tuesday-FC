@@ -1,5 +1,6 @@
 // pages/novel/shelf/shelf.js
 const config = require('../../../config/env.js');
+const ErrorHandler = require('../../../utils/errorHandler.js');
 
 Page({
   data: {
@@ -84,7 +85,7 @@ Page({
     } catch (error) {
       console.error('加载书籍列表失败:', error);
       this.setData({ loading: false });
-      
+
       // 处理数据库集合不存在的情况
       if (error.errCode === -502005) {
         console.warn('数据库集合 novels 不存在，请在云开发控制台创建');
@@ -95,10 +96,7 @@ Page({
           confirmText: '我知道了'
         });
       } else {
-        wx.showToast({
-          title: '加载失败',
-          icon: 'none'
-        });
+        ErrorHandler.handleNetworkError(error, '加载书籍列表失败');
       }
     }
   },
@@ -226,7 +224,7 @@ Page({
     } catch (error) {
       wx.hideLoading();
       console.error('解析书籍失败:', error);
-      
+
       // 根据错误类型给出不同提示
       let errorMsg = '请检查网络连接';
       if (error.errCode === -504003) {
@@ -238,12 +236,8 @@ Page({
       } else if (error.message) {
         errorMsg = error.message;
       }
-      
-      wx.showModal({
-        title: '解析失败',
-        content: errorMsg,
-        showCancel: false
-      });
+
+      ErrorHandler.showError(errorMsg);
     }
   },
 
@@ -320,24 +314,19 @@ Page({
    */
   deleteBook(e) {
     const bookId = e.currentTarget.dataset.id;
-    
+
     if (!this.data.isAdmin) {
-      wx.showToast({
-        title: '仅管理员可删除',
-        icon: 'none'
-      });
+      ErrorHandler.showWarning('仅管理员可删除');
       return;
     }
 
-    wx.showModal({
+    ErrorHandler.showConfirm({
       title: '确认删除',
       content: '删除后无法恢复，确定要删除这本书吗？',
-      confirmText: '删除',
-      confirmColor: '#ff6b6b',
-      success: async (res) => {
-        if (res.confirm) {
-          await this.removeBookFromCloud(bookId);
-        }
+      confirmText: '删除'
+    }).then((confirmed) => {
+      if (confirmed) {
+        this.removeBookFromCloud(bookId);
       }
     });
   },
@@ -366,18 +355,11 @@ Page({
       await this.loadCloudBooks();
 
       wx.hideLoading();
-      wx.showToast({
-        title: '已删除',
-        icon: 'success',
-        duration: 2000
-      });
+      ErrorHandler.showSuccess('已删除');
     } catch (error) {
       wx.hideLoading();
       console.error('删除失败:', error);
-      wx.showToast({
-        title: '删除失败',
-        icon: 'none'
-      });
+      ErrorHandler.handleNetworkError(error, '删除失败');
     }
   },
 

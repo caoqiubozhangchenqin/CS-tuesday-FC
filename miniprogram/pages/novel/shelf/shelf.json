@@ -1,6 +1,9 @@
 {
   "usingComponents": {
-    "bg": "/components/bg/bg"
+    "bg": "/components/bg/bg",
+    "loading": "/components/common/loading/loading",
+    "card": "/components/common/card/card",
+    "empty": "/components/common/empty/empty"
   },
   "navigationBarTitleText": "我的书架",
   "navigationBarBackgroundColor": "#ffffff",

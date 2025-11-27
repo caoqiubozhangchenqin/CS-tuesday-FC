@@ -1,4 +1,7 @@
 // pages/european_schedule/european_schedule.js
+const ErrorHandler = require('../../utils/errorHandler.js');
+const Cache = require('../../utils/cache.js');
+
 Page({
   data: {
     currentLeague: 'PL', // 默认显示英超
@@ -9,7 +12,7 @@ Page({
     matches: [],
     updateTime: '',
     bgImageUrl: '',
-    
+
     // 联赛配置
     leagueConfig: {
       'PL': { name: '英超', code: 'PL' },
@@ -18,9 +21,7 @@ Page({
       'FL1': { name: '法甲', code: 'FL1' },
       'SA': { name: '意甲', code: 'SA' }
     }
-  },
-
-  onLoad() {
+  },  onLoad() {
     const app = getApp();
     this.setCurrentMonth();
     this.loadMatches();
@@ -65,7 +66,7 @@ Page({
   async loadMatches() {
     const { currentLeague, leagueConfig } = this.data;
     const leagueCode = leagueConfig[currentLeague].code;
-    
+
     this.setData({ loading: true, error: '' });
 
     try {
@@ -73,29 +74,41 @@ Page({
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth();
-      
+
       const startDate = new Date(year, month, 1);
       const endDate = new Date(year, month + 1, 0);
-      
+
       const dateFrom = this.formatDate(startDate);
       const dateTo = this.formatDate(endDate);
 
-      // 尝试 v4 API
-      let matches = await this.fetchFromAPI(leagueCode, dateFrom, dateTo, 'v4');
-      
-      // 如果 v4 失败，尝试 v2
-      if (!matches) {
-        console.log('v4 API 失败，尝试 v2 API');
-        matches = await this.fetchFromAPI(leagueCode, dateFrom, dateTo, 'v2');
-      }
+      // 生成缓存键
+      const cacheKey = `matches_${leagueCode}_${dateFrom}_${dateTo}`;
 
-      if (!matches) {
-        throw new Error('无法获取赛程数据');
-      }
+      // 使用缓存获取数据
+      const matches = await Cache.getOrSet(
+        cacheKey,
+        async () => {
+          // 尝试 v4 API
+          let matches = await this.fetchFromAPI(leagueCode, dateFrom, dateTo, 'v4');
+
+          // 如果 v4 失败，尝试 v2
+          if (!matches) {
+            console.log('v4 API 失败，尝试 v2 API');
+            matches = await this.fetchFromAPI(leagueCode, dateFrom, dateTo, 'v2');
+          }
+
+          if (!matches) {
+            throw new Error('无法获取赛程数据');
+          }
+
+          return matches;
+        },
+        10 * 60 * 1000 // 缓存10分钟
+      );
 
       // 处理比赛数据
       const processedMatches = this.processMatches(matches);
-      
+
       this.setData({
         matches: processedMatches,
         loading: false,
@@ -104,6 +117,7 @@ Page({
 
     } catch (error) {
       console.error('加载赛程失败:', error);
+      ErrorHandler.handleNetworkError(error, '加载赛程失败，请稍后重试');
       this.setData({
         loading: false,
         error: error.message || '加载失败，请稍后重试'
@@ -244,7 +258,7 @@ Page({
   // 跳转到直播页面
   goToLive(e) {
     const match = e.currentTarget.dataset.match;
-    
+
     wx.showModal({
       title: '观看直播',
       content: '请复制以下网址到浏览器中打开：\n\nwww.zqbaba.org',
@@ -256,17 +270,10 @@ Page({
           wx.setClipboardData({
             data: 'www.zqbaba.org',
             success: () => {
-              wx.showToast({
-                title: '网址已复制',
-                icon: 'success',
-                duration: 2000
-              });
+              ErrorHandler.showSuccess('网址已复制');
             },
             fail: () => {
-              wx.showToast({
-                title: '复制失败',
-                icon: 'none'
-              });
+              ErrorHandler.showError('复制失败');
             }
           });
         }
