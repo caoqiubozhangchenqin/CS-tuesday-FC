@@ -54,29 +54,44 @@ exports.main = async (event, context) => {
 
 // 获取即将开始的比赛（未来30分钟内）
 async function getUpcomingMatches() {
+  // 调用Football-Data.org API获取最新比赛数据
+  const apiKey = 'c4906718aabe4287b5963a412e4c81ce';
+
+  // 获取当前时间和未来30分钟的时间
   const now = new Date();
   const thirtyMinutesLater = new Date(now.getTime() + 30 * 60 * 1000);
 
-  // 这里需要调用外部API获取比赛数据
-  // 由于API调用限制，我们使用模拟数据作为示例
-  // 实际实现中应该调用Football-Data.org API
+  const dateFrom = formatDate(now);
+  const dateTo = formatDate(thirtyMinutesLater);
 
-  // 模拟即将开始的比赛数据
-  const mockMatches = [
-    // 示例数据，实际应该从API获取
-    // {
-    //   id: 12345,
-    //   utcDate: '2025-11-27T19:00:00Z',
-    //   homeTeam: { name: 'Manchester City' },
-    //   awayTeam: { name: 'Liverpool' }
-    // }
-  ];
-
-  // 过滤出30分钟内开始的比赛
-  return mockMatches.filter(match => {
-    const matchTime = new Date(match.utcDate);
-    return matchTime >= now && matchTime <= thirtyMinutesLater;
+  // 调用API获取比赛数据
+  const response = await new Promise((resolve) => {
+    wx.request({
+      url: `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+      method: 'GET',
+      header: {
+        'X-Auth-Token': apiKey
+      },
+      success: (res) => {
+        if (res.statusCode === 200 && res.data.matches) {
+          resolve(res.data.matches);
+        } else {
+          resolve([]);
+        }
+      },
+      fail: () => resolve([])
+    });
   });
+
+  return response;
+}
+
+// 格式化日期
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // 为指定比赛发送提醒
@@ -137,10 +152,10 @@ async function sendReminderToUser(userId, match) {
     // 注意：这需要小程序有推送权限配置
     const result = await cloud.openapi.subscribeMessage.send({
       touser: userId,
-      templateId: 'YOUR_TEMPLATE_ID', // 需要替换为实际的模板ID
+      templateId: '0PFvm78xmA-RfbVH0wnq9HgciavwO9dmYr7X65TTnC8', // 实际模板ID
       data: {
         thing1: {
-          value: matchInfo
+          value: matchInfo.substring(0, 20) // 限制长度
         },
         time2: {
           value: timeString
