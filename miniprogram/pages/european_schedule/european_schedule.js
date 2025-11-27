@@ -264,18 +264,51 @@ Page({
     }
 
     const isCurrentlySet = match.hasReminder;
-    const action = isCurrentlySet ? 'cancelReminder' : 'setReminder';
     const matchId = match.id.toString();
 
+    // 如果是设置提醒，需要先请求订阅消息权限
+    if (!isCurrentlySet) {
+      wx.requestSubscribeMessage({
+        tmplIds: ['0PFvm78xmA-RfbVH0wnq9HgciavwO9dmYr7X65TTnC8'],
+        success: (res) => {
+          if (res['0PFvm78xmA-RfbVH0wnq9HgciavwO9dmYr7X65TTnC8'] === 'accept') {
+            // 用户同意订阅，继续设置提醒
+            this.setReminder(matchId);
+          } else {
+            wx.showToast({
+              title: '需要订阅消息权限才能设置提醒',
+              icon: 'none'
+            });
+          }
+        },
+        fail: (error) => {
+          console.error('订阅消息请求失败:', error);
+          wx.showToast({
+            title: '订阅消息权限请求失败',
+            icon: 'none'
+          });
+        }
+      });
+    } else {
+      // 取消提醒，直接调用取消函数
+      this.cancelReminder(matchId);
+    }
+  },
+
+  // 设置提醒
+  async setReminder(matchId) {
+    const app = getApp();
+    const openid = app.globalData.openid;
+
     wx.showLoading({
-      title: isCurrentlySet ? '取消提醒中...' : '设置提醒中...'
+      title: '设置提醒中...'
     });
 
     try {
       const result = await wx.cloud.callFunction({
         name: 'manageMatchReminders',
         data: {
-          action: action,
+          action: 'setReminder',
           userId: openid,
           matchId: matchId
         }
@@ -291,17 +324,10 @@ Page({
 
         // 更新本地提醒列表
         let updatedReminders = [...this.data.userReminders];
-
-        if (isCurrentlySet) {
-          // 取消提醒：从列表中移除
-          updatedReminders = updatedReminders.filter(reminder => reminder.matchId !== matchId);
-        } else {
-          // 设置提醒：添加到列表
-          updatedReminders.push({
-            matchId: matchId,
-            createdAt: new Date()
-          });
-        }
+        updatedReminders.push({
+          matchId: matchId,
+          createdAt: new Date()
+        });
 
         this.setData({
           userReminders: updatedReminders
@@ -309,7 +335,6 @@ Page({
 
         // 重新处理比赛数据以更新UI
         const processedMatches = this.processMatches(this.data.matches.map(m => {
-          // 从原始数据恢复，但保持其他状态
           return {
             ...m,
             hasReminder: updatedReminders.some(reminder => reminder.matchId === m.id.toString())
@@ -322,15 +347,78 @@ Page({
 
       } else {
         wx.showToast({
-          title: result.result.message || '操作失败',
+          title: result.result.message || '设置提醒失败',
           icon: 'none'
         });
       }
     } catch (error) {
       wx.hideLoading();
-      console.error('提醒操作失败:', error);
+      console.error('设置提醒失败:', error);
       wx.showToast({
-        title: '操作失败，请重试',
+        title: '设置提醒失败，请重试',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 取消提醒
+  async cancelReminder(matchId) {
+    const app = getApp();
+    const openid = app.globalData.openid;
+
+    wx.showLoading({
+      title: '取消提醒中...'
+    });
+
+    try {
+      const result = await wx.cloud.callFunction({
+        name: 'manageMatchReminders',
+        data: {
+          action: 'cancelReminder',
+          userId: openid,
+          matchId: matchId
+        }
+      });
+
+      wx.hideLoading();
+
+      if (result.result && result.result.success) {
+        wx.showToast({
+          title: result.result.message,
+          icon: 'success'
+        });
+
+        // 更新本地提醒列表
+        let updatedReminders = [...this.data.userReminders];
+        updatedReminders = updatedReminders.filter(reminder => reminder.matchId !== matchId);
+
+        this.setData({
+          userReminders: updatedReminders
+        });
+
+        // 重新处理比赛数据以更新UI
+        const processedMatches = this.processMatches(this.data.matches.map(m => {
+          return {
+            ...m,
+            hasReminder: updatedReminders.some(reminder => reminder.matchId === m.id.toString())
+          };
+        }));
+
+        this.setData({
+          matches: processedMatches
+        });
+
+      } else {
+        wx.showToast({
+          title: result.result.message || '取消提醒失败',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('取消提醒失败:', error);
+      wx.showToast({
+        title: '取消提醒失败，请重试',
         icon: 'none'
       });
     }
