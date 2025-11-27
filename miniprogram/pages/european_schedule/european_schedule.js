@@ -237,10 +237,19 @@ Page({
       });
 
       if (result.result && result.result.success) {
+        const reminders = result.result.reminders || [];
         this.setData({
-          userReminders: result.result.reminders || []
+          userReminders: reminders
         });
-        console.log('用户提醒设置加载成功:', result.result.reminders.length, '个提醒');
+        console.log('用户提醒设置加载成功:', reminders.length, '个提醒');
+
+        // 如果比赛数据已经加载，重新处理以更新提醒状态
+        if (this.data.matches && this.data.matches.length > 0) {
+          const processedMatches = this.processMatches(this.data.matches);
+          this.setData({
+            matches: processedMatches
+          });
+        }
       } else {
         console.error('加载用户提醒设置失败:', result.result);
       }
