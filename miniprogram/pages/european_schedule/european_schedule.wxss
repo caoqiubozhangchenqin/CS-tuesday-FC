@@ -438,9 +438,9 @@
 }
 
 .reminder-button {
-  background: linear-gradient(135deg, rgba(149, 165, 166, 0.8) 0%, rgba(127, 140, 141, 0.9) 100%);
-  color: #fff;
-  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #666;
+  border: 2rpx solid rgba(149, 165, 166, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -450,13 +450,14 @@
   font-weight: 600;
   transition: all 0.3s ease;
   margin-left: 15rpx;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .reminder-button.active {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.9) 0%, rgba(39, 174, 96, 0.95) 100%);
+  background: transparent;
+  color: #27ae60;
   border-color: rgba(39, 174, 96, 0.5);
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+  box-shadow: none;
   animation: reminderActive 1s ease-in-out;
 }
 
