@@ -99,8 +99,8 @@ App({
           // 设置 src 并自动播放
           backgroundAudioManager.src = musicUrl;
 
-          // 设置音量
-          backgroundAudioManager.volume = 0.3;
+          // 设置音量（调小一半）
+          backgroundAudioManager.volume = 0.15;
 
           // 设置事件监听器
           this.setupMusicListeners(backgroundAudioManager);
