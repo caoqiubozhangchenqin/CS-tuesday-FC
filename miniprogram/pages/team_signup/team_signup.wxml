@@ -27,8 +27,8 @@
               <view class="stat-row">
                 <text class="stat-label">💰 当前总身价</text>
                 <view class="stat-value">
-                  <text class="stat-number">{{item.totalTeamValue || 0}}</text>
-                  <text class="stat-unit">万欧</text>
+                  <text class="stat-number">{{item.formattedValue}}</text>
+                  <text class="stat-unit">{{item.valueUnit}}</text>
                 </view>
               </view>
             </view>

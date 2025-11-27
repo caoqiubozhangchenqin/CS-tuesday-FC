@@ -22,8 +22,8 @@
         </view>
         <view class="team-value">
           <text class="value-icon">💰</text>
-          <text class="value-number">{{item.totalTeamValue}}</text>
-          <text class="value-unit">万欧</text>
+          <text class="value-number">{{item.formattedValue}}</text>
+          <text class="value-unit">{{item.valueUnit}}</text>
         </view>
       </view>
 

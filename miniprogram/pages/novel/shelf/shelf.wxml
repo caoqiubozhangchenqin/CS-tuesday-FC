@@ -21,16 +21,9 @@
 
   <!-- 书籍列表 -->
   <view wx:elif="{{bookList && bookList.length > 0}}" class="book-list">
-    <card wx:for="{{bookList}}" wx:key="id" class="book-card" bindtap="goToReader" data-book="{{item}}">
-      <view slot="content" class="book-cover">
-        <text class="cover-icon">📖</text>
-        <view class="book-badge">{{item.format}}</view>
-      </view>
-      <view slot="footer" class="book-info">
-        <text class="book-name">{{item.name}}</text>
-        <text class="book-meta">{{item.uploadTime}}</text>
-      </view>
-    </card>
+    <view wx:for="{{bookList}}" wx:key="id" class="book-card" bindtap="goToReader" data-book="{{item}}">
+      <text class="book-name">{{item.name}}</text>
+    </view>
   </view>
 
   <!-- 空状态 -->

@@ -121,36 +121,31 @@ page {
   filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.2));
 }
 
-/* 书架列表 */
+/* 书籍列表 - 九宫格布局 */
 .book-list {
-  display: flex;
-  flex-direction: column;
-  gap: 28rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  padding: 0 20rpx;
   position: relative;
   z-index: 1;
 }
 
 .book-card {
   display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20rpx);
-  border-radius: 28rpx;
-  padding: 30rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(25rpx);
+  border-radius: 24rpx;
+  padding: 30rpx 20rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
   position: relative;
   transition: all 0.3s;
   overflow: hidden;
-}
-
-.book-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 8rpx;
-  height: 100%;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  align-items: center;
+  justify-content: center;
+  min-height: 120rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .book-card:active {
@@ -158,60 +153,24 @@ page {
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
 }
 
-.book-cover {
-  width: 140rpx;
-  height: 180rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.15);
-  position: relative;
-}
-
-.cover-icon {
-  font-size: 70rpx;
-  filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.2));
-}
-
-.book-badge {
-  position: absolute;
-  top: 10rpx;
-  right: 10rpx;
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  font-size: 20rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 20rpx;
-  font-weight: 600;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-}
-
-.book-info {
-  flex: 1;
-  margin-left: 28rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-  min-width: 0;
+@keyframes badgeShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .book-name {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: center;
   line-height: 1.4;
-}
-
-.book-meta {
-  font-size: 24rpx;
-  color: #999;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  width: 100%;
 }
 
 /* 加载状态 */

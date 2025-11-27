@@ -24,8 +24,30 @@ Page({
       console.log('云函数 getAdminDetails 返回结果:', res); 
 
       if (res.result && res.result.success && res.result.data.length > 0) {
+        // 对身价进行格式化处理
+        const formattedData = res.result.data.map(team => {
+          const value = team.totalTeamValue || 0;
+          let formattedValue, valueUnit;
+
+          if (value >= 10000) {
+            // 超过1亿欧时，显示为X.XX亿欧格式
+            formattedValue = (value / 10000).toFixed(2);
+            valueUnit = '亿欧';
+          } else {
+            // 1亿欧以下显示为万欧
+            formattedValue = value;
+            valueUnit = '万欧';
+          }
+
+          return {
+            ...team,
+            formattedValue,
+            valueUnit
+          };
+        });
+
         this.setData({
-          teamsWithInterest: res.result.data,
+          teamsWithInterest: formattedData,
           isLoading: false // 数据加载成功，结束加载状态
         });
       } else {

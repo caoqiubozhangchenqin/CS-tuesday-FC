@@ -1,11 +1,11 @@
 <!-- pages/index/index.wxml -->
-<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/sunderland-official-2026.png" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
+<bg src="cloud://cloud1-3ge5gomsffe800a7.636c-cloud1-3ge5gomsffe800a7-1373366709/csfc_bg/shanghai port FC .png" overlayOpacity="0.3" blur="0" sizeMode="cover" repeat="false" />
 <view class="container main-container">
 
-<!-- 桑德兰队庆祝标题 -->
+<!-- 上海海港队庆祝标题 -->
 <view class="champion-banner">
-  <text class="champion-text">⚽ 英超荣耀 - 桑德兰队 ⚽</text>
-  <text class="champion-subtitle">欢迎来到桑德兰足球俱乐部！</text>
+  <text class="champion-text">⚽ 中超荣耀 - 上海海港队 ⚽</text>
+  <text class="champion-subtitle">上海海港队夺得2025赛季中超冠军！</text>
 </view>
 
 <!-- Part 1: 头部信息区 -->

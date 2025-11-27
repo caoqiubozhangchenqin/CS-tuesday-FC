@@ -30,6 +30,9 @@ try {
 // 2. 缓存工具使用示例
 const Cache = require('../utils/cache.js');
 
+// 示例用户数据
+const userData = { id: 1, name: '示例用户' };
+
 // 设置缓存（5分钟）
 Cache.set('user_info', userData, 5 * 60 * 1000);
 
@@ -37,9 +40,17 @@ Cache.set('user_info', userData, 5 * 60 * 1000);
 const cachedData = Cache.get('user_info');
 
 // 使用缓存模式（自动获取或设置）
-const data = await Cache.getOrSet('api_data', async () => {
-  return await fetchFromAPI();
-}, 10 * 60 * 1000); // 10分钟缓存
+async function loadApiData() {
+  // 示例API函数
+  const fetchFromAPI = async () => {
+    return { data: '示例数据' };
+  };
+
+  const data = await Cache.getOrSet('api_data', async () => {
+    return await fetchFromAPI();
+  }, 10 * 60 * 1000); // 10分钟缓存
+  return data;
+}
 
 // 3. 组件使用示例（在WXML中）
 // 加载组件
@@ -62,13 +73,13 @@ const data = await Cache.getOrSet('api_data', async () => {
 // ></empty>
 
 // 4. 在页面JSON中引入组件
-{
+const pageJsonExample = {
   "usingComponents": {
     "loading": "/components/common/loading/loading",
     "card": "/components/common/card/card",
     "empty": "/components/common/empty/empty"
   }
-}
+};
 
 // 5. 最佳实践
 // - 优先使用ErrorHandler替代wx.showToast

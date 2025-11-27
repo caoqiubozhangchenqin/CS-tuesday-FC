@@ -45,12 +45,27 @@ Page({
       const updatedTeams = teamsWithValue.map(team => {
         // 健壮地处理 team._id，无论它是对象还是字符串
         const teamIdStr = (team._id && typeof team._id === 'object') ? String(team._id) : String(team._id);
-        
+
+        const value = team.totalTeamValue || 0;
+        let formattedValue, valueUnit;
+
+        if (value >= 10000) {
+          // 超过1亿欧时，显示为X.XX亿欧格式
+          formattedValue = (value / 10000).toFixed(2);
+          valueUnit = '亿欧';
+        } else {
+          // 1亿欧以下显示为万欧
+          formattedValue = value;
+          valueUnit = '万欧';
+        }
+
         return {
           _id: team._id, // 保留原始ID用于操作
           name: team.teamName,
           salary_cap: team.salary_cap || 0,
           totalTeamValue: team.totalTeamValue || 0,
+          formattedValue,
+          valueUnit,
           // 关键：进行字符串比较
           isSelected: mySelectedTeam === teamIdStr
         };
@@ -93,9 +108,26 @@ Page({
         // 核心：直接在本地更新数据，实现UI即时刷新
         const updatedTeams = this.data.teams.map(team => {
             const teamIdStr = (team._id && typeof team._id === 'object') ? String(team._id) : String(team._id);
+            const isSelected = teamIdStr === teamId;
+
+            const value = team.totalTeamValue;
+            let formattedValue, valueUnit;
+
+            if (value >= 10000) {
+              // 超过1亿欧时，显示为X.XX亿欧格式
+              formattedValue = (value / 10000).toFixed(2);
+              valueUnit = '亿欧';
+            } else {
+              // 1亿欧以下显示为万欧
+              formattedValue = value;
+              valueUnit = '万欧';
+            }
+
             return {
                 ...team,
-                isSelected: teamIdStr === teamId
+                isSelected: isSelected,
+                formattedValue,
+                valueUnit
             };
         });
 
@@ -134,10 +166,27 @@ Page({
         wx.showToast({ title: '解约成功！', icon: 'success' });
 
         // 核心：直接在本地更新数据，实现UI即时刷新
-        const updatedTeams = this.data.teams.map(team => ({
-          ...team,
-          isSelected: false
-        }));
+        const updatedTeams = this.data.teams.map(team => {
+          const value = team.totalTeamValue;
+          let formattedValue, valueUnit;
+
+          if (value >= 10000) {
+            // 超过1亿欧时，显示为X.XX亿欧格式
+            formattedValue = (value / 10000).toFixed(2);
+            valueUnit = '亿欧';
+          } else {
+            // 1亿欧以下显示为万欧
+            formattedValue = value;
+            valueUnit = '万欧';
+          }
+
+          return {
+            ...team,
+            isSelected: false,
+            formattedValue,
+            valueUnit
+          };
+        });
 
         this.setData({
           teams: updatedTeams,

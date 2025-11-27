@@ -204,7 +204,7 @@
 }
 
 .button-group::before {
-  content: '⭐⭐⭐';
+  content: '⭐⭐⭐⭐';
   position: absolute;
   top: -20rpx;
   left: 50%;
