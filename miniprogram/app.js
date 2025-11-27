@@ -139,6 +139,8 @@ App({
       // 单曲循环：直接重新设置src来重新播放
       if (this.globalData.musicUrl) {
         manager.src = this.globalData.musicUrl;
+        // 确保循环播放时音量正确
+        manager.volume = 0.15;
       }
     });
   },
@@ -153,6 +155,8 @@ App({
       if (!mgr.src && this.globalData.musicUrl) {
         mgr.src = this.globalData.musicUrl;
       }
+      // 确保音量设置正确
+      mgr.volume = 0.15;
       try { 
         mgr.play(); 
         this.globalData.isMusicPlaying = true; // 确保播放状态正确
