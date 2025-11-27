@@ -1,0 +1,10 @@
+{
+  "name": "manageMatchReminders",
+  "version": "1.0.0",
+  "description": "管理用户的比赛提醒设置",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

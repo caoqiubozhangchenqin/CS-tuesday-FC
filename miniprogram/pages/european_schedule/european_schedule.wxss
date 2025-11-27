@@ -430,6 +430,57 @@
   animation-play-state: paused;
 }
 
+/* 闹钟提醒按钮 */
+.reminder-button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.reminder-button {
+  background: linear-gradient(135deg, rgba(149, 165, 166, 0.8) 0%, rgba(127, 140, 141, 0.9) 100%);
+  color: #fff;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-left: 15rpx;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reminder-button.active {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.9) 0%, rgba(39, 174, 96, 0.95) 100%);
+  border-color: rgba(39, 174, 96, 0.5);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+  animation: reminderActive 1s ease-in-out;
+}
+
+.reminder-icon {
+  font-size: 24rpx;
+  margin-right: 4rpx;
+}
+
+.reminder-text {
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.reminder-button:active {
+  transform: scale(0.95);
+}
+
+/* 提醒激活动画 */
+@keyframes reminderActive {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 /* 跳动动画 */
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% {

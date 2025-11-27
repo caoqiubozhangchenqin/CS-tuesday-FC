@@ -125,6 +125,17 @@
           <text class="venue-icon">🏟️</text>
           <text class="venue-text">{{item.venue}}</text>
         </view>
+        <!-- 闹钟提醒按钮 - 仅对未开始的比赛显示 -->
+        <view wx:if="{{item.status === 'scheduled'}}" class="reminder-button-container">
+          <button 
+            class="reminder-button {{item.hasReminder ? 'active' : ''}}" 
+            bindtap="toggleReminder" 
+            data-match="{{item}}"
+          >
+            <text class="reminder-icon">{{item.hasReminder ? '⏰' : '🔔'}}</text>
+            <text class="reminder-text">{{item.hasReminder ? '已提醒' : '提醒我'}}</text>
+          </button>
+        </view>
         <!-- 直播按钮 -->
         <view wx:if="{{item.status === 'live'}}" class="live-button-container">
           <button 

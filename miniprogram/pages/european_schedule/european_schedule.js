@@ -12,6 +12,7 @@ Page({
     matches: [],
     updateTime: '',
     bgImageUrl: '',
+    userReminders: [], // 用户的提醒设置
 
     // 联赛配置
     leagueConfig: {
@@ -24,6 +25,7 @@ Page({
   },  onLoad() {
     const app = getApp();
     this.setCurrentMonth();
+    this.loadUserReminders(); // 加载用户提醒设置
     this.loadMatches();
     
     // 设置全局背景
@@ -160,6 +162,9 @@ Page({
 
   // 处理比赛数据
   processMatches(matches) {
+    const userReminders = this.data.userReminders || [];
+    const reminderMatchIds = userReminders.map(reminder => reminder.matchId);
+
     return matches.map(match => {
       const utcDate = new Date(match.utcDate);
       const homeScore = match.score?.fullTime?.home;
@@ -190,6 +195,9 @@ Page({
       // 获取场地信息
       const venue = match.venue ? match.venue : (match.homeTeam?.venue || '');
 
+      // 检查用户是否已设置提醒
+      const hasReminder = reminderMatchIds.includes(match.id.toString());
+
       return {
         id: match.id,
         utcDate: match.utcDate,
@@ -203,17 +211,129 @@ Page({
         homeWin: homeWin,
         awayWin: awayWin,
         matchday: match.matchday,
-        venue: venue
+        venue: venue,
+        hasReminder: hasReminder
       };
     }).sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate)); // 按时间排序
   },
 
-  // 格式化日期 (YYYY-MM-DD)
-  formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  // 加载用户的提醒设置
+  async loadUserReminders() {
+    try {
+      const app = getApp();
+      const openid = app.globalData.openid;
+
+      if (!openid) {
+        console.log('用户未登录，跳过加载提醒设置');
+        return;
+      }
+
+      const result = await wx.cloud.callFunction({
+        name: 'manageMatchReminders',
+        data: {
+          action: 'getUserReminders',
+          userId: openid
+        }
+      });
+
+      if (result.result && result.result.success) {
+        this.setData({
+          userReminders: result.result.reminders || []
+        });
+        console.log('用户提醒设置加载成功:', result.result.reminders.length, '个提醒');
+      } else {
+        console.error('加载用户提醒设置失败:', result.result);
+      }
+    } catch (error) {
+      console.error('加载用户提醒设置异常:', error);
+    }
+  },
+
+  // 切换提醒状态
+  async toggleReminder(e) {
+    const match = e.currentTarget.dataset.match;
+    const app = getApp();
+    const openid = app.globalData.openid;
+
+    if (!openid) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const isCurrentlySet = match.hasReminder;
+    const action = isCurrentlySet ? 'cancelReminder' : 'setReminder';
+    const matchId = match.id.toString();
+
+    wx.showLoading({
+      title: isCurrentlySet ? '取消提醒中...' : '设置提醒中...'
+    });
+
+    try {
+      const result = await wx.cloud.callFunction({
+        name: 'manageMatchReminders',
+        data: {
+          action: action,
+          userId: openid,
+          matchId: matchId
+        }
+      });
+
+      wx.hideLoading();
+
+      if (result.result && result.result.success) {
+        wx.showToast({
+          title: result.result.message,
+          icon: 'success'
+        });
+
+        // 更新本地提醒列表
+        let updatedReminders = [...this.data.userReminders];
+
+        if (isCurrentlySet) {
+          // 取消提醒：从列表中移除
+          updatedReminders = updatedReminders.filter(reminder => reminder.matchId !== matchId);
+        } else {
+          // 设置提醒：添加到列表
+          updatedReminders.push({
+            matchId: matchId,
+            createdAt: new Date()
+          });
+        }
+
+        this.setData({
+          userReminders: updatedReminders
+        });
+
+        // 重新处理比赛数据以更新UI
+        const processedMatches = this.processMatches(this.data.matches.map(m => {
+          // 从原始数据恢复，但保持其他状态
+          return {
+            ...m,
+            hasReminder: updatedReminders.some(reminder => reminder.matchId === m.id.toString())
+          };
+        }));
+
+        this.setData({
+          matches: processedMatches
+        });
+
+      } else {
+        wx.showToast({
+          title: result.result.message || '操作失败',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('提醒操作失败:', error);
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none'
+      });
+    }
   },
 
   // 格式化比赛日期显示
