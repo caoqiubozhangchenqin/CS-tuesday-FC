@@ -6,7 +6,9 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  },
   "triggers": [
     {
       "name": "sendMatchReminders",
